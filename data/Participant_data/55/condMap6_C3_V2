@@ -1,0 +1,58 @@
+2017-07-31 14:25:31.668134: 
+ConditionID: Map6_C3_V2
+EnvString: 
+######################
+#gggg#gggggggg#gggggg#
+#gggg#ggg#gggg###g####
+#gggg#ggg#ggggggggggg#
+####ggggg######gg###g#
+#ggggggggggggg##g#ggg#
+#gg#######ggggggg#g###
+#gggggggg###ggggg#ggg#
+#g####g#ggg##gggg###g#
+#g#gg#g###gg#gggggg#g#
+####g#ggg#ggggggg###g#
+#gggg##gg#ggggggg#ggg#
+#ggggg#gg#########ggg#
+#gggggggggggggggggggg#
+######################
+AlwaysVisibles: [(9, 3)]
+ViewRadius: 3
+TargetRadius: 3
+Targets: {(9, 3): {'color': 'skyblue', 'symbol': 'B'}}
+Goal: {'target': (9, 3), 'type': 'Reach', 'taskDesc': 'Find your way to the shown exit.'}
+StartPosition: (1, 1)
+
+2017-07-31 14:26:11.623541: Button-Right
+2017-07-31 14:26:13.018564: Button-Right
+2017-07-31 14:26:14.771792: Button-Down
+2017-07-31 14:26:14.973907: Button-Down
+2017-07-31 14:26:15.544482: Button-Down
+2017-07-31 14:26:16.688660: Button-Right
+2017-07-31 14:26:18.344127: Button-Down
+2017-07-31 14:26:19.303519: Button-Down
+2017-07-31 14:26:20.976743: Button-Left
+2017-07-31 14:26:21.841963: Button-Left
+2017-07-31 14:26:23.250092: Button-Down
+2017-07-31 14:26:23.970968: Button-Down
+2017-07-31 14:26:25.383654: Button-Right
+2017-07-31 14:26:26.313703: Button-Right
+2017-07-31 14:26:26.567427: Button-Right
+2017-07-31 14:26:26.922340: Button-Right
+2017-07-31 14:26:28.726750: Button-Down
+2017-07-31 14:26:29.578833: Button-Down
+2017-07-31 14:26:30.349242: Button-Down
+2017-07-31 14:26:32.222527: Button-Right
+2017-07-31 14:26:36.383182: Button-Down
+2017-07-31 14:26:37.127604: Button-Down
+2017-07-31 14:26:37.830837: Button-Down
+2017-07-31 14:26:39.188965: Button-Left
+2017-07-31 14:26:39.438568: Button-Left
+2017-07-31 14:26:39.811260: Button-Left
+2017-07-31 14:26:43.271244: Button-Up
+2017-07-31 14:26:43.632438: Button-Up
+2017-07-31 14:26:44.162250: Button-Up
+2017-07-31 14:26:44.889163: Button-Up
+2017-07-31 14:26:45.798387: Button-Left
+2017-07-31 14:26:47.715215: Button-Interaction
+2017-07-31 14:26:47.715268: Condition Finished

@@ -1,0 +1,23 @@
+ConditionID: Map2_C3_V1
+EnvString: 
+######################
+#ggggggg#gggggggg##gg#
+#g#####g#g###g##gg##g#
+#g#g#g#g#g#gggg##gg#g#
+#ggg#ggg###g##gg##ggg#
+#######g#gggg##gg#g#g#
+#g#ggggggg#g##ggggg###
+#g#g#g#g###gggg#####g#
+#g###g#ggg###g##ggg#g#
+#ggggg##g##g#gggg#ggg#
+###g###ggggg##g#####g#
+#ggg#ggg#g#ggggg#g#gg#
+#g###g###g###g#g#gggg#
+#ggggggggggggg#ggg#gg#
+######################
+AlwaysVisibles: [(5, 20)]
+ViewRadius: 3
+TargetRadius: 3
+Targets: {(5, 20): {'color':'skyblue','symbol':'B'}}
+Goal: {'type': 'Reach', 'target': (5, 20), 'taskDesc': 'Find your way to the shown exit.'}
+StartPosition: (6, 1)

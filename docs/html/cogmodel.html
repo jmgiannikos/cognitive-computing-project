@@ -1,0 +1,1028 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>cogmodel package &#8212; GridEnvironment 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="cogmodel-package">
+<h1>cogmodel package<a class="headerlink" href="#cogmodel-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-cogmodel">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-cogmodel" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="cogmodel.log">
+<code class="descclassname">cogmodel.</code><code class="descname">log</code><span class="sig-paren">(</span><em>path</em>, <em>timestamp</em>, <em>msg</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function providing logging capabilities to the GridEnvironment (or any)
+other class importing the cogmodel module. This function will place
+a new item to be logged into the queue which is being processed by the
+<code class="docutils literal notranslate"><span class="pre">_write_log</span></code> function in its own thread.</p>
+<dl class="docutils">
+<dt>path: str</dt>
+<dd>The path (relative to the current working directory or absolute) of
+the file into which the message should be logged.</dd>
+<dt>timestamp: datetime.time, str, number</dt>
+<dd>A string formatable timestamp of when the message was to be logged.
+This will be appended to each message in the resulting log-file.</dd>
+<dt>msg: string-formatable</dt>
+<dd>The actual message to be logged. Can be any string formatable 
+object. A <code class="docutils literal notranslate"><span class="pre">\n</span></code> will be placed behind the message automatically 
+when writing to the file.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-cogmodel.gridEnvironment">
+<span id="cogmodel-gridenvironment-module"></span><h2>cogmodel.gridEnvironment module<a class="headerlink" href="#module-cogmodel.gridEnvironment" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="tile-class">
+<h3>Tile class<a class="headerlink" href="#tile-class" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="cogmodel.gridEnvironment.Tile">
+<em class="property">class </em><code class="descclassname">cogmodel.gridEnvironment.</code><code class="descname">Tile</code><span class="sig-paren">(</span><em>element</em>, <em>pos_x</em>, <em>pos_y</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.Tile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Minimal class representing a grid/tile in the gridworld.
+Consists of a position in the 2d grid, a flag specifying if it is 
+passable or not as well as a set of neighbours.</p>
+<p>Only neighbour positions are contained, no reference to the actual
+neighbour tile object is stored to avoid multiple sources of truth!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>element: char</strong></dt>
+<dd><p class="first last">The string charactor used in the environment string to represent
+this tile.</p>
+</dd>
+<dt><strong>pos_x: int</strong></dt>
+<dd><p class="first last">The position along the vertical-axis of this tile (counted from the
+top down).</p>
+</dd>
+<dt><strong>pos_y: int</strong></dt>
+<dd><p class="first last">The position along the horizontal-axis of this tile (counted from 
+left to right).</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#cogmodel.gridEnvironment.Tile.char" title="cogmodel.gridEnvironment.Tile.char"><code class="xref py py-obj docutils literal notranslate"><span class="pre">char</span></code></a></dt>
+<dd><p class="first last">The character property of this tile.</p>
+</dd>
+<dt><a class="reference internal" href="#cogmodel.gridEnvironment.Tile.color" title="cogmodel.gridEnvironment.Tile.color"><code class="xref py py-obj docutils literal notranslate"><span class="pre">color</span></code></a></dt>
+<dd><p class="first last">Color property (str) of this tile.</p>
+</dd>
+<dt><strong>pos: tuple</strong></dt>
+<dd><p class="first last">A tuple combining pos_x and pos_y.</p>
+</dd>
+<dt><strong>passable: bool</strong></dt>
+<dd><p class="first last">A boolean specifying if this tile is passable or not.</p>
+</dd>
+<dt><strong>neighbours: set</strong></dt>
+<dd><p class="first last">A set containing the positions (and thus the keys for the tile dict 
+in the GridEnvironment) of the neighbouring tuples.</p>
+</dd>
+<dt><strong>target_visible: bool</strong></dt>
+<dd><p class="first last">A flag used to mark this tile as being visible as a target.
+Is set by <code class="docutils literal notranslate"><span class="pre">get_observation</span></code> and used by the properties.</p>
+</dd>
+<dt><strong>is_target: bool</strong></dt>
+<dd><p class="first last">Specifies whether this tile is a target or not in the current
+interaction.</p>
+</dd>
+<dt><strong>target_symbol: char</strong></dt>
+<dd><p class="first last">The character this tile has as a target. Initially “”.</p>
+</dd>
+<dt><strong>target_color: str</strong></dt>
+<dd><p class="first last">A string representation for the color this target should have in
+the renderers.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="cogmodel.gridEnvironment.Tile.char">
+<code class="descname">char</code><a class="headerlink" href="#cogmodel.gridEnvironment.Tile.char" title="Permalink to this definition">¶</a></dt>
+<dd><p>The character property of this tile. In general the character of a 
+tile corresponds to its element when it was created, however targets
+may have different target characters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.gridEnvironment.Tile.clone">
+<code class="descname">clone</code><span class="sig-paren">(</span><em>passable=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.Tile.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a complete copy of this tile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>passable: bool, optional (Default: None)</strong></dt>
+<dd><p class="first last">If given, the passable attribute will be overwritten to the
+one specified. Usually used to make “invisible” tiles 
+passable.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>Tile</strong></dt>
+<dd><p class="first last">A new tile object with attributes identical to this one.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="cogmodel.gridEnvironment.Tile.color">
+<code class="descname">color</code><a class="headerlink" href="#cogmodel.gridEnvironment.Tile.color" title="Permalink to this definition">¶</a></dt>
+<dd><p>Color property (str) of this tile. The color of a tile is dependent
+on whether or not this tile is a target and is actually visible as 
+a target.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="cogmodel.gridEnvironment.Tile.get_wall">
+<em class="property">classmethod </em><code class="descname">get_wall</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.Tile.get_wall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Classmethod to return a dummy tile which is not passable. Is used
+as default value in the gridworld, when someone tries to access
+a tile position, which is out of bounds.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="cogmodel.gridEnvironment.Tile.invisible">
+<em class="property">classmethod </em><code class="descname">invisible</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.Tile.invisible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Classmethod to return a generic “invisible” tile.
+The passable is None to represent “unknown”, which requries special
+care when dealing with this elsewhere.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>Tile</strong></dt>
+<dd><p class="first last">A with attributes not set to any valid states since nothing is
+known regarding this tile.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.gridEnvironment.Tile.set_as_target">
+<code class="descname">set_as_target</code><span class="sig-paren">(</span><em>target_desc</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.Tile.set_as_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates this tile to be a potential target.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>target_desc: dict</strong></dt>
+<dd><p class="first last">A dictionary containing information about the target, such
+as its color and symbol.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.gridEnvironment.Tile.to_dict">
+<code class="descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.Tile.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives a simplified dictionary (allows easy json conversion) of
+the tile.</p>
+<blockquote>
+<div>dict
+A dictionary containing the “passable”, “color” and “symbol”
+keys. If targetVisible is set to true, the color will be
+the target color instead of the normal color.</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.gridEnvironment.Tile.unset_as_target">
+<code class="descname">unset_as_target</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.Tile.unset_as_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the tile to not be a potential target any longer.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="gridenvironment-class">
+<h3>GridEnvironment class<a class="headerlink" href="#gridenvironment-class" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="cogmodel.gridEnvironment.GridEnvironment">
+<em class="property">class </em><code class="descclassname">cogmodel.gridEnvironment.</code><code class="descname">GridEnvironment</code><span class="sig-paren">(</span><em>env_string=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.GridEnvironment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class representing 2 dimensional gridworlds while providing capabilities
+similar to OpenGym in that actions can be performed, once an agent has
+been specified.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>env_string: str, optional (Default: None)</strong></dt>
+<dd><p class="first last">A string representing the environment. See <code class="docutils literal notranslate"><span class="pre">parse_world_string</span></code> 
+for more information.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>tiles: dict</strong></dt>
+<dd><p class="first last">A dictionary containing Tuple:Tile pairs. The tuple represents
+the position in the grid.</p>
+</dd>
+<dt><strong>size: tuple</strong></dt>
+<dd><p class="first last">A tuple containing the size of the environment.</p>
+</dd>
+<dt><strong>agent_pos: tuple</strong></dt>
+<dd><p class="first last">A tuple containing the current position of the agent or None
+if no agent has been specified.</p>
+</dd>
+<dt><strong>initial_agent_pos: tuple</strong></dt>
+<dd><p class="first last">The initial position of the agent when it was specified.
+Mainly used to create the log file correctly.</p>
+</dd>
+<dt><strong>view_radius: int, None</strong></dt>
+<dd><p class="first last">The number of tiles the agent can see around itself. Initially
+None which means that the agent can see everything.</p>
+</dd>
+<dt><strong>target_radius: int, None</strong></dt>
+<dd><p class="first last">The number of tiles in which the agent can distinguish a target.
+Ininitially None, which means that the agent can always distinguish
+the target.</p>
+</dd>
+<dt><strong>targets: list</strong></dt>
+<dd><p class="first last">A list of tile positions which have been specified as targets.</p>
+</dd>
+<dt><strong>env_string: str</strong></dt>
+<dd><p class="first last">The raw environment string specifying the layout of the grid as given
+to the init function.</p>
+</dd>
+<dt><strong>action_space: tuple</strong></dt>
+<dd><p class="first last">A tuple containing all available actions of the gridworld. These
+are going <code class="docutils literal notranslate"><span class="pre">NORTH</span></code>, <code class="docutils literal notranslate"><span class="pre">SOUTH</span></code>, <code class="docutils literal notranslate"><span class="pre">WEST</span></code>, <code class="docutils literal notranslate"><span class="pre">EAST</span></code> and <code class="docutils literal notranslate"><span class="pre">STAY</span></code>,
+which move the agent in the respective direction by 1 block.</p>
+</dd>
+<dt><strong>_path: dict</strong></dt>
+<dd><p class="first last">A private dictionary used to store optimal paths between nodes. Will
+be filled by <code class="docutils literal notranslate"><span class="pre">compute_distance</span></code>, but is not explicitly invalidated
+in case the environment changes!</p>
+</dd>
+<dt><strong>log_path: str</strong></dt>
+<dd><p class="first last">Path to the logfile. Initially None, which also means that the 
+environment should not do logging.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cogmodel.gridEnvironment.GridEnvironment.compute_distance">
+<code class="descname">compute_distance</code><span class="sig-paren">(</span><em>start</em>, <em>goal</em>, <em>tiles=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.GridEnvironment.compute_distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the distance between start and end using the A* algorithm.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>start: tuple</strong></dt>
+<dd><p class="first last">Start position for the A*</p>
+</dd>
+<dt><strong>goal: tuple</strong></dt>
+<dd><p class="first last">Goal position</p>
+</dd>
+<dt><strong>tiles: dict, optional (Default: None)</strong></dt>
+<dd><p class="first last">A dictionary containing tiles to be used. If not provided,
+the normal tiles in the environment will be used.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>int or None</strong></dt>
+<dd><p class="first last">The distance from the start to the end position if a way can
+be found, otherwise None</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.gridEnvironment.GridEnvironment.compute_distance_partially_visible">
+<code class="descname">compute_distance_partially_visible</code><span class="sig-paren">(</span><em>start</em>, <em>goal</em>, <em>visibles</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.GridEnvironment.compute_distance_partially_visible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the distance between start and end using the A* algorithm
+under the free space assumptiom, i.e. all unseen tiles are passable.</p>
+<p>This will not change the environment itself, meaning that which tiles
+have been seen, needs to be taken care of elsewhere.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>start: tuple</strong></dt>
+<dd><p class="first last">Start position for the A*</p>
+</dd>
+<dt><strong>goal: tuple</strong></dt>
+<dd><p class="first last">Goal position</p>
+</dd>
+<dt><strong>visibles: iterable</strong></dt>
+<dd><p class="first last">An iterable (set or list) containing all the tile positions,
+which should be considered known. All tiles, not in this
+iterable will be considered invisible and passable.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>int or None</strong></dt>
+<dd><p class="first last">The distance from the start to the end position if a way can
+be found, otherwise None</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.gridEnvironment.GridEnvironment.get_action_space">
+<code class="descname">get_action_space</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.GridEnvironment.get_action_space" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>tuple</strong></dt>
+<dd><p class="first last">A tuple of all available actions an agent can perform within 
+this environment. 
+All these actions are accepted by perform_action.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.gridEnvironment.GridEnvironment.get_observation">
+<code class="descname">get_observation</code><span class="sig-paren">(</span><em>json=False</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.GridEnvironment.get_observation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a list of dictionaries representation (suitable for json)
+of the environment. Can “hide” parts of the environment with
+invisible tiles outside the Area of View around a given position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>json: bool (optional)</strong></dt>
+<dd><p class="first last">If true, the Tiles will be converted to simple dictionaries
+before returning the result.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>list of lists</strong></dt>
+<dd><p class="first last">A 2 dimensional list, containing the visible tiles. 
+If json is set to true, it will return dict objects instead
+of Tile objects for easier serialization.
+Tiles outside of the Area of View will be replaced by generic
+“invisible” tiles.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.gridEnvironment.GridEnvironment.initialize_agent">
+<code class="descname">initialize_agent</code><span class="sig-paren">(</span><em>initial_agent_pos</em>, <em>view_radius=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.GridEnvironment.initialize_agent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the agent position, if it has not been done before.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>initial_agent_pos: tuple</strong></dt>
+<dd><p class="first last">The position the agent should start out with.</p>
+</dd>
+<dt><strong>view_radius: int, optional (Default: None)</strong></dt>
+<dd><p class="first last">The radius in which the agent can see it’s environment.
+Tiles outside this radius will be invisible.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.gridEnvironment.GridEnvironment.initialize_targets">
+<code class="descname">initialize_targets</code><span class="sig-paren">(</span><em>targets</em>, <em>target_radius=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.GridEnvironment.initialize_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to designate certain tiles as special targets, 
+which sets additional attributes of these tiles.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>targets: dict</strong></dt>
+<dd><p class="first last">A dictionary of dictionaries containing the target positions 
+as keys with another dictionary as value for each target
+containing color and symbol information about this target.</p>
+</dd>
+<dt><strong>target_radius: int, optional (Default: None)</strong></dt>
+<dd><p class="first last">If given, specifies the radius in which targets are visible.
+None means, that targets are always visible.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.gridEnvironment.GridEnvironment.is_visible">
+<code class="descname">is_visible</code><span class="sig-paren">(</span><em>position</em>, <em>radius=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.GridEnvironment.is_visible" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the given position is currently visible from the 
+given current position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>position: tuple</strong></dt>
+<dd><p class="first last">The position to check</p>
+</dd>
+<dt><strong>radius: int (Default: None)</strong></dt>
+<dd><p class="first last">The radius in which tiles should be visible around a given
+position. If not given, the view radius is used.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>bool</strong></dt>
+<dd><p class="first last">True if the given position is visible from the current position
+given the radius, False otherwise.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.gridEnvironment.GridEnvironment.parse_world_string">
+<code class="descname">parse_world_string</code><span class="sig-paren">(</span><em>env_string</em>, <em>get_passable_states=False</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.GridEnvironment.parse_world_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses an environment string, containing <code class="docutils literal notranslate"><span class="pre">#</span></code> for walls and <code class="docutils literal notranslate"><span class="pre">g</span></code>
+for ground/free space. Rows are separated by <code class="docutils literal notranslate"><span class="pre">\n</span></code>. Although it
+is not checked, but the provided world string should have a 
+rectangular shape.</p>
+<dl class="docutils">
+<dt>env_string: string</dt>
+<dd>A string representation of the gridworld containing <code class="docutils literal notranslate"><span class="pre">#</span></code>, <code class="docutils literal notranslate"><span class="pre">g</span></code> 
+and <code class="docutils literal notranslate"><span class="pre">\n</span></code>.</dd>
+<dt>get_passable_states: boolean, optional (Default: False)</dt>
+<dd>If given, a list of all parsed passable states is returned, 
+which can be used as state-space for an MDP.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>list</strong></dt>
+<dd><p class="first last">A list of passable states if get_passable_states was specified,
+otherwise returns nothing.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.gridEnvironment.GridEnvironment.perform_action">
+<code class="descname">perform_action</code><span class="sig-paren">(</span><em>action</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.GridEnvironment.perform_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs given action if possible.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>tuple</strong></dt>
+<dd><p class="first last">The new state of the agent after performing the action.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.gridEnvironment.GridEnvironment.set_logging">
+<code class="descname">set_logging</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.gridEnvironment.GridEnvironment.set_logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines that this environment should log all performed actions
+and other information, that might be required to replay actions.
+This will also trigger writing the currently stored details 
+regarding the environment into the logfile in a format readable
+by the playback agent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>path: str</strong></dt>
+<dd><p class="first last">The path of the log-file. Can be absolute or relative to the 
+current working directory.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-cogmodel.playback">
+<span id="cogmodel-playback-module"></span><h2>cogmodel.playback module<a class="headerlink" href="#module-cogmodel.playback" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>Created on Tue Aug 1 15:36:04 2017</dt>
+<dd>Simple agent which replays the actions recorded during the 
+webblocks experiment.</dd>
+</dl>
+<p>&#64;author: jpoeppel</p>
+<dl class="class">
+<dt id="cogmodel.playback.PlaybackAgent">
+<em class="property">class </em><code class="descclassname">cogmodel.playback.</code><code class="descname">PlaybackAgent</code><span class="sig-paren">(</span><em>agent_id</em>, <em>action_rows</em>, <em>start_pos</em>, <em>environment</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.playback.PlaybackAgent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Simple playback agent which will reproduce the the recorded actions
+of the participants.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>agent_id: str/int</strong></dt>
+<dd><p class="first last">The identifier for the agent.</p>
+</dd>
+<dt><strong>action_rows: str</strong></dt>
+<dd><p class="first last">The string containing all the performed actions that were 
+recorded.</p>
+</dd>
+<dt><strong>start_pos: tuple</strong></dt>
+<dd><p class="first last">The agent’s starting position.</p>
+</dd>
+<dt><strong>environment: cogmodel.GridEnvironment</strong></dt>
+<dd><p class="first last">A reference to the environment object corresponding to the world
+the actions were recorded in.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>id: str/int</strong></dt>
+<dd><p class="first last">The agent_id passed in as the first argument.</p>
+</dd>
+<dt><strong>actions: list</strong></dt>
+<dd><p class="first last">A list of tuples for all the actions that have been recorded in the 
+file. See <code class="docutils literal notranslate"><span class="pre">_parse_actions</span></code> for more information.</p>
+</dd>
+<dt><strong>environment: cogmodel.GridEnvironment</strong></dt>
+<dd><p class="first last">The passed environment object.</p>
+</dd>
+<dt><strong>cur_idx: int</strong></dt>
+<dd><p class="first last">A counter for the next action which should be replayed.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cogmodel.playback.PlaybackAgent.perform_action">
+<code class="descname">perform_action</code><span class="sig-paren">(</span><em>ignore_duds=False</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.playback.PlaybackAgent.perform_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trigger the agent to perform the next action.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>ignore_dus: bool (default=False)</strong></dt>
+<dd><p class="first last">If true, actions not changing the agent’s position, will be
+skipped.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>tuple</strong></dt>
+<dd><p class="first last">The new position after performing the action or none, if there
+are no more actions in the recording.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.playback.PlaybackAgent.replay">
+<code class="descname">replay</code><span class="sig-paren">(</span><em>callback</em>, <em>speedup=1</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.playback.PlaybackAgent.replay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function allowing to replay the interaction in (modified) real-time.
+Will run a while loop until the end of the recording is reached and
+call the provided callback function at each tick.</p>
+<dl class="docutils">
+<dt>callback: callable</dt>
+<dd>A function which will be called with the new position after each
+step. Can be used to update renderes</dd>
+<dt>speedup: int, optional (Default: 1)</dt>
+<dd>A speedup factor. The time delta between two 
+actions will be divided by this factor.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="cogmodel.playback.crawl_results">
+<code class="descclassname">cogmodel.playback.</code><code class="descname">crawl_results</code><span class="sig-paren">(</span><em>path</em>, <em>use_caching=False</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.playback.crawl_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collects and reads in all the recorded participant behaviour at the 
+given root path.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>path: str</strong></dt>
+<dd><p class="first last">The root path where to find the participant recordings.</p>
+</dd>
+<dt><strong>use_caching: bool (default= True)</strong></dt>
+<dd><p class="first last">If true, will reuse already loaded environments, which may already
+include precomputed distances, greatly speeding up later calls,
+but might invalidate timing analysis.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>dict</strong></dt>
+<dd><p class="first last">A dictionary containing a list of tuples for each recorded run 
+found under the given path of the condition specified by the key,
+each containing the information provided by load_experiment.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="cogmodel.playback.load_experiment">
+<code class="descclassname">cogmodel.playback.</code><code class="descname">load_experiment</code><span class="sig-paren">(</span><em>path</em>, <em>use_caching=True</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.playback.load_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Small function which reads in an experimental result and constructs
+the environment as well as the playback agent from it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>path: str</strong></dt>
+<dd><p class="first last">The path for the recorded run.</p>
+</dd>
+<dt><strong>use_caching: bool (default= True)</strong></dt>
+<dd><p class="first last">If true, will reuse already loaded environments, which may already
+include precomputed distances, greatly speeding up later calls,
+but might invalidate timing analysis.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>environment: blockworld.Environment</strong></dt>
+<dd><blockquote class="first">
+<div><p>An environment object corresponding to the world of the 
+experiment.</p>
+</div></blockquote>
+<dl class="last docutils">
+<dt>targets: dict</dt>
+<dd><p class="first last">A dictionary containing information for each potential target
+within the environment and condition, with positions as keys.</p>
+</dd>
+<dt>playback_agent <span class="classifier-delimiter">:</span> <span class="classifier">PlaybackAgent</span></dt>
+<dd><p class="first last">An instance of a PlaybackAgent which can be used to reproduce
+the recorded behaviour.</p>
+</dd>
+<dt>goal_pos: tuple</dt>
+<dd><p class="first last">The position of the true goal for the recorded condition.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-cogmodel.renderer">
+<span id="cogmodel-renderer-module"></span><h2>cogmodel.renderer module<a class="headerlink" href="#module-cogmodel.renderer" title="Permalink to this headline">¶</a></h2>
+<p>Created on Tue Oct  15 16:59:03 2018
+Module containing simple “renderers” for the GridEnvironment code. 
+Currently a simpler Matplotlib Renderer is available, which utilices the 
+imshow capabilities as well as a somewhat more advanced pygame renderer which
+draws the grid and the agent manually.
+Colors are defined by the tiles themselves.</p>
+<p>&#64;author: jpoeppel</p>
+<dl class="class">
+<dt id="cogmodel.renderer.MatplotlibRenderer">
+<em class="property">class </em><code class="descclassname">cogmodel.renderer.</code><code class="descname">MatplotlibRenderer</code><a class="headerlink" href="#cogmodel.renderer.MatplotlibRenderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A simple matplotlib renderer for gridworlds. Needs to have matplotlib
+installed!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>fig: matplotlib.Figure</strong></dt>
+<dd><p class="first last">The figure we are reusing which contains our axes object.</p>
+</dd>
+<dt><strong>ax: matplotlib.Axes</strong></dt>
+<dd><p class="first last">The axes object we are actually drawing onto.</p>
+</dd>
+<dt><strong>past_positions: list</strong></dt>
+<dd><p class="first last">A list of all previously encountered positions, needed to draw
+the past trajectory.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cogmodel.renderer.MatplotlibRenderer.clear_past_trajectory">
+<code class="descname">clear_past_trajectory</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.renderer.MatplotlibRenderer.clear_past_trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes any remembered past_positions, which effectively clears
+the past trajectory rendered with “show_trajectory” in the “plot”
+function.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.renderer.MatplotlibRenderer.close_figure">
+<code class="descname">close_figure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.renderer.MatplotlibRenderer.close_figure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the current window.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.renderer.MatplotlibRenderer.pause">
+<code class="descname">pause</code><span class="sig-paren">(</span><em>duration</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.renderer.MatplotlibRenderer.pause" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops the executation for the given duration to be able to look
+at the current visualiation.</p>
+<p>On some systems/backends, plt.pause might raise a DeprecatedWarning,
+the official solution is to use interaction and time.sleep directly,
+but at least for me, the figure will not be updated in this which
+is why I am using this here.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>duration: float</strong></dt>
+<dd><p class="first last">Duration of the pause in seconds.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.renderer.MatplotlibRenderer.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>grid</em>, <em>agent</em>, <em>show_trajectory=False</em>, <em>past_positions=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.renderer.MatplotlibRenderer.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the grid and the agent position using matplotlibs 
+pcolormesh.</p>
+<dl class="docutils">
+<dt>grid: list of lists</dt>
+<dd>A list of lists containing the Tile object that represent
+the gridworld.</dd>
+<dt>agent: Tuple</dt>
+<dd>A tuple representing the current agent position.</dd>
+<dt>show_trajectory: bool, optional (Default: False)</dt>
+<dd>If given, will show the past trajectory, stored in the local
+store. Remember to empty the store when starting a new 
+episode!</dd>
+<dt>past_positions: list, optional (Default: None)</dt>
+<dd>A list of past positions which, if given, will override any 
+remembered past positions and are rendered as the past 
+trajectory only if “show_trajectory” is True.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="cogmodel.renderer.PygameRenderer">
+<em class="property">class </em><code class="descclassname">cogmodel.renderer.</code><code class="descname">PygameRenderer</code><a class="headerlink" href="#cogmodel.renderer.PygameRenderer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A more complete renderer using pygame. Will only be available if
+pygame is installed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>size: tuple</strong></dt>
+<dd><p class="first last">A tuple specifying the windowsize of the pygame window.</p>
+</dd>
+<dt><strong>screen: pygame.Surface</strong></dt>
+<dd><p class="first last">The actual surface we are drawing on.</p>
+</dd>
+<dt><strong>past_positions: list</strong></dt>
+<dd><p class="first last">A list of all previously encountered positions, needed to draw
+the past trajectory.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="cogmodel.renderer.PygameRenderer.clear_past_trajectory">
+<code class="descname">clear_past_trajectory</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.renderer.PygameRenderer.clear_past_trajectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes any remembered past_positions, which effectively clears
+the past trajectory rendered with “show_trajectory” in the “plot”
+function.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.renderer.PygameRenderer.close_figure">
+<code class="descname">close_figure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.renderer.PygameRenderer.close_figure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the current window.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.renderer.PygameRenderer.pause">
+<code class="descname">pause</code><span class="sig-paren">(</span><em>duration</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.renderer.PygameRenderer.pause" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="cogmodel.renderer.PygameRenderer.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>grid</em>, <em>agent</em>, <em>show_trajectory=False</em>, <em>past_positions=None</em><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.renderer.PygameRenderer.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the grid and the agent position in the window. Will basically
+overwrite the currently shown image in the window with the new
+grid.</p>
+<dl class="docutils">
+<dt>grid: list of lists</dt>
+<dd>A list of lists containing the Tile object that represent
+the gridworld.</dd>
+<dt>agent: Tuple</dt>
+<dd>A tuple representing the current agent position.</dd>
+<dt>show_trajectory: bool, optional (Default: False)</dt>
+<dd>If given, will show the past trajectory, stored in the local
+store. Remember to empty the store when starting a new 
+episode!</dd>
+<dt>past_positions: list, optional (Default: None)</dt>
+<dd>A list of past positions which, if given, will override any 
+remembered past positions and are rendered as the past 
+trajectory only if “show_trajectory” is True.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="cogmodel.renderer.show">
+<code class="descclassname">cogmodel.renderer.</code><code class="descname">show</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cogmodel.renderer.show" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">cogmodel package</a><ul>
+<li><a class="reference internal" href="#module-cogmodel">Module contents</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-cogmodel.gridEnvironment">cogmodel.gridEnvironment module</a><ul>
+<li><a class="reference internal" href="#tile-class">Tile class</a></li>
+<li><a class="reference internal" href="#gridenvironment-class">GridEnvironment class</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-cogmodel.playback">cogmodel.playback module</a></li>
+<li><a class="reference internal" href="#module-cogmodel.renderer">cogmodel.renderer module</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cogmodel.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Jan Pöppel.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/cogmodel.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,52 @@
+2017-07-31 14:26:51.922675: 
+ConditionID: Map5_C1_V2
+EnvString: 
+######################
+#gggggggggggggggggggg#
+#ggg##ggggggggggg###g#
+#gggggggg#gggggggg#gg#
+#g##ggggg#ggg##gggggg#
+#ggggggggggggg#gggggg#
+#ggggg##gggggggggg#gg#
+#gggggggg##gggggg##gg#
+#g##gggggg###gggggggg#
+#ggggggggggg#ggg##ggg#
+#ggg###gggggggggggggg#
+#ggggg#ggggggg#gggggg#
+#gg#gg#gggggg##gggggg#
+#gggggggggggggggggggg#
+######################
+AlwaysVisibles: [(11, 5)]
+ViewRadius: 0
+TargetRadius: 15
+Targets: {(11, 5): {'color': 'skyblue', 'symbol': 'B'}}
+Goal: {'target': (11, 5), 'type': 'Reach', 'taskDesc': 'Reach the shown exit.'}
+StartPosition: (6, 17)
+
+2017-07-31 14:26:55.347514: Key-Left
+2017-07-31 14:26:55.643521: Key-Left
+2017-07-31 14:26:55.944475: Key-Left
+2017-07-31 14:26:56.842760: Key-Down
+2017-07-31 14:26:57.430233: Key-Down
+2017-07-31 14:26:57.436486: Key-Down
+2017-07-31 14:26:57.743965: Key-Down
+2017-07-31 14:26:58.171201: Key-Down
+2017-07-31 14:26:58.998490: Key-Left
+2017-07-31 14:26:59.463261: Key-Left
+2017-07-31 14:26:59.472942: Key-Left
+2017-07-31 14:26:59.889130: Key-Left
+2017-07-31 14:26:59.895099: Key-Left
+2017-07-31 14:26:59.901030: Key-Left
+2017-07-31 14:27:00.225729: Key-Left
+2017-07-31 14:27:00.232482: Key-Left
+2017-07-31 14:27:00.533062: Key-Left
+2017-07-31 14:27:00.950271: Key-Down
+2017-07-31 14:27:01.258273: Key-Down
+2017-07-31 14:27:01.631714: Key-Down
+2017-07-31 14:27:02.368434: Key-Left
+2017-07-31 14:27:03.059210: Key-Left
+2017-07-31 14:27:03.518826: Key-Up
+2017-07-31 14:27:03.949390: Key-Up
+2017-07-31 14:27:04.260740: Key-Up
+2017-07-31 14:27:07.128373: Button-Interaction
+2017-07-31 14:27:07.128440: Condition Finished

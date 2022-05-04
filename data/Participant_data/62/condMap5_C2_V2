@@ -1,0 +1,74 @@
+2017-07-31 14:23:58.590222: 
+ConditionID: Map5_C2_V2
+EnvString: 
+######################
+#gggggggggggggggggggg#
+#ggg##ggggggggggg###g#
+#gggggggg#gggggggg#gg#
+#g##ggggg#ggg##gggggg#
+#ggggggggggggg#gggggg#
+#ggggg##gggggggggg#gg#
+#gggggggg##gggggg##gg#
+#g##gggggg###gggggggg#
+#ggggggggggg#ggg##ggg#
+#ggg###gggggggggggggg#
+#ggggg#ggggggg#gggggg#
+#gg#gg#gggggg##gggggg#
+#gggggggggggggggggggg#
+######################
+AlwaysVisibles: [(1, 4), (1, 18), (11, 5), (8, 9)]
+ViewRadius: 0
+TargetRadius: 15
+Targets: {(1, 18): {'color': 'skyblue', 'symbol': 'B'}, (8, 9): {'color': 'yellow', 'symbol': 'Y'}, (1, 4): {'color': 'orange', 'symbol': 'O'}, (11, 5): {'color': 'red', 'symbol': 'R'}}
+Goal: {'target': (11, 5), 'type': 'Reach', 'taskDesc': 'Find the red (R) exit.'}
+StartPosition: (6, 17)
+
+2017-07-31 14:24:40.310331: Button-Right
+2017-07-31 14:24:41.460534: Button-Right
+2017-07-31 14:24:50.071157: Key-Up
+2017-07-31 14:24:57.604853: Key-Up
+2017-07-31 14:24:57.950057: Key-Up
+2017-07-31 14:24:59.300238: Key-Left
+2017-07-31 14:25:08.879969: Key-Up
+2017-07-31 14:25:09.625787: Key-Up
+2017-07-31 14:25:10.735009: Key-Right
+2017-07-31 14:25:11.651385: Key-Right
+2017-07-31 14:25:14.460657: Key-Right
+2017-07-31 14:25:16.287035: Key-Left
+2017-07-31 14:25:18.384784: Key-Interaction
+2017-07-31 14:25:21.039825: Button-Interaction
+2017-07-31 14:25:27.764786: Key-Left
+2017-07-31 14:25:28.131063: Key-Left
+2017-07-31 14:25:28.140591: Key-Left
+2017-07-31 14:25:28.520687: Key-Left
+2017-07-31 14:25:29.102700: Key-Left
+2017-07-31 14:25:29.108947: Key-Left
+2017-07-31 14:25:29.470630: Key-Left
+2017-07-31 14:25:29.477748: Key-Left
+2017-07-31 14:25:29.809976: Key-Left
+2017-07-31 14:25:29.816402: Key-Left
+2017-07-31 14:25:30.374026: Key-Left
+2017-07-31 14:25:31.228274: Key-Left
+2017-07-31 14:25:31.919065: Key-Down
+2017-07-31 14:25:32.275502: Key-Down
+2017-07-31 14:25:32.282112: Key-Down
+2017-07-31 14:25:32.633250: Key-Down
+2017-07-31 14:25:32.639020: Key-Down
+2017-07-31 14:25:33.316958: Key-Left
+2017-07-31 14:25:33.877165: Key-Left
+2017-07-31 14:25:34.509977: Key-Down
+2017-07-31 14:25:34.931878: Key-Down
+2017-07-31 14:25:35.287266: Key-Down
+2017-07-31 14:25:35.627815: Key-Down
+2017-07-31 14:25:36.361428: Key-Left
+2017-07-31 14:25:36.939449: Key-Left
+2017-07-31 14:25:37.420443: Key-Down
+2017-07-31 14:25:38.039873: Key-Down
+2017-07-31 14:25:39.060049: Key-Right
+2017-07-31 14:25:39.441982: Key-Right
+2017-07-31 14:25:39.920682: Key-Right
+2017-07-31 14:25:39.926365: Key-Right
+2017-07-31 14:25:40.288134: Key-Right
+2017-07-31 14:25:40.633773: Key-Right
+2017-07-31 14:25:42.432040: Button-Interaction
+2017-07-31 14:25:42.432141: Condition Finished

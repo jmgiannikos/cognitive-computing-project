@@ -1,0 +1,23 @@
+ConditionID: Map2_C2_V2
+EnvString: 
+######################
+#ggggggg#gggggggg##gg#
+#g#####g#g###g##gg##g#
+#g#g#g#g#g#gggg##gg#g#
+#ggg#ggg###g##gg##ggg#
+#######g#gggg##gg#g#g#
+#g#ggggggg#g##ggggg###
+#g#g#g#g###gggg#####g#
+#g###g#ggg###g##ggg#g#
+#ggggg##g##g#gggg#ggg#
+###g###ggggg##g#####g#
+#ggg#ggg#g#ggggg#g#gg#
+#g###g###g###g#g#gggg#
+#ggggggggggggg#ggg#gg#
+######################
+AlwaysVisibles: [(1, 19), (11,17), (3,3), (6,1)]
+ViewRadius: 0
+TargetRadius: 15
+Targets: {(1, 19): {'color':'skyblue','symbol':'B'}, (11,17): {'color':'orange','symbol':'O'}, (3,3): {'color':'red','symbol':'R'}, (6,1): {'color':'yellow','symbol':'Y'}}
+Goal: {'type': 'Reach', 'target': (3, 3), 'taskDesc': 'Find the red (R) exit.'}
+StartPosition: (7, 20)

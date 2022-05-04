@@ -1,0 +1,93 @@
+2017-07-31 15:02:00.242359: 
+ConditionID: Map6_C2_V1
+EnvString: 
+######################
+#gggg#gggggggg#gggggg#
+#gggg#ggg#gggg###g####
+#gggg#ggg#ggggggggggg#
+####ggggg######gg###g#
+#ggggggggggggg##g#ggg#
+#gg#######ggggggg#g###
+#gggggggg###ggggg#ggg#
+#g####g#ggg##gggg###g#
+#g#gg#g###gg#gggggg#g#
+####g#ggg#ggggggg###g#
+#gggg##gg#ggggggg#ggg#
+#ggggg#gg#########ggg#
+#gggggggggggggggggggg#
+######################
+AlwaysVisibles: [(11, 18), (9, 3), (1, 15), (3, 10)]
+ViewRadius: 0
+TargetRadius: 15
+Targets: {(3, 10): {'color': 'skyblue', 'symbol': 'B'}, (9, 3): {'color': 'orange', 'symbol': 'O'}, (11, 18): {'color': 'yellow', 'symbol': 'Y'}, (1, 15): {'color': 'red', 'symbol': 'R'}}
+Goal: {'target': (11, 18), 'type': 'Reach', 'taskDesc': 'Find the yellow (Y) exit.'}
+StartPosition: (1, 1)
+
+2017-07-31 15:02:04.516847: Button-Interaction
+2017-07-31 15:02:12.472731: Button-Right
+2017-07-31 15:02:13.132267: Button-Right
+2017-07-31 15:02:13.876320: Button-Right
+2017-07-31 15:02:14.844157: Button-Right
+2017-07-31 15:02:15.957432: Button-Down
+2017-07-31 15:02:16.743232: Button-Down
+2017-07-31 15:02:17.628359: Button-Down
+2017-07-31 15:02:19.076964: Button-Right
+2017-07-31 15:02:20.005996: Button-Right
+2017-07-31 15:02:21.753683: Button-Down
+2017-07-31 15:02:30.404435: Button-Up
+2017-07-31 15:02:31.204622: Button-Up
+2017-07-31 15:02:31.956646: Button-Up
+2017-07-31 15:02:32.556585: Button-Up
+2017-07-31 15:02:34.182247: Button-Right
+2017-07-31 15:02:34.772649: Button-Right
+2017-07-31 15:02:35.116195: Button-Right
+2017-07-31 15:02:35.443841: Button-Right
+2017-07-31 15:02:35.892250: Button-Right
+2017-07-31 15:02:37.646648: Button-Left
+2017-07-31 15:02:39.156347: Button-Down
+2017-07-31 15:02:39.876878: Button-Down
+2017-07-31 15:02:41.300325: Button-Interaction
+2017-07-31 15:02:45.612220: Button-Interaction
+2017-07-31 15:02:46.548789: Button-Down
+2017-07-31 15:02:48.444211: Button-Right
+2017-07-31 15:02:49.550433: Button-Right
+2017-07-31 15:02:50.228338: Button-Right
+2017-07-31 15:02:50.676495: Button-Right
+2017-07-31 15:02:51.039740: Button-Right
+2017-07-31 15:02:51.372542: Button-Right
+2017-07-31 15:02:51.784644: Button-Right
+2017-07-31 15:02:52.164686: Button-Right
+2017-07-31 15:02:54.131587: Button-Left
+2017-07-31 15:02:55.483964: Button-Up
+2017-07-31 15:02:56.204779: Button-Up
+2017-07-31 15:02:59.085596: Button-Left
+2017-07-31 15:02:59.835722: Button-Left
+2017-07-31 15:03:01.331933: Button-Interaction
+2017-07-31 15:03:03.861166: Button-Down
+2017-07-31 15:03:05.172622: Button-Interaction
+2017-07-31 15:03:06.076421: Button-Interaction
+2017-07-31 15:03:07.819223: Button-Down
+2017-07-31 15:03:08.812057: Button-Right
+2017-07-31 15:03:09.596870: Button-Right
+2017-07-31 15:03:11.012613: Button-Down
+2017-07-31 15:03:12.132702: Button-Down
+2017-07-31 15:03:13.509472: Button-Right
+2017-07-31 15:03:14.260179: Button-Right
+2017-07-31 15:03:14.628560: Button-Right
+2017-07-31 15:03:16.348943: Button-Down
+2017-07-31 15:03:17.148574: Button-Down
+2017-07-31 15:03:18.716123: Button-Right
+2017-07-31 15:03:19.884556: Button-Left
+2017-07-31 15:03:20.652517: Button-Left
+2017-07-31 15:03:22.004661: Button-Down
+2017-07-31 15:03:22.772335: Button-Down
+2017-07-31 15:03:24.088349: Button-Right
+2017-07-31 15:03:24.821980: Button-Right
+2017-07-31 15:03:26.036916: Button-Down
+2017-07-31 15:03:26.788566: Button-Down
+2017-07-31 15:03:27.252108: Button-Down
+2017-07-31 15:03:27.781153: Button-Down
+2017-07-31 15:03:29.814182: Button-Left
+2017-07-31 15:03:30.628604: Button-Left
+2017-07-31 15:03:32.364049: Button-Interaction
+2017-07-31 15:03:32.364156: Condition Finished

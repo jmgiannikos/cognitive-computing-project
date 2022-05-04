@@ -1,0 +1,23 @@
+ConditionID: Map1_C1_V2
+EnvString: 
+######################
+#gggggggggggggggggggg#
+#g#g###g#g#g#g###g####
+#g#ggg#ggg#g#ggg#gggg#
+#g###g#####g###g#g##g#
+#g#ggg#ggg#g#gggggggg#
+#g#g###g###g#g###g####
+#ggggggg#ggg#gg##gggg#
+#g#######g#g#g##gg##g#
+#ggggggg###g###gg###g#
+#g#####gg##g##gg##g#g#
+#ggggg##gg#g#gg##gggg#
+#g###g###g#g#g#####gg#
+#ggggggggggggggg#gggg#
+######################
+AlwaysVisibles: [(13, 17)]
+ViewRadius: 0
+TargetRadius: 15
+Targets: {(13, 17): {'color':'skyblue','symbol':'B'}}
+Goal: {'type': 'Reach', 'target': (13, 17), 'taskDesc': 'Reach the shown exit.'}
+StartPosition: (5, 9)

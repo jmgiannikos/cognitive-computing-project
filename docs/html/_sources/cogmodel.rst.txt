@@ -1,0 +1,53 @@
+cogmodel package
+================
+
+Module contents
+---------------
+
+.. automodule:: cogmodel
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Submodules
+----------
+
+cogmodel.gridEnvironment module
+-------------------------------
+
+.. automodule:: cogmodel.gridEnvironment
+
+Tile class
+~~~~~~~~~~
+
+.. autoclass:: cogmodel.gridEnvironment.Tile
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+GridEnvironment class
+~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: cogmodel.gridEnvironment.GridEnvironment
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+cogmodel.playback module
+------------------------
+
+.. automodule:: cogmodel.playback
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+cogmodel.renderer module
+------------------------
+
+.. automodule:: cogmodel.renderer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+

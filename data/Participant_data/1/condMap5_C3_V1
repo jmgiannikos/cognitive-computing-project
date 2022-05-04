@@ -1,0 +1,62 @@
+2017-07-31 14:27:44.186964: 
+ConditionID: Map5_C3_V1
+EnvString: 
+######################
+#gggggggggggggggggggg#
+#ggg##ggggggggggg###g#
+#gggggggg#gggggggg#gg#
+#g##ggggg#ggg##gggggg#
+#ggggggggggggg#gggggg#
+#ggggg##gggggggggg#gg#
+#gggggggg##gggggg##gg#
+#g##gggggg###gggggggg#
+#ggggggggggg#ggg##ggg#
+#ggg###gggggggggggggg#
+#ggggg#ggggggg#gggggg#
+#gg#gg#gggggg##gggggg#
+#gggggggggggggggggggg#
+######################
+AlwaysVisibles: [(1, 4)]
+ViewRadius: 3
+TargetRadius: 3
+Targets: {(1, 4): {'color': 'skyblue', 'symbol': 'B'}}
+Goal: {'target': (1, 4), 'type': 'Reach', 'taskDesc': 'Find your way to the shown exit.'}
+StartPosition: (13, 20)
+
+2017-07-31 14:28:06.773400: Key-Interaction
+2017-07-31 14:28:11.054390: Key-Up
+2017-07-31 14:28:11.487870: Key-Up
+2017-07-31 14:28:12.268347: Key-Up
+2017-07-31 14:28:12.581513: Key-Up
+2017-07-31 14:28:14.155164: Key-Up
+2017-07-31 14:28:15.166019: Key-Up
+2017-07-31 14:28:15.795495: Key-Up
+2017-07-31 14:28:18.244055: Key-Up
+2017-07-31 14:28:18.883097: Key-Up
+2017-07-31 14:28:19.751504: Key-Left
+2017-07-31 14:28:20.515085: Key-Left
+2017-07-31 14:28:20.934591: Key-Left
+2017-07-31 14:28:21.359749: Key-Left
+2017-07-31 14:28:22.220087: Key-Up
+2017-07-31 14:28:22.984689: Key-Left
+2017-07-31 14:28:23.611208: Key-Up
+2017-07-31 14:28:24.487442: Key-Up
+2017-07-31 14:28:24.878178: Key-Left
+2017-07-31 14:28:25.498844: Key-Left
+2017-07-31 14:28:26.007258: Key-Left
+2017-07-31 14:28:26.358482: Key-Left
+2017-07-31 14:28:26.792155: Key-Left
+2017-07-31 14:28:27.363392: Key-Left
+2017-07-31 14:28:27.864944: Key-Left
+2017-07-31 14:28:28.274468: Key-Left
+2017-07-31 14:28:28.768192: Key-Left
+2017-07-31 14:28:29.356287: Key-Left
+2017-07-31 14:28:29.672526: Key-Left
+2017-07-31 14:28:29.940491: Key-Left
+2017-07-31 14:28:31.043630: Key-Left
+2017-07-31 14:28:32.233361: Key-Right
+2017-07-31 14:28:32.496814: Key-Right
+2017-07-31 14:28:32.890901: Key-Right
+2017-07-31 14:28:33.890872: Key-Left
+2017-07-31 14:28:34.900030: Key-Interaction
+2017-07-31 14:28:34.900096: Condition Finished

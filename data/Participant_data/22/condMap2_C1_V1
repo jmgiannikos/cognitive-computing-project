@@ -1,0 +1,61 @@
+2017-07-31 14:24:55.537874: 
+ConditionID: Map2_C1_V1
+EnvString: 
+######################
+#ggggggg#gggggggg##gg#
+#g#####g#g###g##gg##g#
+#g#g#g#g#g#gggg##gg#g#
+#ggg#ggg###g##gg##ggg#
+#######g#gggg##gg#g#g#
+#g#ggggggg#g##ggggg###
+#g#g#g#g###gggg#####g#
+#g###g#ggg###g##ggg#g#
+#ggggg##g##g#gggg#ggg#
+###g###ggggg##g#####g#
+#ggg#ggg#g#ggggg#g#gg#
+#g###g###g###g#g#gggg#
+#ggggggggggggg#ggg#gg#
+######################
+AlwaysVisibles: [(5, 20)]
+ViewRadius: 0
+TargetRadius: 15
+Targets: {(5, 20): {'color': 'skyblue', 'symbol': 'B'}}
+Goal: {'target': (5, 20), 'type': 'Reach', 'taskDesc': 'Reach the shown exit.'}
+StartPosition: (6, 1)
+
+2017-07-31 14:24:59.749382: Key-Interaction
+2017-07-31 14:25:00.716017: Key-Down
+2017-07-31 14:25:01.270251: Key-Down
+2017-07-31 14:25:01.915745: Key-Down
+2017-07-31 14:25:02.213899: Key-Right
+2017-07-31 14:25:02.450046: Key-Right
+2017-07-31 14:25:03.100832: Key-Right
+2017-07-31 14:25:03.564994: Key-Up
+2017-07-31 14:25:04.532896: Key-Right
+2017-07-31 14:25:04.759510: Key-Up
+2017-07-31 14:25:04.973768: Key-Up
+2017-07-31 14:25:05.160913: Key-Up
+2017-07-31 14:25:05.607513: Key-Right
+2017-07-31 14:25:05.810245: Key-Right
+2017-07-31 14:25:06.018124: Key-Right
+2017-07-31 14:25:06.197878: Key-Right
+2017-07-31 14:25:06.545405: Key-Up
+2017-07-31 14:25:06.911672: Key-Right
+2017-07-31 14:25:07.428745: Key-Right
+2017-07-31 14:25:07.692399: Key-Down
+2017-07-31 14:25:08.045200: Key-Down
+2017-07-31 14:25:08.360260: Key-Right
+2017-07-31 14:25:08.554509: Key-Right
+2017-07-31 14:25:09.014065: Key-Right
+2017-07-31 14:25:09.294946: Key-Up
+2017-07-31 14:25:09.611863: Key-Right
+2017-07-31 14:25:09.794086: Key-Right
+2017-07-31 14:25:09.975247: Key-Right
+2017-07-31 14:25:10.163553: Key-Right
+2017-07-31 14:25:10.537807: Key-Up
+2017-07-31 14:25:10.867460: Key-Up
+2017-07-31 14:25:11.123299: Key-Right
+2017-07-31 14:25:11.524735: Key-Right
+2017-07-31 14:25:11.784939: Key-Down
+2017-07-31 14:25:12.532568: Key-Interaction
+2017-07-31 14:25:12.532642: Condition Finished

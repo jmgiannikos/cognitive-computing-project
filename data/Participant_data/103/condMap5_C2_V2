@@ -1,0 +1,60 @@
+2017-07-31 14:39:21.665006: 
+ConditionID: Map5_C2_V2
+EnvString: 
+######################
+#gggggggggggggggggggg#
+#ggg##ggggggggggg###g#
+#gggggggg#gggggggg#gg#
+#g##ggggg#ggg##gggggg#
+#ggggggggggggg#gggggg#
+#ggggg##gggggggggg#gg#
+#gggggggg##gggggg##gg#
+#g##gggggg###gggggggg#
+#ggggggggggg#ggg##ggg#
+#ggg###gggggggggggggg#
+#ggggg#ggggggg#gggggg#
+#gg#gg#gggggg##gggggg#
+#gggggggggggggggggggg#
+######################
+AlwaysVisibles: [(1, 4), (1, 18), (11, 5), (8, 9)]
+ViewRadius: 0
+TargetRadius: 15
+Targets: {(1, 18): {'color': 'skyblue', 'symbol': 'B'}, (8, 9): {'color': 'yellow', 'symbol': 'Y'}, (1, 4): {'color': 'orange', 'symbol': 'O'}, (11, 5): {'color': 'red', 'symbol': 'R'}}
+Goal: {'target': (11, 5), 'type': 'Reach', 'taskDesc': 'Find the red (R) exit.'}
+StartPosition: (6, 17)
+
+2017-07-31 14:39:25.214050: Button-Interaction
+2017-07-31 14:39:28.344677: Button-Left
+2017-07-31 14:39:28.998728: Button-Left
+2017-07-31 14:39:29.839288: Button-Up
+2017-07-31 14:39:29.971178: Button-Up
+2017-07-31 14:39:30.106905: Button-Up
+2017-07-31 14:39:30.297076: Button-Up
+2017-07-31 14:39:30.461245: Button-Up
+2017-07-31 14:39:32.656191: Button-Left
+2017-07-31 14:39:32.987161: Button-Left
+2017-07-31 14:39:33.551118: Button-Left
+2017-07-31 14:39:33.801834: Button-Left
+2017-07-31 14:39:34.037396: Button-Left
+2017-07-31 14:39:34.246464: Button-Left
+2017-07-31 14:39:34.421839: Button-Left
+2017-07-31 14:39:36.160756: Button-Down
+2017-07-31 14:39:36.356156: Button-Down
+2017-07-31 14:39:36.609926: Button-Down
+2017-07-31 14:39:36.803824: Button-Down
+2017-07-31 14:39:36.994478: Button-Down
+2017-07-31 14:39:37.183682: Button-Down
+2017-07-31 14:39:37.347732: Button-Down
+2017-07-31 14:39:37.481946: Button-Down
+2017-07-31 14:39:37.668966: Button-Down
+2017-07-31 14:39:37.871610: Button-Down
+2017-07-31 14:39:38.120356: Button-Down
+2017-07-31 14:39:39.011004: Button-Down
+2017-07-31 14:39:39.481984: Button-Down
+2017-07-31 14:39:40.022011: Button-Left
+2017-07-31 14:39:40.583222: Button-Left
+2017-07-31 14:39:41.519113: Button-Left
+2017-07-31 14:39:42.710193: Button-Up
+2017-07-31 14:39:43.313578: Button-Up
+2017-07-31 14:39:44.323895: Button-Interaction
+2017-07-31 14:39:44.323975: Condition Finished

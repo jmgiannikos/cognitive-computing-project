@@ -1,0 +1,63 @@
+2017-07-31 14:30:42.760150: 
+ConditionID: Map6_C1_V2
+EnvString: 
+######################
+#gggg#gggggggg#gggggg#
+#gggg#ggg#gggg###g####
+#gggg#ggg#ggggggggggg#
+####ggggg######gg###g#
+#ggggggggggggg##g#ggg#
+#gg#######ggggggg#g###
+#gggggggg###ggggg#ggg#
+#g####g#ggg##gggg###g#
+#g#gg#g###gg#gggggg#g#
+####g#ggg#ggggggg###g#
+#gggg##gg#ggggggg#ggg#
+#ggggg#gg#########ggg#
+#gggggggggggggggggggg#
+######################
+AlwaysVisibles: [(9, 3)]
+ViewRadius: 0
+TargetRadius: 15
+Targets: {(9, 3): {'color': 'skyblue', 'symbol': 'B'}}
+Goal: {'target': (9, 3), 'type': 'Reach', 'taskDesc': 'Reach the shown exit.'}
+StartPosition: (1, 1)
+
+2017-07-31 14:30:47.038279: Key-Up
+2017-07-31 14:30:47.830721: Key-Down
+2017-07-31 14:30:48.769972: Key-Down
+2017-07-31 14:30:48.988392: Key-Right
+2017-07-31 14:30:49.226266: Key-Right
+2017-07-31 14:30:49.684492: Key-Right
+2017-07-31 14:30:50.020243: Key-Down
+2017-07-31 14:30:50.208275: Key-Down
+2017-07-31 14:30:50.470865: Key-Left
+2017-07-31 14:30:50.659404: Key-Left
+2017-07-31 14:30:50.840385: Key-Left
+2017-07-31 14:30:51.053424: Key-Down
+2017-07-31 14:30:51.239595: Key-Down
+2017-07-31 14:30:51.474411: Key-Down
+2017-07-31 14:30:51.638628: Key-Right
+2017-07-31 14:30:52.092667: Key-Up
+2017-07-31 14:30:52.269381: Key-Right
+2017-07-31 14:30:52.452041: Key-Right
+2017-07-31 14:30:52.645518: Key-Right
+2017-07-31 14:30:52.775048: Key-Right
+2017-07-31 14:30:52.943002: Key-Right
+2017-07-31 14:30:53.317772: Key-Down
+2017-07-31 14:30:53.505382: Key-Down
+2017-07-31 14:30:53.703996: Key-Down
+2017-07-31 14:30:53.922993: Key-Right
+2017-07-31 14:30:54.253881: Key-Down
+2017-07-31 14:30:54.448246: Key-Down
+2017-07-31 14:30:54.692840: Key-Down
+2017-07-31 14:30:54.901044: Key-Left
+2017-07-31 14:30:55.262989: Key-Left
+2017-07-31 14:30:56.036605: Key-Left
+2017-07-31 14:30:56.519441: Key-Up
+2017-07-31 14:30:56.690983: Key-Up
+2017-07-31 14:30:56.875872: Key-Up
+2017-07-31 14:30:57.177334: Key-Up
+2017-07-31 14:30:57.565228: Key-Left
+2017-07-31 14:30:58.475064: Key-Interaction
+2017-07-31 14:30:58.475165: Condition Finished

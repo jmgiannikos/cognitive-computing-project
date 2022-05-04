@@ -1,0 +1,61 @@
+2017-07-31 14:57:16.729379: 
+ConditionID: Map2_C1_V1
+EnvString: 
+######################
+#ggggggg#gggggggg##gg#
+#g#####g#g###g##gg##g#
+#g#g#g#g#g#gggg##gg#g#
+#ggg#ggg###g##gg##ggg#
+#######g#gggg##gg#g#g#
+#g#ggggggg#g##ggggg###
+#g#g#g#g###gggg#####g#
+#g###g#ggg###g##ggg#g#
+#ggggg##g##g#gggg#ggg#
+###g###ggggg##g#####g#
+#ggg#ggg#g#ggggg#g#gg#
+#g###g###g###g#g#gggg#
+#ggggggggggggg#ggg#gg#
+######################
+AlwaysVisibles: [(5, 20)]
+ViewRadius: 0
+TargetRadius: 15
+Targets: {(5, 20): {'color': 'skyblue', 'symbol': 'B'}}
+Goal: {'target': (5, 20), 'type': 'Reach', 'taskDesc': 'Reach the shown exit.'}
+StartPosition: (6, 1)
+
+2017-07-31 14:57:31.097168: Key-Down
+2017-07-31 14:57:31.707694: Key-Down
+2017-07-31 14:57:31.923921: Key-Down
+2017-07-31 14:57:32.307113: Key-Right
+2017-07-31 14:57:32.516382: Key-Right
+2017-07-31 14:57:32.666359: Key-Right
+2017-07-31 14:57:33.115050: Key-Right
+2017-07-31 14:57:33.391615: Key-Up
+2017-07-31 14:57:33.658958: Key-Up
+2017-07-31 14:57:34.125799: Key-Up
+2017-07-31 14:57:34.372015: Key-Right
+2017-07-31 14:57:34.682776: Key-Right
+2017-07-31 14:57:34.965515: Key-Right
+2017-07-31 14:57:35.196145: Key-Right
+2017-07-31 14:57:35.492161: Key-Up
+2017-07-31 14:57:35.803119: Key-Right
+2017-07-31 14:57:36.019963: Key-Right
+2017-07-31 14:57:36.283538: Key-Up
+2017-07-31 14:57:36.523082: Key-Up
+2017-07-31 14:57:36.842776: Key-Right
+2017-07-31 14:57:37.051764: Key-Right
+2017-07-31 14:57:37.268135: Key-Right
+2017-07-31 14:57:37.563972: Key-Down
+2017-07-31 14:57:37.799149: Key-Right
+2017-07-31 14:57:38.050489: Key-Down
+2017-07-31 14:57:38.387295: Key-Down
+2017-07-31 14:57:38.620050: Key-Right
+2017-07-31 14:57:38.785729: Key-Right
+2017-07-31 14:57:38.953400: Key-Right
+2017-07-31 14:57:39.184938: Key-Up
+2017-07-31 14:57:39.401165: Key-Up
+2017-07-31 14:57:39.681796: Key-Right
+2017-07-31 14:57:39.907223: Key-Right
+2017-07-31 14:57:40.242701: Key-Down
+2017-07-31 14:57:42.571501: Button-Interaction
+2017-07-31 14:57:42.571615: Condition Finished

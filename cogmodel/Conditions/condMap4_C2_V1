@@ -1,0 +1,23 @@
+ConditionID: Map4_C2_V1
+EnvString: 
+######################
+#gggggggg####gggggggg#
+#g######gg##gg######g#
+#g#gggg##g##g##gggg#g#
+#g#g####gg##gg####g#g#
+#g#g#g#gg####gg#g#g#g#
+#ggggg#g##gg##g#ggggg#
+#######gggggggg#######
+#ggggg#g##gg##g#ggggg#
+#g#g#g#gg####gg#g#g#g#
+#g#g####gg##gg####g#g#
+#g#gggg##g##g##gggg#g#
+#g######gg##gg######g#
+#gggggggg####gggggggg#
+######################
+AlwaysVisibles: [(3, 6), (3, 15), (11, 6), (9, 5)]
+ViewRadius: 0
+TargetRadius: 15
+Targets: {(3, 15): {'color': 'skyblue', 'symbol': 'B'}, (3, 6): {'color': 'orange', 'symbol': 'O'}, (11, 6): {'color': 'red', 'symbol': 'R'}, (9, 5): {'color': 'yellow', 'symbol': 'Y'}}
+Goal: {'type': 'Reach', 'target': (3, 6), 'taskDesc': 'Find the orange (O) exit.'}
+StartPosition: (11, 15)

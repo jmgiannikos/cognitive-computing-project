@@ -1,0 +1,62 @@
+2017-07-31 14:29:44.375297: 
+ConditionID: Map6_C3_V2
+EnvString: 
+######################
+#gggg#gggggggg#gggggg#
+#gggg#ggg#gggg###g####
+#gggg#ggg#ggggggggggg#
+####ggggg######gg###g#
+#ggggggggggggg##g#ggg#
+#gg#######ggggggg#g###
+#gggggggg###ggggg#ggg#
+#g####g#ggg##gggg###g#
+#g#gg#g###gg#gggggg#g#
+####g#ggg#ggggggg###g#
+#gggg##gg#ggggggg#ggg#
+#ggggg#gg#########ggg#
+#gggggggggggggggggggg#
+######################
+AlwaysVisibles: [(9, 3)]
+ViewRadius: 3
+TargetRadius: 3
+Targets: {(9, 3): {'color': 'skyblue', 'symbol': 'B'}}
+Goal: {'target': (9, 3), 'type': 'Reach', 'taskDesc': 'Find your way to the shown exit.'}
+StartPosition: (1, 1)
+
+2017-07-31 14:29:47.877650: Key-Interaction
+2017-07-31 14:29:50.742600: Key-Down
+2017-07-31 14:29:51.221118: Key-Down
+2017-07-31 14:29:52.026141: Key-Right
+2017-07-31 14:29:52.688790: Key-Right
+2017-07-31 14:29:54.023470: Key-Right
+2017-07-31 14:29:54.570792: Key-Down
+2017-07-31 14:29:55.597094: Key-Down
+2017-07-31 14:29:56.435225: Key-Left
+2017-07-31 14:29:57.109659: Key-Left
+2017-07-31 14:29:57.863093: Key-Left
+2017-07-31 14:29:58.908816: Key-Down
+2017-07-31 14:29:59.154586: Key-Down
+2017-07-31 14:30:00.021649: Key-Down
+2017-07-31 14:30:01.481584: Key-Up
+2017-07-31 14:30:02.356764: Key-Right
+2017-07-31 14:30:03.040124: Key-Right
+2017-07-31 14:30:03.875599: Key-Right
+2017-07-31 14:30:04.620162: Key-Right
+2017-07-31 14:30:05.674738: Key-Right
+2017-07-31 14:30:06.370265: Key-Down
+2017-07-31 14:30:07.181449: Key-Down
+2017-07-31 14:30:07.949438: Key-Down
+2017-07-31 14:30:08.687390: Key-Right
+2017-07-31 14:30:09.413585: Key-Down
+2017-07-31 14:30:10.006473: Key-Down
+2017-07-31 14:30:10.671002: Key-Down
+2017-07-31 14:30:11.371425: Key-Left
+2017-07-31 14:30:12.202182: Key-Left
+2017-07-31 14:30:13.483714: Key-Left
+2017-07-31 14:30:14.168865: Key-Up
+2017-07-31 14:30:14.775886: Key-Up
+2017-07-31 14:30:15.343420: Key-Up
+2017-07-31 14:30:15.977136: Key-Up
+2017-07-31 14:30:16.604808: Key-Left
+2017-07-31 14:30:17.789164: Key-Interaction
+2017-07-31 14:30:17.789218: Condition Finished

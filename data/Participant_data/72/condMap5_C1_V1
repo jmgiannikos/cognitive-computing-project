@@ -1,0 +1,59 @@
+2017-07-31 14:39:53.927819: 
+ConditionID: Map5_C1_V1
+EnvString: 
+######################
+#gggggggggggggggggggg#
+#ggg##ggggggggggg###g#
+#gggggggg#gggggggg#gg#
+#g##ggggg#ggg##gggggg#
+#ggggggggggggg#gggggg#
+#ggggg##gggggggggg#gg#
+#gggggggg##gggggg##gg#
+#g##gggggg###gggggggg#
+#ggggggggggg#ggg##ggg#
+#ggg###gggggggggggggg#
+#ggggg#ggggggg#gggggg#
+#gg#gg#gggggg##gggggg#
+#gggggggggggggggggggg#
+######################
+AlwaysVisibles: [(1, 4)]
+ViewRadius: 0
+TargetRadius: 15
+Targets: {(1, 4): {'color': 'skyblue', 'symbol': 'B'}}
+Goal: {'target': (1, 4), 'type': 'Reach', 'taskDesc': 'Reach the shown exit.'}
+StartPosition: (13, 20)
+
+2017-07-31 14:39:54.003767: Button-Right
+2017-07-31 14:39:54.874434: Button-Right
+2017-07-31 14:39:56.910582: Button-Left
+2017-07-31 14:39:57.071916: Button-Left
+2017-07-31 14:39:57.231398: Button-Left
+2017-07-31 14:39:57.358906: Button-Left
+2017-07-31 14:39:57.527692: Button-Left
+2017-07-31 14:39:57.679791: Button-Left
+2017-07-31 14:39:57.831933: Button-Left
+2017-07-31 14:39:58.000846: Button-Left
+2017-07-31 14:39:58.153869: Button-Left
+2017-07-31 14:39:58.316348: Button-Left
+2017-07-31 14:39:58.471617: Button-Left
+2017-07-31 14:39:58.975498: Button-Left
+2017-07-31 14:39:59.438742: Button-Left
+2017-07-31 14:40:01.806932: Button-Right
+2017-07-31 14:40:02.461418: Button-Up
+2017-07-31 14:40:02.613905: Button-Up
+2017-07-31 14:40:02.773700: Button-Up
+2017-07-31 14:40:02.933679: Button-Up
+2017-07-31 14:40:03.088223: Button-Up
+2017-07-31 14:40:03.247092: Button-Up
+2017-07-31 14:40:03.422430: Button-Up
+2017-07-31 14:40:03.558089: Button-Up
+2017-07-31 14:40:03.703935: Button-Up
+2017-07-31 14:40:03.846292: Button-Up
+2017-07-31 14:40:04.001266: Button-Up
+2017-07-31 14:40:04.647172: Button-Up
+2017-07-31 14:40:05.455124: Button-Left
+2017-07-31 14:40:05.616359: Button-Left
+2017-07-31 14:40:05.770103: Button-Left
+2017-07-31 14:40:05.919070: Button-Left
+2017-07-31 14:40:06.450758: Key-Interaction
+2017-07-31 14:40:06.450878: Condition Finished

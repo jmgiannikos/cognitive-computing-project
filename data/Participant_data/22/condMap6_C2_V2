@@ -1,0 +1,58 @@
+2017-07-31 14:24:12.018814: 
+ConditionID: Map6_C2_V2
+EnvString: 
+######################
+#gggg#gggggggg#gggggg#
+#gggg#ggg#gggg###g####
+#gggg#ggg#ggggggggggg#
+####ggggg######gg###g#
+#ggggggggggggg##g#ggg#
+#gg#######ggggggg#g###
+#gggggggg###ggggg#ggg#
+#g####g#ggg##gggg###g#
+#g#gg#g###gg#gggggg#g#
+####g#ggg#ggggggg###g#
+#gggg##gg#ggggggg#ggg#
+#ggggg#gg#########ggg#
+#gggggggggggggggggggg#
+######################
+AlwaysVisibles: [(11, 18), (9, 3), (1, 15), (3, 10)]
+ViewRadius: 0
+TargetRadius: 15
+Targets: {(3, 10): {'color': 'skyblue', 'symbol': 'B'}, (9, 3): {'color': 'orange', 'symbol': 'O'}, (11, 18): {'color': 'yellow', 'symbol': 'Y'}, (1, 15): {'color': 'red', 'symbol': 'R'}}
+Goal: {'target': (9, 3), 'type': 'Reach', 'taskDesc': 'Find the orange (O) exit.'}
+StartPosition: (1, 1)
+
+2017-07-31 14:24:23.327892: Key-Up
+2017-07-31 14:24:26.410948: Key-Right
+2017-07-31 14:24:27.059018: Key-Right
+2017-07-31 14:24:27.636089: Key-Right
+2017-07-31 14:24:27.974716: Key-Down
+2017-07-31 14:24:28.318339: Key-Down
+2017-07-31 14:24:28.561445: Key-Down
+2017-07-31 14:24:29.018053: Key-Down
+2017-07-31 14:24:29.406642: Key-Left
+2017-07-31 14:24:30.937216: Key-Left
+2017-07-31 14:24:31.218739: Key-Down
+2017-07-31 14:24:31.846777: Key-Down
+2017-07-31 14:24:32.157064: Key-Right
+2017-07-31 14:24:32.558682: Key-Right
+2017-07-31 14:24:33.198623: Key-Right
+2017-07-31 14:24:33.776225: Key-Right
+2017-07-31 14:24:34.025483: Key-Down
+2017-07-31 14:24:34.313039: Key-Down
+2017-07-31 14:24:34.499073: Key-Down
+2017-07-31 14:24:34.876188: Key-Right
+2017-07-31 14:24:35.259563: Key-Down
+2017-07-31 14:24:35.422185: Key-Down
+2017-07-31 14:24:35.732827: Key-Down
+2017-07-31 14:24:36.087147: Key-Left
+2017-07-31 14:24:36.267904: Key-Left
+2017-07-31 14:24:36.444997: Key-Left
+2017-07-31 14:24:37.007010: Key-Up
+2017-07-31 14:24:37.190638: Key-Up
+2017-07-31 14:24:37.399177: Key-Up
+2017-07-31 14:24:37.626796: Key-Up
+2017-07-31 14:24:37.991141: Key-Left
+2017-07-31 14:24:41.174782: Key-Interaction
+2017-07-31 14:24:41.174859: Condition Finished

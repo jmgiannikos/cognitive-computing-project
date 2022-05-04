@@ -1,0 +1,58 @@
+2017-07-31 14:30:03.013008: 
+ConditionID: Map6_C1_V2
+EnvString: 
+######################
+#gggg#gggggggg#gggggg#
+#gggg#ggg#gggg###g####
+#gggg#ggg#ggggggggggg#
+####ggggg######gg###g#
+#ggggggggggggg##g#ggg#
+#gg#######ggggggg#g###
+#gggggggg###ggggg#ggg#
+#g####g#ggg##gggg###g#
+#g#gg#g###gg#gggggg#g#
+####g#ggg#ggggggg###g#
+#gggg##gg#ggggggg#ggg#
+#ggggg#gg#########ggg#
+#gggggggggggggggggggg#
+######################
+AlwaysVisibles: [(9, 3)]
+ViewRadius: 0
+TargetRadius: 15
+Targets: {(9, 3): {'color': 'skyblue', 'symbol': 'B'}}
+Goal: {'target': (9, 3), 'type': 'Reach', 'taskDesc': 'Reach the shown exit.'}
+StartPosition: (1, 1)
+
+2017-07-31 14:30:07.198366: Button-Down
+2017-07-31 14:30:10.210664: Button-Right
+2017-07-31 14:30:10.470877: Button-Right
+2017-07-31 14:30:10.639068: Button-Right
+2017-07-31 14:30:11.660197: Button-Down
+2017-07-31 14:30:11.827844: Button-Down
+2017-07-31 14:30:12.085157: Button-Down
+2017-07-31 14:30:13.014659: Button-Left
+2017-07-31 14:30:13.147429: Button-Left
+2017-07-31 14:30:14.187573: Button-Down
+2017-07-31 14:30:14.648670: Button-Down
+2017-07-31 14:30:15.842754: Button-Right
+2017-07-31 14:30:16.020505: Button-Right
+2017-07-31 14:30:16.188737: Button-Right
+2017-07-31 14:30:16.417339: Button-Right
+2017-07-31 14:30:16.958399: Button-Down
+2017-07-31 14:30:17.133902: Button-Down
+2017-07-31 14:30:17.360169: Button-Down
+2017-07-31 14:30:17.600693: Button-Down
+2017-07-31 14:30:18.528939: Button-Right
+2017-07-31 14:30:19.452781: Button-Down
+2017-07-31 14:30:19.600050: Button-Down
+2017-07-31 14:30:20.137143: Button-Down
+2017-07-31 14:30:21.151943: Button-Left
+2017-07-31 14:30:21.364552: Button-Left
+2017-07-31 14:30:21.623975: Button-Left
+2017-07-31 14:30:23.223034: Button-Up
+2017-07-31 14:30:23.360467: Button-Up
+2017-07-31 14:30:23.487440: Button-Up
+2017-07-31 14:30:23.651842: Button-Up
+2017-07-31 14:30:24.650358: Button-Left
+2017-07-31 14:30:25.777216: Button-Interaction
+2017-07-31 14:30:25.777286: Condition Finished

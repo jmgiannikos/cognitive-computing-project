@@ -1,0 +1,59 @@
+2017-07-31 14:26:03.383886: 
+ConditionID: Map6_C1_V2
+EnvString: 
+######################
+#gggg#gggggggg#gggggg#
+#gggg#ggg#gggg###g####
+#gggg#ggg#ggggggggggg#
+####ggggg######gg###g#
+#ggggggggggggg##g#ggg#
+#gg#######ggggggg#g###
+#gggggggg###ggggg#ggg#
+#g####g#ggg##gggg###g#
+#g#gg#g###gg#gggggg#g#
+####g#ggg#ggggggg###g#
+#gggg##gg#ggggggg#ggg#
+#ggggg#gg#########ggg#
+#gggggggggggggggggggg#
+######################
+AlwaysVisibles: [(9, 3)]
+ViewRadius: 0
+TargetRadius: 15
+Targets: {(9, 3): {'color': 'skyblue', 'symbol': 'B'}}
+Goal: {'target': (9, 3), 'type': 'Reach', 'taskDesc': 'Reach the shown exit.'}
+StartPosition: (1, 1)
+
+2017-07-31 14:26:07.554541: Button-Down
+2017-07-31 14:26:10.291020: Button-Right
+2017-07-31 14:26:10.840930: Button-Right
+2017-07-31 14:26:11.725495: Button-Right
+2017-07-31 14:26:13.633568: Button-Down
+2017-07-31 14:26:14.547195: Button-Down
+2017-07-31 14:26:15.635776: Button-Down
+2017-07-31 14:26:17.435921: Button-Left
+2017-07-31 14:26:18.279000: Button-Left
+2017-07-31 14:26:19.729278: Button-Down
+2017-07-31 14:26:20.218216: Button-Down
+2017-07-31 14:26:21.432483: Button-Right
+2017-07-31 14:26:21.925269: Button-Right
+2017-07-31 14:26:22.635738: Button-Right
+2017-07-31 14:26:23.160085: Button-Right
+2017-07-31 14:26:24.488290: Button-Down
+2017-07-31 14:26:26.283268: Button-Down
+2017-07-31 14:26:27.735847: Button-Down
+2017-07-31 14:26:29.127470: Button-Right
+2017-07-31 14:26:29.490298: Button-Right
+2017-07-31 14:26:30.165808: Button-Down
+2017-07-31 14:26:30.502289: Button-Down
+2017-07-31 14:26:31.226261: Button-Down
+2017-07-31 14:26:31.960272: Button-Left
+2017-07-31 14:26:32.204625: Button-Left
+2017-07-31 14:26:32.724242: Button-Left
+2017-07-31 14:26:33.093717: Button-Left
+2017-07-31 14:26:34.890900: Button-Up
+2017-07-31 14:26:35.321729: Button-Up
+2017-07-31 14:26:36.015680: Button-Up
+2017-07-31 14:26:36.426410: Button-Up
+2017-07-31 14:26:37.427799: Button-Left
+2017-07-31 14:26:38.792863: Button-Interaction
+2017-07-31 14:26:38.792931: Condition Finished
