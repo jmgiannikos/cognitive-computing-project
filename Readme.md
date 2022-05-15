@@ -42,3 +42,7 @@ Differnetly Uncertain Agents" by Pöppel and Kopp
 
 You can furthermore find a couple of example of how you can use the package
 in the ```example.py```.
+
+You can also use the pipeline via command line arguments.
+Try ```pipeline.py -h``` ```pipeline.py --help``` to see currently available command options.
+(If ```-log``` is used the log file(s) is/are saved to ```data/Agent_data/labyrinthName_agentType```)
