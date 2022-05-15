@@ -1,15 +1,17 @@
 import argparse
+from cogmodel import GridEnvironment
+from ast import literal_eval
 
 
 class pipeline(object):
 
     def __init__(self, args):
-        self.agent_type = args.agent # string, name of to be used agent
-        self.playback = args.playback # file path to .txt file containing playback
-        self.labyrinth = args.labyrinth # file path to .txt file containing labyrinths
-        self.log = args.logging # bool, toggles logging of results
-        self.show = args.show # bool, toggles showing of results
-        self.envs = [] # list of all grid environments
+        self.agent_type = args.agent  # string, name of to be used agent
+        self.playback = args.playback  # file path to .txt file containing playback
+        self.labyrinth = args.labyrinth  # file path to .txt file containing labyrinths
+        self.log = args.logging  # bool, toggles logging of results
+        self.show = args.show  # bool, toggles showing of results
+        self.envs = []  # list of all grid environments
 
     def run(self):
         """
@@ -23,7 +25,8 @@ class pipeline(object):
             match self.agent_type:
                 case "wall_follower":
                     # TODO make agent once available
-                    print("Constructing agent")
+                    for env in self.envs:
+                        print("Constructing agent")
 
         elif self.playback:
             # TODO: implement playback here
@@ -33,7 +36,59 @@ class pipeline(object):
             return -1
 
     def _construct_envs(self):
-        print("Constructing ...")
+        """
+            Reads labyrinth(s) from .txt file and creates fitting environments
+        """
+
+        def _add_env(self):
+            """
+                Initializes gridEnvs and adds them to envs list
+            """
+            env = GridEnvironment(env_string=env_string)
+            env.initialize_agent(initial_agent_pos=literal_eval(start_postion))
+            # TODO see if this changed
+            env.initialize_targets(targets=dict(
+                {literal_eval("(1,2)"): dict({"symbol": "T", "color": "green"})}))
+            if self.log:
+                log_path = "data/Agent_data/" + \
+                    str(name) + "_" + str(self.agent_type)
+                env.set_logging(path=log_path)
+            self.envs.append(env)
+
+        # opening and reading file
+        with open(args.labyrinth) as file:
+            read_point = 0
+            env_string = ""
+            start_postion = ""
+            goal_position = ""
+            name = ""
+            while(line := file.readline()):
+                if line in ["EnvString:\n", "Goal:\n", "Start:\n", "Name:\n"]:
+                    read_point += 1
+                else:
+                    match read_point:
+                        case 1:
+                            env_string += line
+                        case 2:
+                            start_postion += line.strip()
+                        case 3:
+                            goal_position += line.strip()
+                        case 4:
+                            name += line.strip()
+                            _add_env(self)
+                            read_point = 0
+                            env_string = ""
+                            start_postion = ""
+                            goal_position = ""
+                            name = ""
+                        case _:
+                            print(
+                                "Something went wrong while trying to read the labyrinth file.")
+                            return -1
+
+        # closing file
+        file.close()
+
 
 if __name__ == "__main__":
     """
