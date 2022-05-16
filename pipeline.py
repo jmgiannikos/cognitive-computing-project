@@ -8,7 +8,7 @@ from cogmodel import playback
 class pipeline(object):
 
     def __init__(self, args):
-        self.agent_type = args.agent  # string, name of to be used agent
+        self.agent_types = args.agent  # list of names of to be used agents
         self.playback = args.playback  # file path to .txt file containing playback
         self.labyrinth = args.labyrinth  # file path to .txt file containing labyrinths
         self.log = args.logging  # bool, toggles logging of results
@@ -20,15 +20,16 @@ class pipeline(object):
             Runs and controls pipeline
         """
 
-        if self.agent_type:
+        if self.agent_types:
             # constructing grid environment(s)
             self._construct_envs()
             # TODO add other available agents
-            match self.agent_type:
-                case "wall_follower":
-                    # TODO make agent once available
-                    for env in self.envs:
-                        print("Constructing agent")
+            for agent_type in self.agent_types:
+                match agent_type:
+                    case "wall_follower":
+                        # TODO make agent once available
+                        for env in self.envs:
+                            print("Constructing agent")
 
         elif self.playback:
             self._playback()
@@ -161,7 +162,7 @@ if __name__ == "__main__":
     # pipeline either creates new agents or does playback, not both at once
     # TODO: add agents names once available
     group.add_argument(
-        "-a", "--agent", help="name of the agent that should be used", choices=['wall_follower'])
+        "-a", "--agent", help="name of the agent that should be used", choices=['wall_follower'], nargs="+")
     group.add_argument(
         "-p", "--playback", help="file path to .txt file containing log-file that should be replayed")
     # -l can still  be used if pipeline is used for playback, however, it does not do anything
