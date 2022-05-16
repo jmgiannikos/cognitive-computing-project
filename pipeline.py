@@ -1,6 +1,8 @@
 import argparse
-from cogmodel import GridEnvironment
 from ast import literal_eval
+from cogmodel import GridEnvironment
+from cogmodel import renderer
+from cogmodel import playback
 
 
 class pipeline(object):
@@ -29,8 +31,7 @@ class pipeline(object):
                         print("Constructing agent")
 
         elif self.playback:
-            # TODO: implement playback here
-            print("Playback")
+            self._playback()
         else:
             print("You either have to use an agent via '-a' or a playback file via '-p'!")
             return -1
@@ -113,6 +114,31 @@ class pipeline(object):
             goal_position = (5, 9)
             name = "Default Labyrinth"
             _add_env(self)
+
+    def _playback(self):
+        """
+            Play backs logging file given by user.
+        """
+
+        # The following code is taken from example.py; will need to be adjusted once Issue#2 is resolved
+        if renderer.pygame_available:
+            rend = renderer.PygameRenderer()
+        else:
+            rend = renderer.MatplotlibRenderer()
+
+        env, targets, playback_agent, goal_pos = playback.load_experiment(
+            self.playback)
+        env.initialize_targets(targets, target_radius=5)
+        rend.plot(env.get_observation(), env.agent_pos, show_trajectory=True)
+
+        def my_callback(pos):
+            rend.plot(env.get_observation(), pos, show_trajectory=True)
+            # To allow for event handling and matplotlib updates
+            rend.pause(0.001)
+
+        playback_agent.replay(my_callback, speedup=1)
+
+        renderer.show()
 
 
 if __name__ == "__main__":
