@@ -46,6 +46,7 @@ class pipeline(object):
                 Initializes gridEnvs and adds them to envs list
             """
             env = GridEnvironment(env_string=env_string)
+            # TODO add agent_facing once possible, add view_radius once discussed
             env.initialize_agent(initial_agent_pos=start_postion)
             # TODO see if this changed
             env.initialize_targets(
@@ -60,6 +61,7 @@ class pipeline(object):
         env_string = ""
         start_postion = ()
         goal_position = ()
+        facing = ""
         name = ""
 
         # use user labyrinth if given
@@ -69,7 +71,7 @@ class pipeline(object):
             with open(args.labyrinth) as file:
                 read_point = 0
                 while(line := file.readline()):
-                    if line in ["EnvString:\n", "Goal:\n", "Start:\n", "Name:\n"]:
+                    if line in ["EnvString:\n", "Goal:\n", "Start:\n", "Facing:\n", "Name:\n"]:
                         read_point += 1
                     else:
                         match read_point:
@@ -80,12 +82,15 @@ class pipeline(object):
                             case 3:
                                 goal_position = literal_eval(line.strip())
                             case 4:
-                                name += line.strip()
+                                facing = line.strip()
+                            case 5:
+                                name = line.strip()
                                 _add_env(self)
                                 read_point = 0
                                 env_string = ""
-                                start_postion = ""
-                                goal_position = ""
+                                start_postion = ()
+                                goal_position = ()
+                                facing = ""
                                 name = ""
                             case _:
                                 print(
@@ -112,6 +117,7 @@ class pipeline(object):
                 "######################"
             start_postion = (13, 17)
             goal_position = (5, 9)
+            facing = "NORTH"
             name = "Default Labyrinth"
             _add_env(self)
 
