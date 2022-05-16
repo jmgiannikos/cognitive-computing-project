@@ -274,6 +274,7 @@ class GridEnvironment(object):
         self.view_radius = None
         self.target_radius = None
         self.targets = []
+        self.facing_direction = NORTH # agent always starts facing north by default
         if env_string is not None:
             self.parse_world_string(env_string)
         self.action_space = (NORTH, SOUTH, WEST, EAST, STAY)
@@ -400,6 +401,54 @@ class GridEnvironment(object):
             self.agent_pos = (x+i, y+j)
 
         return self.agent_pos
+
+    def _rotate_vector_left(self, vec):
+        x1 = vec[0]
+        y1 = vec[1]
+
+        # vector transformation: turn vector 270 degrees
+        x2 = y1
+        y2 = -x1
+
+        return (x2,y2)
+
+    def _rotate_vector_right(self, vec):
+        x1 = vec[0]
+        y1 = vec[1]
+
+        # vector transformation: turn vector 270 degrees
+        x2 = -y1
+        y2 = x1
+
+        return (x2, y2)
+
+    def transform_facing_left(self):
+        x1 = self.facing_direction[0]
+        y1 = self.facing_direction[1]
+
+        self.facing_direction = self._rotate_vector_left((x1,y1))
+
+    def transform_facing_right(self):
+        x1 = self.facing_direction[0]
+        y1 = self.facing_direction[1]
+
+        self.facing_direction = self._rotate_vector_right((x1,y1))
+
+    def get_view_cone(self):
+        if self.facing_direction == NORTH:
+            viewcone = self._handle_octant(self.agent_pos, 5, self.view_radius) + self._handle_octant(self.agent_pos, 6, self.view_radius)
+        elif self.facing_direction == SOUTH:
+            viewcone = self._handle_octant(self.agent_pos, 1, self.view_radius) + self._handle_octant(self.agent_pos, 2, self.view_radius)
+        elif self.facing_direction == EAST:
+            viewcone = self._handle_octant(self.agent_pos, 0, self.view_radius) + self._handle_octant(self.agent_pos, 7, self.view_radius)
+        elif self.facing_direction == WEST:
+            viewcone = self._handle_octant(self.agent_pos, 3, self.view_radius) + self._handle_octant(self.agent_pos, 4, self.view_radius)
+        else:
+            raise EnvironmentError()
+
+        viewcone = list(set(viewcone))
+
+        return viewcone
 
     def parse_world_string(self, env_string, get_passable_states=False):
         r"""
