@@ -45,49 +45,74 @@ class pipeline(object):
                 Initializes gridEnvs and adds them to envs list
             """
             env = GridEnvironment(env_string=env_string)
-            env.initialize_agent(initial_agent_pos=literal_eval(start_postion))
+            env.initialize_agent(initial_agent_pos=start_postion)
             # TODO see if this changed
-            env.initialize_targets(targets=dict(
-                {literal_eval("(1,2)"): dict({"symbol": "T", "color": "green"})}))
+            env.initialize_targets(
+                targets={goal_position: {"symbol": "T", "color": "green"}})
             if self.log:
                 log_path = "data/Agent_data/" + \
                     str(name) + "_" + str(self.agent_type)
                 env.set_logging(path=log_path)
             self.envs.append(env)
 
-        # opening and reading file
-        with open(args.labyrinth) as file:
-            read_point = 0
-            env_string = ""
-            start_postion = ""
-            goal_position = ""
-            name = ""
-            while(line := file.readline()):
-                if line in ["EnvString:\n", "Goal:\n", "Start:\n", "Name:\n"]:
-                    read_point += 1
-                else:
-                    match read_point:
-                        case 1:
-                            env_string += line
-                        case 2:
-                            start_postion += line.strip()
-                        case 3:
-                            goal_position += line.strip()
-                        case 4:
-                            name += line.strip()
-                            _add_env(self)
-                            read_point = 0
-                            env_string = ""
-                            start_postion = ""
-                            goal_position = ""
-                            name = ""
-                        case _:
-                            print(
-                                "Something went wrong while trying to read the labyrinth file.")
-                            return -1
+        # information used to generate environment
+        env_string = ""
+        start_postion = ()
+        goal_position = ()
+        name = ""
 
-        # closing file
-        file.close()
+        # use user labyrinth if given
+        if self.labyrinth:
+
+            # opening and reading file
+            with open(args.labyrinth) as file:
+                read_point = 0
+                while(line := file.readline()):
+                    if line in ["EnvString:\n", "Goal:\n", "Start:\n", "Name:\n"]:
+                        read_point += 1
+                    else:
+                        match read_point:
+                            case 1:
+                                env_string += line
+                            case 2:
+                                start_postion = literal_eval(line.strip())
+                            case 3:
+                                goal_position = literal_eval(line.strip())
+                            case 4:
+                                name += line.strip()
+                                _add_env(self)
+                                read_point = 0
+                                env_string = ""
+                                start_postion = ""
+                                goal_position = ""
+                                name = ""
+                            case _:
+                                print(
+                                    "Something went wrong while trying to read the labyrinth file.")
+                                return -1
+
+             # closing file
+            file.close()
+        else:  # use default labyrinth
+            env_string = "######################\n" + \
+                "#gggggggggggggggggggg#\n" + \
+                "#g#g###g#g#g#g###g####\n" + \
+                "#g#ggg#ggg#g#ggg#gggg#\n" + \
+                "#g###g#####g###g#g##g#\n" + \
+                "#g#ggg#ggg#g#gggggggg#\n" + \
+                "#g#g###g###g#g###g####\n" + \
+                "#ggggggg#ggg#gg##gggg#\n" + \
+                "#g#######g#g#g##gg##g#\n" + \
+                "#ggggggg###g###gg###g#\n" + \
+                "#g#####gg##g##gg##g#g#\n" + \
+                "#ggggg##gg#g#gg##gggg#\n" + \
+                "#g###g###g#g#g#####gg#\n" + \
+                "#ggggggggggggggg#gggg#\n" + \
+                "######################"
+            start_postion = (13, 17)
+            goal_position = (5, 9)
+            name = "Default Labyrinth"
+            _add_env(self)
 
 
 if __name__ == "__main__":
