@@ -14,10 +14,11 @@ NORTH = (-1,0)
 SOUTH = (1,0)
 WEST = (0,-1)
 EAST = (0,1)
-STAY = (0,0)
+TURN_RIGHT = [[0,-1],[1,0]] # expressed as rotational matrix used for rotating a vector 90 degrees counterclockwise
+TURN_LEFT = [[0,1],[-1,0]] # expressed as rotational matrix used for rotating a vector 270 degrees counterclockwise
 
 ACTION_NAMES = {NORTH: "NORTH", SOUTH:"SOUTH", 
-                WEST: "WEST", EAST: "EAST", STAY: "STAY"}
+                WEST: "WEST", EAST: "EAST", TURN_RIGHT: "TURN RIGHT", TURN_LEFT: "TURN LEFT"}
 
 COLOR_MAP = {"#": "gray", "g": "white", "": "black"}
 
@@ -255,7 +256,7 @@ class GridEnvironment(object):
             to the init function.
         action_space: tuple
             A tuple containing all available actions of the gridworld. These
-            are going ``NORTH``, ``SOUTH``, ``WEST``, ``EAST`` and ``STAY``,
+            are going ``NORTH``, ``SOUTH``, ``WEST``, ``EAST``, ``TURN_LEFT`` and ``TURN_RIGHT``,
             which move the agent in the respective direction by 1 block.
         _path: dict
             A private dictionary used to store optimal paths between nodes. Will
@@ -277,10 +278,13 @@ class GridEnvironment(object):
         self.facing_direction = NORTH # agent always starts facing north by default
         if env_string is not None:
             self.parse_world_string(env_string)
-        self.action_space = (NORTH, SOUTH, WEST, EAST, STAY)
+        self.action_space = (NORTH, SOUTH, WEST, EAST, TURN_LEFT, TURN_RIGHT)
 
         self._path = {} # Dictionary to store optimal paths between nodes
         self.log_path = None
+
+        self.path_length = 0
+        self.step_score = 0.0
 
     def set_logging(self, path):
         """
@@ -394,11 +398,23 @@ class GridEnvironment(object):
 
         if self.log_path:
             log(self.log_path, datetime.datetime.utcnow(), "FUNCTION-{}".format(ACTION_NAMES[action]))
-        
-        x,y = self.agent_pos
-        i,j = action
-        if self.tiles[x+i,y+j].passable:
-            self.agent_pos = (x+i, y+j)
+
+        if isinstance(action, list):
+            if action == TURN_RIGHT:
+                self._transform_facing_right()
+                self.step_score += 0.6 ## at the moment turning is valued as two thirds as costly as stepping in a direction
+            elif action == TURN_LEFT:
+                self._transform_facing_left()
+                self.step_score += 0.6
+            else:
+                raise AttributeError("{} is not a correct rotational matrix") ## should be caught ahead of this in all cases. More useful for testing code.
+        else:
+            x,y = self.agent_pos
+            i,j = action
+            if self.tiles[x+i,y+j].passable:
+                self.agent_pos = (x+i, y+j)
+                self.step_score += 1 ## TODO: check if we want to track all attempted or all successful steps. at the moment we are doing the latter.
+                self.path_length += 1
 
         return self.agent_pos
 
@@ -422,13 +438,13 @@ class GridEnvironment(object):
 
         return (x2, y2)
 
-    def transform_facing_left(self):
+    def _transform_facing_left(self):
         x1 = self.facing_direction[0]
         y1 = self.facing_direction[1]
 
         self.facing_direction = self._rotate_vector_left((x1,y1))
 
-    def transform_facing_right(self):
+    def _transform_facing_right(self):
         x1 = self.facing_direction[0]
         y1 = self.facing_direction[1]
 
