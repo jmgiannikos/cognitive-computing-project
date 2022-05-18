@@ -286,7 +286,7 @@ class GridEnvironment(object):
         self.path_length = 0
         self.step_score = 0.0
 
-    def set_logging(self, path):
+    def set_logging(self, path, envName, agentType):
         """
             Defines that this environment should log all performed actions
             and other information, that might be required to replay actions.
@@ -299,6 +299,12 @@ class GridEnvironment(object):
             path: str
                 The path of the log-file. Can be absolute or relative to the 
                 current working directory.
+            envName: str
+                The name of the environment that is currently used, given
+                for logging purposes.
+            agentType: str
+                The name of the strategy of the agent that is currently used, given
+                for logging purposes.
         """
         self.log_path = path
         visibles = [] if self.target_radius is not None else self.targets
@@ -313,10 +319,15 @@ class GridEnvironment(object):
             "TargetRadius: {}\n" \
             "Targets: {}\n" \
             "Goal: {}\n" \
-            "StartPosition: {}\n".format(self.env_string,
+            "StartPosition: {}\n" \
+            "Facing: {}\n" \
+            "Name: {}\n" \
+            "AgentType: {}\n".format(self.env_string,
                                         visibles, self.view_radius, 
                                         self.target_radius, targets, 
-                                        goal, self.initial_agent_pos))
+                                        goal, self.initial_agent_pos,
+                                        self.facing_direction,
+                                        envName, agentType))
 
 
 
@@ -415,7 +426,10 @@ class GridEnvironment(object):
                 self.agent_pos = (x+i, y+j)
                 self.step_score += 1 ## TODO: check if we want to track all attempted or all successful steps. at the moment we are doing the latter.
                 self.path_length += 1
-
+        if self.agent_pos == self.targets[0] :
+            log(self.log_path, datetime.datetime.utcnow(),  "Length: {}\n"\
+                                                            "Action: {}\n".format(self.path_length,
+                                                                                  self.step_score))
         return self.agent_pos
 
     def _rotate_vector_left(self, vec):
