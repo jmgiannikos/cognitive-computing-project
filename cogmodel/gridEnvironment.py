@@ -267,14 +267,19 @@ class GridEnvironment(object):
             environment should not do logging.
     """
 
-    def __init__(self, target, env_string=None):
+    def __init__(self, target, initial_agent_pos, view_radius, env_string=None, facing=None):
         self.tiles = {}
         self.size = (None, None)
-        self.agent_pos = None
+        self.agent_pos = initial_agent_pos
+        self.agent = None
         self.initial_agent_pos = None
-        self.view_radius = None
+        self.view_radius = view_radius
         self.target = target
-        self.facing_direction = NORTH # agent always starts facing north by default
+        if facing is not None and isinstance(facing, tuple) and len(facing) == 2:
+            self.facing_direction = facing
+        else:
+            self.facing_direction = NORTH # agent always starts facing north by default
+        self.agent = None
         if env_string is not None:
             self.parse_world_string(env_string)
         self.action_space = (NORTH, SOUTH, WEST, EAST, TURN_LEFT, TURN_RIGHT)
@@ -319,24 +324,16 @@ class GridEnvironment(object):
 
 
 
-    def initialize_agent(self, initial_agent_pos, view_radius=None, facing=None):
+    def initialize_agent(self, agent):
         """
-            Initializes the agent position, if it has not been done before.
+        hands agent object to grid environment for tracking purposes
 
-            Parameters
-            ----------
-            initial_agent_pos: tuple
-                The position the agent should start out with.
-            view_radius: int, optional (Default: None)
-                The radius in which the agent can see it's environment.
-                Tiles outside this radius will be invisible.
+        Parameters
+        ----------
+        agent: the agent object that is being tracked
         """
-        if self.agent_pos is None:
-            self.agent_pos = initial_agent_pos
-            self.initial_agent_pos = initial_agent_pos
-            self.view_radius = view_radius
-        if facing is not None and isinstance(facing, tuple) and len(facing) == 2:
-            self.facing_direction = facing
+
+        self.agent = agent
 
 
     def get_action_space(self):
