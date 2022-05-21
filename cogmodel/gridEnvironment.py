@@ -14,10 +14,11 @@ NORTH = (-1,0)
 SOUTH = (1,0)
 WEST = (0,-1)
 EAST = (0,1)
-STAY = (0,0)
+TURN_RIGHT = [[0,-1],[1,0]] # expressed as rotational matrix used for rotating a vector 90 degrees counterclockwise
+TURN_LEFT = [[0,1],[-1,0]] # expressed as rotational matrix used for rotating a vector 270 degrees counterclockwise
 
 ACTION_NAMES = {NORTH: "NORTH", SOUTH:"SOUTH", 
-                WEST: "WEST", EAST: "EAST", STAY: "STAY"}
+                WEST: "WEST", EAST: "EAST", TURN_RIGHT: "TURN RIGHT", TURN_LEFT: "TURN LEFT"}
 
 COLOR_MAP = {"#": "gray", "g": "white", "": "black"}
 
@@ -255,7 +256,7 @@ class GridEnvironment(object):
             to the init function.
         action_space: tuple
             A tuple containing all available actions of the gridworld. These
-            are going ``NORTH``, ``SOUTH``, ``WEST``, ``EAST`` and ``STAY``,
+            are going ``NORTH``, ``SOUTH``, ``WEST``, ``EAST``, ``TURN_LEFT`` and ``TURN_RIGHT``,
             which move the agent in the respective direction by 1 block.
         _path: dict
             A private dictionary used to store optimal paths between nodes. Will
@@ -266,21 +267,23 @@ class GridEnvironment(object):
             environment should not do logging.
     """
 
-    def __init__(self, env_string=None):
+    def __init__(self, target, env_string=None):
         self.tiles = {}
         self.size = (None, None)
         self.agent_pos = None
         self.initial_agent_pos = None
         self.view_radius = None
-        self.target_radius = None
-        self.targets = []
+        self.target = target
         self.facing_direction = NORTH # agent always starts facing north by default
         if env_string is not None:
             self.parse_world_string(env_string)
-        self.action_space = (NORTH, SOUTH, WEST, EAST, STAY)
+        self.action_space = (NORTH, SOUTH, WEST, EAST, TURN_LEFT, TURN_RIGHT)
 
         self._path = {} # Dictionary to store optimal paths between nodes
         self.log_path = None
+
+        self.path_length = [0]
+        self.step_score = [0.0]
 
     def set_logging(self, path):
         """
@@ -310,13 +313,13 @@ class GridEnvironment(object):
             "Targets: {}\n" \
             "Goal: {}\n" \
             "StartPosition: {}\n".format(self.env_string,
-                                        visibles, self.view_radius, 
-                                        self.target_radius, targets, 
+                                        visibles, self.view_radius,
+                                        self.target_radius, targets,
                                         goal, self.initial_agent_pos))
 
 
 
-    def initialize_agent(self, initial_agent_pos, view_radius=None):
+    def initialize_agent(self, initial_agent_pos, view_radius=None, facing=None):
         """
             Initializes the agent position, if it has not been done before.
 
@@ -332,32 +335,9 @@ class GridEnvironment(object):
             self.agent_pos = initial_agent_pos
             self.initial_agent_pos = initial_agent_pos
             self.view_radius = view_radius
+        if facing is not None and isinstance(facing, tuple) and len(facing) == 2:
+            self.facing_direction = facing
 
-    def initialize_targets(self, targets, target_radius=None):
-        """
-            Function to designate certain tiles as special targets, 
-            which sets additional attributes of these tiles.
-            
-            Parameters
-            ----------
-            targets: dict
-                A dictionary of dictionaries containing the target positions 
-                as keys with another dictionary as value for each target
-                containing color and symbol information about this target.
-            target_radius: int, optional (Default: None)
-                If given, specifies the radius in which targets are visible.
-                None means, that targets are always visible.
-        """
-
-        # Reset old targets
-        for t in self.targets:
-            self.tiles[t].unset_as_target()
-
-        for k,v in targets.items():
-            self.tiles[k].set_as_target(v)
-
-        self.targets = list(targets.keys())
-        self.target_radius = target_radius
 
     def get_action_space(self):
         """
@@ -385,6 +365,9 @@ class GridEnvironment(object):
                 tuple
                 The new state of the agent after performing the action.
         """
+        pathlen = self.path_length[-1]
+        stepscore = self.step_score[-1]
+
         if not action in self.action_space:
             raise AttributeError("{} is not a valid action for this " \
                     "environment!".format(action))
@@ -394,11 +377,26 @@ class GridEnvironment(object):
 
         if self.log_path:
             log(self.log_path, datetime.datetime.utcnow(), "FUNCTION-{}".format(ACTION_NAMES[action]))
-        
-        x,y = self.agent_pos
-        i,j = action
-        if self.tiles[x+i,y+j].passable:
-            self.agent_pos = (x+i, y+j)
+
+        if isinstance(action, list):
+            if action == TURN_RIGHT:
+                self._transform_facing_right()
+                stepscore += 0.6 ## at the moment turning is valued as two thirds as costly as stepping in a direction
+            elif action == TURN_LEFT:
+                self._transform_facing_left()
+                stepscore += 0.6
+            else:
+                raise AttributeError("{} is not a correct rotational matrix") ## should be caught ahead of this in all cases. More useful for testing code.
+        else:
+            x,y = self.agent_pos
+            i,j = action
+            stepscore += 1
+            if self.tiles[x+i,y+j].passable:
+                self.agent_pos = (x+i, y+j)
+                pathlen += 1
+
+        self.path_length.append(pathlen)
+        self.step_score.append(stepscore)
 
         return self.agent_pos
 
@@ -422,13 +420,13 @@ class GridEnvironment(object):
 
         return (x2, y2)
 
-    def transform_facing_left(self):
+    def _transform_facing_left(self):
         x1 = self.facing_direction[0]
         y1 = self.facing_direction[1]
 
         self.facing_direction = self._rotate_vector_left((x1,y1))
 
-    def transform_facing_right(self):
+    def _transform_facing_right(self):
         x1 = self.facing_direction[0]
         y1 = self.facing_direction[1]
 
