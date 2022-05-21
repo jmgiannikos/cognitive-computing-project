@@ -282,8 +282,8 @@ class GridEnvironment(object):
         self._path = {} # Dictionary to store optimal paths between nodes
         self.log_path = None
 
-        self.path_length = 0
-        self.step_score = 0.0
+        self.path_length = [0]
+        self.step_score = [0.0]
 
     def set_logging(self, path):
         """
@@ -365,6 +365,9 @@ class GridEnvironment(object):
                 tuple
                 The new state of the agent after performing the action.
         """
+        pathlen = self.path_length[-1]
+        stepscore = self.step_score[-1]
+
         if not action in self.action_space:
             raise AttributeError("{} is not a valid action for this " \
                     "environment!".format(action))
@@ -378,19 +381,22 @@ class GridEnvironment(object):
         if isinstance(action, list):
             if action == TURN_RIGHT:
                 self._transform_facing_right()
-                self.step_score += 0.6 ## at the moment turning is valued as two thirds as costly as stepping in a direction
+                stepscore += 0.6 ## at the moment turning is valued as two thirds as costly as stepping in a direction
             elif action == TURN_LEFT:
                 self._transform_facing_left()
-                self.step_score += 0.6
+                stepscore += 0.6
             else:
                 raise AttributeError("{} is not a correct rotational matrix") ## should be caught ahead of this in all cases. More useful for testing code.
         else:
             x,y = self.agent_pos
             i,j = action
+            stepscore += 1
             if self.tiles[x+i,y+j].passable:
                 self.agent_pos = (x+i, y+j)
-                self.step_score += 1 ## TODO: check if we want to track all attempted or all successful steps. at the moment we are doing the latter.
-                self.path_length += 1
+                pathlen += 1
+
+        self.path_length.append(pathlen)
+        self.step_score.append(stepscore)
 
         return self.agent_pos
 
