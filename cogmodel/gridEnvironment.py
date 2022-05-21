@@ -267,14 +267,13 @@ class GridEnvironment(object):
             environment should not do logging.
     """
 
-    def __init__(self, env_string=None):
+    def __init__(self, target, env_string=None):
         self.tiles = {}
         self.size = (None, None)
         self.agent_pos = None
         self.initial_agent_pos = None
         self.view_radius = None
-        self.target_radius = None
-        self.targets = []
+        self.target = target
         self.facing_direction = NORTH # agent always starts facing north by default
         if env_string is not None:
             self.parse_world_string(env_string)
@@ -314,13 +313,13 @@ class GridEnvironment(object):
             "Targets: {}\n" \
             "Goal: {}\n" \
             "StartPosition: {}\n".format(self.env_string,
-                                        visibles, self.view_radius, 
-                                        self.target_radius, targets, 
+                                        visibles, self.view_radius,
+                                        self.target_radius, targets,
                                         goal, self.initial_agent_pos))
 
 
 
-    def initialize_agent(self, initial_agent_pos, view_radius=None):
+    def initialize_agent(self, initial_agent_pos, view_radius=None, facing=None):
         """
             Initializes the agent position, if it has not been done before.
 
@@ -336,32 +335,9 @@ class GridEnvironment(object):
             self.agent_pos = initial_agent_pos
             self.initial_agent_pos = initial_agent_pos
             self.view_radius = view_radius
+        if facing is not None and isinstance(facing, tuple) and len(facing) == 2:
+            self.facing_direction = facing
 
-    def initialize_targets(self, targets, target_radius=None):
-        """
-            Function to designate certain tiles as special targets, 
-            which sets additional attributes of these tiles.
-            
-            Parameters
-            ----------
-            targets: dict
-                A dictionary of dictionaries containing the target positions 
-                as keys with another dictionary as value for each target
-                containing color and symbol information about this target.
-            target_radius: int, optional (Default: None)
-                If given, specifies the radius in which targets are visible.
-                None means, that targets are always visible.
-        """
-
-        # Reset old targets
-        for t in self.targets:
-            self.tiles[t].unset_as_target()
-
-        for k,v in targets.items():
-            self.tiles[k].set_as_target(v)
-
-        self.targets = list(targets.keys())
-        self.target_radius = target_radius
 
     def get_action_space(self):
         """
