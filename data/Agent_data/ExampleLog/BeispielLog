@@ -1,5 +1,5 @@
 2017-07-31 14:24:31.150719: 
-EnvString: 
+EnvString:
 ######################
 #gggggggggggggggggggg#
 #g#g###g#g#g#g###g####
@@ -18,7 +18,7 @@ EnvString:
 Goal:
 (5,9)
 StartPosition:
-(13, 17)
+(13,17)
 Facing:
 EAST
 Name:

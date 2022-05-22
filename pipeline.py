@@ -112,7 +112,7 @@ class pipeline(object):
                                     "Something went wrong while trying to read the labyrinth file.")
                                 return -1
 
-             # closing file
+            # closing file
             file.close()
         else:  # use default labyrinth
             env_string = "######################\n" + \
@@ -147,9 +147,59 @@ class pipeline(object):
         else:
             rend = renderer.MatplotlibRenderer()
 
-        env, targets, playback_agent, goal_pos = playback.load_experiment(
-            self.playback)
-        env.initialize_targets(targets, target_radius=5)
+        # reading in information to construct playback agent
+        env_string = ""
+        action_rows = []
+        # not the most elegant way, but works I guess
+        with open(args.playback) as file:
+            read_point = 0
+            while(line := file.readline()):
+                if line in ["EnvString:\n", "Goal:\n", "StartPosition:\n", "Facing:\n", "Name:\n", "AgentType:\n"]:
+                    read_point += 1
+                elif "Condition starting" in line:
+                    action_rows.append(line)
+                    read_point += 1
+                elif "Condition Finished" in line:
+                    action_rows.append(line)
+                    break
+                else:
+                    match read_point:
+                        case 0:
+                            continue
+                        case 1:
+                            env_string += line
+                        case 2:
+                            goal_position = literal_eval(line.strip())
+                        case 3:
+                            start_postion = literal_eval(line.strip())
+                        case 4:
+                            facing = line.strip()
+                        case 5:
+                            name = line.strip()
+                        case 6:
+                            agent_type = line.strip()
+                        case 7:
+                            action_rows.append(line)
+                        case 8:
+                            break
+                        case _:
+                            print(
+                                "Something went wrong while trying to read the labyrinth file.")
+                            return -1
+
+         # closing file
+        file.close()
+        
+        # constructing playback
+        env = GridEnvironment(env_string=env_string)
+        # TODO add facing_direction once possible, add view_radius once discussed
+        env.initialize_agent(initial_agent_pos=start_postion)
+        # TODO see if this changed
+        env.initialize_targets(
+            targets={goal_position: {"symbol": "T", "color": "green"}})
+        playback_agent = playback.PlaybackAgent(
+            agent_id=agent_type, action_rows=action_rows, start_pos=start_postion, environment=env)
+
         rend.plot(env.get_observation(), env.agent_pos, show_trajectory=True)
 
         def my_callback(pos):
