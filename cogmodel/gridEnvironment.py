@@ -6,7 +6,8 @@ from heapq import heappush, heappop
 #Use deque instead of queue for performance reasons
 from collections import deque
 from . import log
-import pympler
+from pympler import asizeof
+import time
 
 PASSABLES = {"a": True, "g": True, "#": False, "t": True}
 
@@ -373,7 +374,7 @@ class GridEnvironment(object):
         """
         self.timestamps.append(("perform_action start", time.time())) # take timestamp on beginning of request processing
 
-        self.memoryUsage.append(pympler.asizeof.asizeof(self.agent))
+        self.memoryUsage.append(asizeof.asizeof(self.agent))
 
         pathlen = self.path_length[-1]
         stepscore = self.step_score[-1]
@@ -388,7 +389,7 @@ class GridEnvironment(object):
         if self.log_path:
             log(self.log_path, datetime.datetime.utcnow(), "FUNCTION-{}".format(ACTION_NAMES[action]))
 
-        if isinstance(action, list):
+        if isinstance(action[0], tuple):
             if action == TURN_RIGHT:
                 self._transform_facing_right()
                 stepscore += 0.6 ## at the moment turning is valued as two thirds as costly as stepping in a direction
@@ -405,7 +406,7 @@ class GridEnvironment(object):
                 self.agent_pos = (x+i, y+j)
                 pathlen += 1
             
-        if self.agent_pos == self.targets[0] :
+        if self.agent_pos == self.target :
             log(self.log_path, datetime.datetime.utcnow(),  "Length: {}\n"\
                                                             "Action: {}\n".format(self.path_length,
                                                                                   self.step_score))
