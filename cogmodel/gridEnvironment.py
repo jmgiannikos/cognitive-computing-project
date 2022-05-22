@@ -6,6 +6,7 @@ from heapq import heappush, heappop
 #Use deque instead of queue for performance reasons
 from collections import deque
 from . import log
+import pympler
 
 PASSABLES = {"a": True, "g": True, "#": False, "t": True}
 
@@ -14,11 +15,10 @@ NORTH = (-1,0)
 SOUTH = (1,0)
 WEST = (0,-1)
 EAST = (0,1)
-TURN_RIGHT = [[0,-1],[1,0]] # expressed as rotational matrix used for rotating a vector 90 degrees counterclockwise
-TURN_LEFT = [[0,1],[-1,0]] # expressed as rotational matrix used for rotating a vector 270 degrees counterclockwise
+TURN_RIGHT = ((0,-1),(1,0)) # expressed as rotational matrix used for rotating a vector 90 degrees counterclockwise
+TURN_LEFT = ((0,1),(-1,0)) # expressed as rotational matrix used for rotating a vector 270 degrees counterclockwise
 
-ACTION_NAMES = {NORTH: "NORTH", SOUTH:"SOUTH", 
-                WEST: "WEST", EAST: "EAST", TURN_RIGHT: "TURN RIGHT", TURN_LEFT: "TURN LEFT"}
+ACTION_NAMES = {NORTH: "NORTH", SOUTH: "SOUTH", WEST: "WEST", EAST: "EAST", TURN_RIGHT: "TURN RIGHT", TURN_LEFT: "TURN LEFT"}
 
 COLOR_MAP = {"#": "gray", "g": "white", "": "black"}
 
@@ -289,6 +289,8 @@ class GridEnvironment(object):
 
         self.path_length = [0]
         self.step_score = [0.0]
+        self.timestamps = [] #tuples of timestamps and the name of the event that triggered taking the timestamp. Time given as seconds since the last epoch (float)
+        self.memoryUsage = [] #used memory after perform_action was called the i-th time
 
     def set_logging(self, path):
         """
@@ -305,21 +307,19 @@ class GridEnvironment(object):
                 current working directory.
         """
         self.log_path = path
-        visibles = [] if self.target_radius is not None else self.targets
+        visibles = self.target
         targets = {pos : {"color": self.tiles[pos].color, 
-                        "symbol": self.tiles[pos].target_symbol} for pos in self.targets}
+                        "symbol": self.tiles[pos].target_symbol} for pos in self.target}
         goal = {"target": ("Unknown", "Unknown")}
         log(path, datetime.datetime.utcnow(), 
             "\nGridEnvironment Log:\n" \
             "EnvString: \n{}\n" \
             "AlwaysVisibles: {}\n" \
             "ViewRadius: {}\n" \
-            "TargetRadius: {}\n" \
             "Targets: {}\n" \
             "Goal: {}\n" \
             "StartPosition: {}\n".format(self.env_string,
-                                        visibles, self.view_radius,
-                                        self.target_radius, targets,
+                                        visibles, self.view_radius, targets,
                                         goal, self.initial_agent_pos))
 
 
@@ -362,6 +362,10 @@ class GridEnvironment(object):
                 tuple
                 The new state of the agent after performing the action.
         """
+        self.timestamps.append(("perform_action start", time.time())) # take timestamp on beginning of request processing
+
+        self.memoryUsage.append(pympler.asizeof.asizeof(self.agent))
+
         pathlen = self.path_length[-1]
         stepscore = self.step_score[-1]
 
@@ -395,6 +399,7 @@ class GridEnvironment(object):
         self.path_length.append(pathlen)
         self.step_score.append(stepscore)
 
+        self.timestamps.append(("perform_action end", time.time())) # take timestamp on end of request processing
         return self.agent_pos
 
     def _rotate_vector_left(self, vec):
@@ -430,6 +435,8 @@ class GridEnvironment(object):
         self.facing_direction = self._rotate_vector_right((x1,y1))
 
     def get_view_cone(self):
+        self.timestamps.append(("get_view_cone start", time.time()))
+
         if self.facing_direction == NORTH:
             viewcone = self._handle_octant(self.agent_pos, 5, self.view_radius) + self._handle_octant(self.agent_pos, 6, self.view_radius)
         elif self.facing_direction == SOUTH:
@@ -443,6 +450,7 @@ class GridEnvironment(object):
 
         viewcone = list(set(viewcone))
 
+        self.timestamps.append(("get_view_cone end", time.time()))
         return viewcone
 
     def parse_world_string(self, env_string, get_passable_states=False):
@@ -519,8 +527,8 @@ class GridEnvironment(object):
             for i in range(self.size[0]):
                 tmp = []
                 for j in range(self.size[1]):
-                    if (i,j) in self.targets:
-                        if self.target_radius is None or self.is_visible((i,j), radius=self.target_radius):
+                    if (i,j) in self.target:
+                        if self.is_visible((i,j)):
                             self.tiles[(i,j)].target_visible = True
                         else:
                             self.tiles[(i,j)].target_visible = False
@@ -555,7 +563,7 @@ class GridEnvironment(object):
                     else:
                         tmp.append(self.tiles[(i,j)].to_dict() if json \
                                                         else self.tiles[(i,j)])
-                    if self.target_radius is None or self.is_visible((i,j), radius=self.target_radius):
+                    if self.is_visible((i,j)):
                         self.tiles[(i,j)].target_visible = True
                     else:
                         self.tiles[(i,j)].target_visible = False
