@@ -292,7 +292,7 @@ class GridEnvironment(object):
         self.timestamps = [] #tuples of timestamps and the name of the event that triggered taking the timestamp. Time given as seconds since the last epoch (float)
         self.memoryUsage = [] #used memory after perform_action was called the i-th time
 
-    def set_logging(self, path):
+    def set_logging(self, path, envName, agentType):
         """
             Defines that this environment should log all performed actions
             and other information, that might be required to replay actions.
@@ -305,6 +305,12 @@ class GridEnvironment(object):
             path: str
                 The path of the log-file. Can be absolute or relative to the 
                 current working directory.
+            envName: str
+                The name of the environment that is currently used, given
+                for logging purposes.
+            agentType: str
+                The name of the strategy of the agent that is currently used, given
+                for logging purposes.
         """
         self.log_path = path
         visibles = self.target
@@ -318,11 +324,14 @@ class GridEnvironment(object):
             "ViewRadius: {}\n" \
             "Targets: {}\n" \
             "Goal: {}\n" \
-            "StartPosition: {}\n".format(self.env_string,
-                                        visibles, self.view_radius, targets,
-                                        goal, self.initial_agent_pos))
-
-
+            "StartPosition: {}\n" \
+            "Facing: {}\n" \
+            "Name: {}\n" \
+            "AgentType: {}\n".format(self.env_string,
+                                        visibles, self.view_radius,targets, 
+                                        goal, self.initial_agent_pos,
+                                        self.facing_direction,
+                                        envName, agentType))
 
     def initialize_agent(self, agent):
         """
@@ -395,11 +404,17 @@ class GridEnvironment(object):
             if self.tiles[x+i,y+j].passable:
                 self.agent_pos = (x+i, y+j)
                 pathlen += 1
+            
+        if self.agent_pos == self.targets[0] :
+            log(self.log_path, datetime.datetime.utcnow(),  "Length: {}\n"\
+                                                            "Action: {}\n".format(self.path_length,
+                                                                                  self.step_score))
 
         self.path_length.append(pathlen)
         self.step_score.append(stepscore)
 
         self.timestamps.append(("perform_action end", time.time())) # take timestamp on end of request processing
+
         return self.agent_pos
 
     def _rotate_vector_left(self, vec):
