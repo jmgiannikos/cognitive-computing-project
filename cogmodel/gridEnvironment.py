@@ -6,6 +6,7 @@ from heapq import heappush, heappop
 #Use deque instead of queue for performance reasons
 from collections import deque
 from . import log
+import pympler
 
 PASSABLES = {"a": True, "g": True, "#": False, "t": True}
 
@@ -14,11 +15,10 @@ NORTH = (-1,0)
 SOUTH = (1,0)
 WEST = (0,-1)
 EAST = (0,1)
-TURN_RIGHT = [[0,-1],[1,0]] # expressed as rotational matrix used for rotating a vector 90 degrees counterclockwise
-TURN_LEFT = [[0,1],[-1,0]] # expressed as rotational matrix used for rotating a vector 270 degrees counterclockwise
+TURN_RIGHT = ((0,-1),(1,0)) # expressed as rotational matrix used for rotating a vector 90 degrees counterclockwise
+TURN_LEFT = ((0,1),(-1,0)) # expressed as rotational matrix used for rotating a vector 270 degrees counterclockwise
 
-ACTION_NAMES = {NORTH: "NORTH", SOUTH:"SOUTH", 
-                WEST: "WEST", EAST: "EAST", TURN_RIGHT: "TURN RIGHT", TURN_LEFT: "TURN LEFT"}
+ACTION_NAMES = {NORTH: "NORTH", SOUTH: "SOUTH", WEST: "WEST", EAST: "EAST", TURN_RIGHT: "TURN RIGHT", TURN_LEFT: "TURN LEFT"}
 
 COLOR_MAP = {"#": "gray", "g": "white", "": "black"}
 
@@ -267,15 +267,19 @@ class GridEnvironment(object):
             environment should not do logging.
     """
 
-    def __init__(self, env_string=None):
+    def __init__(self, target, initial_agent_pos, view_radius, env_string=None, facing=None):
         self.tiles = {}
         self.size = (None, None)
-        self.agent_pos = None
+        self.agent_pos = initial_agent_pos
+        self.agent = None
         self.initial_agent_pos = None
-        self.view_radius = None
-        self.target_radius = None
-        self.targets = []
-        self.facing_direction = NORTH # agent always starts facing north by default
+        self.view_radius = view_radius
+        self.target = target
+        if facing is not None and isinstance(facing, tuple) and len(facing) == 2:
+            self.facing_direction = facing
+        else:
+            self.facing_direction = NORTH # agent always starts facing north by default
+        self.agent = None
         if env_string is not None:
             self.parse_world_string(env_string)
         self.action_space = (NORTH, SOUTH, WEST, EAST, TURN_LEFT, TURN_RIGHT)
@@ -283,8 +287,10 @@ class GridEnvironment(object):
         self._path = {} # Dictionary to store optimal paths between nodes
         self.log_path = None
 
-        self.path_length = 0
-        self.step_score = 0.0
+        self.path_length = [0]
+        self.step_score = [0.0]
+        self.timestamps = [] #tuples of timestamps and the name of the event that triggered taking the timestamp. Time given as seconds since the last epoch (float)
+        self.memoryUsage = [] #used memory after perform_action was called the i-th time
 
     def set_logging(self, path, envName, agentType):
         """
@@ -307,72 +313,37 @@ class GridEnvironment(object):
                 for logging purposes.
         """
         self.log_path = path
-        visibles = [] if self.target_radius is not None else self.targets
+        visibles = self.target
         targets = {pos : {"color": self.tiles[pos].color, 
-                        "symbol": self.tiles[pos].target_symbol} for pos in self.targets}
+                        "symbol": self.tiles[pos].target_symbol} for pos in self.target}
         goal = {"target": ("Unknown", "Unknown")}
         log(path, datetime.datetime.utcnow(), 
             "\nGridEnvironment Log:\n" \
             "EnvString: \n{}\n" \
             "AlwaysVisibles: {}\n" \
             "ViewRadius: {}\n" \
-            "TargetRadius: {}\n" \
             "Targets: {}\n" \
             "Goal: {}\n" \
             "StartPosition: {}\n" \
             "Facing: {}\n" \
             "Name: {}\n" \
             "AgentType: {}\n".format(self.env_string,
-                                        visibles, self.view_radius, 
-                                        self.target_radius, targets, 
+                                        visibles, self.view_radius,targets, 
                                         goal, self.initial_agent_pos,
                                         self.facing_direction,
                                         envName, agentType))
 
-
-
-    def initialize_agent(self, initial_agent_pos, view_radius=None):
+    def initialize_agent(self, agent):
         """
-            Initializes the agent position, if it has not been done before.
+        hands agent object to grid environment for tracking purposes
 
-            Parameters
-            ----------
-            initial_agent_pos: tuple
-                The position the agent should start out with.
-            view_radius: int, optional (Default: None)
-                The radius in which the agent can see it's environment.
-                Tiles outside this radius will be invisible.
-        """
-        if self.agent_pos is None:
-            self.agent_pos = initial_agent_pos
-            self.initial_agent_pos = initial_agent_pos
-            self.view_radius = view_radius
-
-    def initialize_targets(self, targets, target_radius=None):
-        """
-            Function to designate certain tiles as special targets, 
-            which sets additional attributes of these tiles.
-            
-            Parameters
-            ----------
-            targets: dict
-                A dictionary of dictionaries containing the target positions 
-                as keys with another dictionary as value for each target
-                containing color and symbol information about this target.
-            target_radius: int, optional (Default: None)
-                If given, specifies the radius in which targets are visible.
-                None means, that targets are always visible.
+        Parameters
+        ----------
+        agent: the agent object that is being tracked
         """
 
-        # Reset old targets
-        for t in self.targets:
-            self.tiles[t].unset_as_target()
+        self.agent = agent
 
-        for k,v in targets.items():
-            self.tiles[k].set_as_target(v)
-
-        self.targets = list(targets.keys())
-        self.target_radius = target_radius
 
     def get_action_space(self):
         """
@@ -400,6 +371,13 @@ class GridEnvironment(object):
                 tuple
                 The new state of the agent after performing the action.
         """
+        self.timestamps.append(("perform_action start", time.time())) # take timestamp on beginning of request processing
+
+        self.memoryUsage.append(pympler.asizeof.asizeof(self.agent))
+
+        pathlen = self.path_length[-1]
+        stepscore = self.step_score[-1]
+
         if not action in self.action_space:
             raise AttributeError("{} is not a valid action for this " \
                     "environment!".format(action))
@@ -413,23 +391,30 @@ class GridEnvironment(object):
         if isinstance(action, list):
             if action == TURN_RIGHT:
                 self._transform_facing_right()
-                self.step_score += 0.6 ## at the moment turning is valued as two thirds as costly as stepping in a direction
+                stepscore += 0.6 ## at the moment turning is valued as two thirds as costly as stepping in a direction
             elif action == TURN_LEFT:
                 self._transform_facing_left()
-                self.step_score += 0.6
+                stepscore += 0.6
             else:
                 raise AttributeError("{} is not a correct rotational matrix") ## should be caught ahead of this in all cases. More useful for testing code.
         else:
             x,y = self.agent_pos
             i,j = action
+            stepscore += 1
             if self.tiles[x+i,y+j].passable:
                 self.agent_pos = (x+i, y+j)
-                self.step_score += 1 ## TODO: check if we want to track all attempted or all successful steps. at the moment we are doing the latter.
-                self.path_length += 1
+                pathlen += 1
+            
         if self.agent_pos == self.targets[0] :
             log(self.log_path, datetime.datetime.utcnow(),  "Length: {}\n"\
                                                             "Action: {}\n".format(self.path_length,
                                                                                   self.step_score))
+
+        self.path_length.append(pathlen)
+        self.step_score.append(stepscore)
+
+        self.timestamps.append(("perform_action end", time.time())) # take timestamp on end of request processing
+
         return self.agent_pos
 
     def _rotate_vector_left(self, vec):
@@ -465,6 +450,8 @@ class GridEnvironment(object):
         self.facing_direction = self._rotate_vector_right((x1,y1))
 
     def get_view_cone(self):
+        self.timestamps.append(("get_view_cone start", time.time()))
+
         if self.facing_direction == NORTH:
             viewcone = self._handle_octant(self.agent_pos, 5, self.view_radius) + self._handle_octant(self.agent_pos, 6, self.view_radius)
         elif self.facing_direction == SOUTH:
@@ -478,6 +465,7 @@ class GridEnvironment(object):
 
         viewcone = list(set(viewcone))
 
+        self.timestamps.append(("get_view_cone end", time.time()))
         return viewcone
 
     def parse_world_string(self, env_string, get_passable_states=False):
@@ -554,8 +542,8 @@ class GridEnvironment(object):
             for i in range(self.size[0]):
                 tmp = []
                 for j in range(self.size[1]):
-                    if (i,j) in self.targets:
-                        if self.target_radius is None or self.is_visible((i,j), radius=self.target_radius):
+                    if (i,j) in self.target:
+                        if self.is_visible((i,j)):
                             self.tiles[(i,j)].target_visible = True
                         else:
                             self.tiles[(i,j)].target_visible = False
@@ -590,7 +578,7 @@ class GridEnvironment(object):
                     else:
                         tmp.append(self.tiles[(i,j)].to_dict() if json \
                                                         else self.tiles[(i,j)])
-                    if self.target_radius is None or self.is_visible((i,j), radius=self.target_radius):
+                    if self.is_visible((i,j)):
                         self.tiles[(i,j)].target_visible = True
                     else:
                         self.tiles[(i,j)].target_visible = False
