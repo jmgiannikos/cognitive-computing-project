@@ -12,7 +12,7 @@ import os, threading
 from ast import literal_eval
 
 from .gridEnvironment import GridEnvironment
-from .gridEnvironment import NORTH, SOUTH, EAST, WEST, STAY
+from .gridEnvironment import NORTH, SOUTH, EAST, WEST, TURN_RIGHT, TURN_LEFT
 
 CONDITION_PATH = os.path.abspath(os.path.dirname(__file__)) + os.path.sep + "Conditions"
 
@@ -21,9 +21,11 @@ CONDITION_PATH = os.path.abspath(os.path.dirname(__file__)) + os.path.sep + "Con
 env_store = {}
 
 ACTION_MAPPING = {"Left": WEST, "Right": EAST, "Up": NORTH, 
-              "Down": SOUTH, "Interaction": STAY,
+              "Down": SOUTH, "Left": TURN_LEFT,
+              "Right": TURN_RIGHT,
               "NORTH": NORTH, "SOUTH": SOUTH, "EAST": EAST,
-              "WEST": WEST, "STAY": STAY}
+              "TURN LEFT": TURN_LEFT, "TURN RIGHT": TURN_RIGHT,
+              "WEST": WEST}
 
 def crawl_results(path, use_caching=False):
     """
@@ -159,7 +161,7 @@ def load_experiment(path, use_caching=True):
 
 class PlaybackAgent(object):
     """
-        Simple playback agent which will reproduce the the recorded actions
+        Simple playback agent which will reproduce the recorded actions
         of the participants.
 
         Parameters
@@ -249,13 +251,8 @@ class PlaybackAgent(object):
 
             action = ACTION_MAPPING[action_string]
 
-            old_pos = self.environment.agent_pos
             new_pos = self.environment.perform_action(action)
 
-            if new_pos == old_pos and ignore_duds:
-                self.cur_idx += 1
-                return self.perform_action(ignore_duds)
-                
         else: #Condition was finished
             return None
         
