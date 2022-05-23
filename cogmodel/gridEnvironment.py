@@ -320,15 +320,11 @@ class GridEnvironment(object):
         log(path, datetime.datetime.utcnow(), 
             "\nGridEnvironment Log:\n" \
             "EnvString: \n{}\n" \
-            "AlwaysVisibles: {}\n" \
-            "ViewRadius: {}\n" \
-            "Targets: {}\n" \
             "Goal: {}\n" \
             "StartPosition: {}\n" \
             "Facing: {}\n" \
             "Name: {}\n" \
             "AgentType: {}\n".format(self.env_string,
-                                        visibles, self.view_radius,targets, 
                                         goal, self.initial_agent_pos,
                                         self.facing_direction,
                                         envName, agentType))

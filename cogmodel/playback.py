@@ -21,8 +21,8 @@ CONDITION_PATH = os.path.abspath(os.path.dirname(__file__)) + os.path.sep + "Con
 env_store = {}
 
 ACTION_MAPPING = {"Left": WEST, "Right": EAST, "Up": NORTH, 
-              "Down": SOUTH, "Left": TURN_LEFT,
-              "Right": TURN_RIGHT,
+              "Down": SOUTH, "Turn left": TURN_LEFT,
+              "Turn Right": TURN_RIGHT,
               "NORTH": NORTH, "SOUTH": SOUTH, "EAST": EAST,
               "TURN LEFT": TURN_LEFT, "TURN RIGHT": TURN_RIGHT,
               "WEST": WEST}
@@ -115,7 +115,7 @@ def load_experiment(path, use_caching=True):
     for i, line in enumerate(lines[:condition_end]):
         if "EnvString" in line:
             start = i+1
-        if "AlwaysVisibles" in line:
+        if "Goal" in line:
             end = i
             break
         
@@ -156,7 +156,6 @@ def load_experiment(path, use_caching=True):
                 break
             
     return environment, targets, playback_agent, goal["target"]
-        
 
 
 class PlaybackAgent(object):
@@ -231,7 +230,7 @@ class PlaybackAgent(object):
 
             Parameters
             ----------
-            ignore_dus: bool (default=False)
+            ignore_duds: bool (default=False)
                 If true, actions not changing the agent's position, will be
                 skipped.
 
@@ -246,7 +245,7 @@ class PlaybackAgent(object):
         except IndexError:
             print("Agent {} finished it's episode.".format(self.id))
             return None 
-        if not "Finished" in action[1]:
+        if "Finished" not in action[1]:
             _, action_string = action[1].split("-")
 
             action = ACTION_MAPPING[action_string]
@@ -258,7 +257,6 @@ class PlaybackAgent(object):
         
         self.cur_idx += 1
         return new_pos
-
 
     def replay(self, callback, speedup=1):
         """
