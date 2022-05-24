@@ -31,7 +31,7 @@ if __name__ == "__main__":
     else:
         rend = renderer.MatplotlibRenderer()
 
-    rend = renderer.MatplotlibRenderer()
+    #rend = renderer.MatplotlibRenderer()
 
     rend.plot(env.get_observation(), env.agent_pos)
 
