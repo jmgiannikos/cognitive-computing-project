@@ -35,13 +35,18 @@ def _write_log():
         if dir_path and not os.path.isdir(dir_path):
             os.makedirs(dir_path)
         with open(path, "a") as f:
-            f.write("{}: {}\n".format(timestamp, msg))
+            if timestamp:
+                f.write("{}: {}\n".format(timestamp, msg))
+            elif msg:
+                f.write("{}\n".format(msg))
+            else:
+                f.write("\n")
         
 log_thread = threading.Thread(target=_write_log)
 log_thread.setDaemon(True)
 log_thread.start()
 
-def log(path, timestamp, msg):
+def log(path, timestamp=None, msg=None):
     r""" 
         Function providing logging capabilities to the GridEnvironment (or any)
         other class importing the cogmodel module. This function will place
@@ -64,6 +69,7 @@ def log(path, timestamp, msg):
     log_queue.put((path, timestamp, msg))
     # Add a microsleep so that the other thread can write to the file
     time.sleep(0.001)
+
 
 
 # Import some modules and classes for easier import on user-level code
