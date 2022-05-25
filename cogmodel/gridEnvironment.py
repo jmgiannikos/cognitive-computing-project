@@ -461,17 +461,17 @@ class GridEnvironment(object):
         self.timestamps.append(("get_view_cone start", time.time()))
 
         if self.facing_direction == NORTH:
-            viewcone = self._handle_octant(self.agent_pos, 5, self.view_radius) + self._handle_octant(self.agent_pos, 6,
-                                                                                                      self.view_radius)
+            viewcone = self._handle_octant(self.agent_pos, 5, self.view_radius, True) + self._handle_octant(self.agent_pos, 6,
+                                                                                                      self.view_radius, True)
         elif self.facing_direction == SOUTH:
-            viewcone = self._handle_octant(self.agent_pos, 1, self.view_radius) + self._handle_octant(self.agent_pos, 2,
-                                                                                                      self.view_radius)
+            viewcone = self._handle_octant(self.agent_pos, 1, self.view_radius, True) + self._handle_octant(self.agent_pos, 2,
+                                                                                                      self.view_radius, True)
         elif self.facing_direction == EAST:
-            viewcone = self._handle_octant(self.agent_pos, 0, self.view_radius) + self._handle_octant(self.agent_pos, 7,
-                                                                                                      self.view_radius)
+            viewcone = self._handle_octant(self.agent_pos, 0, self.view_radius, True) + self._handle_octant(self.agent_pos, 7,
+                                                                                                      self.view_radius, True)
         elif self.facing_direction == WEST:
-            viewcone = self._handle_octant(self.agent_pos, 3, self.view_radius) + self._handle_octant(self.agent_pos, 4,
-                                                                                                      self.view_radius)
+            viewcone = self._handle_octant(self.agent_pos, 3, self.view_radius, True) + self._handle_octant(self.agent_pos, 4,
+                                                                                                   self.view_radius, True)
         else:
             raise EnvironmentError()
 
@@ -631,13 +631,14 @@ class GridEnvironment(object):
 
         return position in visibles
 
-    def _handle_octant(self, agent_pos, octant, radius):
+    def _handle_octant(self, agent_pos, octant, radius, glassmaze):
         r"""
             Computes the visible tiles within the given octant.
 
             Visibility algorithm adapted from:
-            "https://blogs.msdn.microsoft.com/ericlippert/2011/12/12/
-            shadowcasting-in-c-part-one/"
+
+            "https://blogs.msdn.microsoft.com/ericlippert/2011/12/12/shadowcasting-in-c-part-one/"
+
 
             However, I set up the octants as follows:
 
@@ -675,12 +676,13 @@ class GridEnvironment(object):
             cur_column, top, bot = cur_item
             tmp = self._handle_column(agent_pos, cur_column, top,
                                       bot, taskdeque, octant,
-                                      radius)
+                                      radius, glassmaze)
             visibles += tmp
         return visibles
 
     def _handle_column(self, agent_pos, col, top_slope, bot_slope, tasks, octant,
-                       radius):
+                       radius, glassmaze):
+      
         """
             Computes the visible tiles within the given column of the 
             given octant. Can distinguish between two different vision
@@ -752,7 +754,11 @@ class GridEnvironment(object):
             pos = self._transform_octant(octant, agent_pos, row, col)
             # Break if we are outside the world dimensions, ask for forgiveness
             try:
-                current_transparent = self.tiles[pos].passable
+                if not glassmaze:
+                    current_transparent = self.tiles[pos].passable
+                else:
+                    current_transparent = True
+                    
             except KeyError:
                 # We must be outside our target area
                 break
@@ -810,6 +816,7 @@ class GridEnvironment(object):
         ax, ay = int(agent_pos[0]), int(agent_pos[1])
 
         # Quite costly as it takes around 0.1 second on 1 trail
+
         if octant == 0:
             return (ax + row, ay + col)
         elif octant == 1:
@@ -870,6 +877,7 @@ class GridEnvironment(object):
 
             passable_neighbours = [n_pos for n_pos in tiles[current].neighbours
                                    if tiles[n_pos].passable]
+            
             for n_pos in passable_neighbours:
                 new_cost = cost_so_far[current] + 1
                 if n_pos not in cost_so_far or new_cost < cost_so_far[n_pos]:
@@ -947,6 +955,7 @@ class GridEnvironment(object):
 
 
 if __name__ == "__main__":
+
     env_str = "######################\n" + \
               "#gggggggggggggggggggg#\n" + \
               "#g#g###g#g#g#g###g####\n" + \
@@ -966,6 +975,7 @@ if __name__ == "__main__":
     import time
 
     t0 = time.time()
+
     dist = env.compute_distance((1, 1), (6, 9))
     print("compute_distance took: {}s with res {}".format(time.time() - t0,
                                                           dist))
