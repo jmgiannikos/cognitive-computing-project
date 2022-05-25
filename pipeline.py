@@ -5,7 +5,7 @@ from turtle import position
 import numpy as np
 import matplotlib.pyplot as plt
 from ast import literal_eval
-from cogmodel import GridEnvironment
+from cogmodel.gridEnvironment import GridEnvironment
 from cogmodel import renderer
 from cogmodel import playback
 
