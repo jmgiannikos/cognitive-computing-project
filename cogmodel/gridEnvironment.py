@@ -276,7 +276,7 @@ class GridEnvironment(object):
         self.size = (None, None)
         self.agent_pos = initial_agent_pos
         # self.agent = None
-        self.initial_agent_pos = None
+        self.initial_agent_pos = initial_agent_pos
         self.view_radius = view_radius
         self.target = target
         if facing is not None and isinstance(facing, tuple) and len(facing) == 2:
@@ -413,17 +413,17 @@ class GridEnvironment(object):
         return self.agent_pos
 
     def start_experiment(self):
-        log(self.path)
-        log(self.path, datetime.datetime.utcnow(), "Condition starting")
+        log(self.log_path)
+        log(self.log_path, datetime.datetime.utcnow(), "Condition starting")
 
     def finish_experiment(self):
-        log(self.path, datetime.datetime.utcnow(), "Condition finished")
-        log(self.path)
+        log(self.log_path, datetime.datetime.utcnow(), "Condition finished")
+        log(self.log_path)
         log(self.log_path,                                         # TODO: Add positions array
-            "Position:\n {}\n Time:\n {]\n Load:\n {}\n Length:\n {}\n Action:\n {}".format([], self.timestamps,
-                                                                                            self.memoryUsage,
-                                                                                            self.path_length,
-                                                                                            self.step_score))
+            msg="Position:\n {}\n Time:\n {}\n Load:\n {}\n Length:\n {}\n Action:\n {}".format([], self.timestamps,
+                                                                                                self.memoryUsage,
+                                                                                                self.path_length,
+                                                                                                self.step_score))
 
     def _rotate_vector_left(self, vec):
         x1 = vec[0]
