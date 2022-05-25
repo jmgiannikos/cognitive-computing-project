@@ -305,6 +305,53 @@ class GridEnvironment(object):
         self.timestamps = []
         self.memoryUsage = []  # used memory after perform_action was called the i-th time
 
+    def parse_world_string(self, env_string, get_passable_states=False):
+        r"""
+            Parses an environment string, containing ``#`` for walls and ``g``
+            for ground/free space. Rows are separated by ``\n``. Although it
+            is not checked, but the provided world string should have a
+            rectangular shape.
+
+            Parameters
+            ---------
+            env_string: string
+                A string representation of the gridworld containing ``#``, ``g``
+                and ``\n``.
+            get_passable_states: boolean, optional (Default: False)
+                If given, a list of all parsed passable states is returned,
+                which can be used as state-space for an MDP.
+
+            Returns
+            -------
+                list
+                A list of passable states if get_passable_states was specified,
+                otherwise returns nothing.
+        """
+        self.env_string = env_string
+        states = []
+        for i, row in enumerate(env_string.split("\n")):  # [::-1]):
+            # print("row {}: {}".format(i, row))
+            for j, element in enumerate(row):
+                tile = Tile(element, i, j)
+                self.tiles[tile.pos] = tile
+                if tile.passable:
+                    states.append(tile.pos)
+
+        # Pretty bad hack, but should work since the string represents
+        # the world from top left to bottom right
+        maxPos = (i, j)
+        # Add all neighbours
+        for tile in self.tiles.values():
+            for i, j in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                newPos = (min(max(tile.pos[0] + i, 0), maxPos[0]),
+                          min(max(tile.pos[1] + j, 0), maxPos[1]))
+                # if tile.passable and self.tiles[newPos].passable:
+                # tile.neighbours.add(self.tiles[newPos])
+                tile.neighbours.add(newPos)
+        self.size = (maxPos[0], maxPos[1] + 1)
+        if get_passable_states:
+            return states
+
     def set_logging(self, path, env_name, agent_type):
         """
             Defines that this environment should log all performed actions
@@ -433,7 +480,7 @@ class GridEnvironment(object):
                                                                                                 self.path_length,
                                                                                                 self.step_score))
 
-    def _rotate_vector_left(self, vec):
+    def _rotate_vector_right(self, vec):
         x1 = vec[0]
         y1 = vec[1]
 
@@ -443,7 +490,7 @@ class GridEnvironment(object):
 
         return (x2, y2)
 
-    def _rotate_vector_right(self, vec):
+    def _rotate_vector_left(self, vec):
         x1 = vec[0]
         y1 = vec[1]
 
@@ -465,179 +512,40 @@ class GridEnvironment(object):
 
         self.facing_direction = self._rotate_vector_right((x1, y1))
 
-    def get_view_cone(self):
-        self.timestamps.append(("get_view_cone start", time.time()))
-
+    def get_view_cone(self, playback=False):
+        # self.timestamps.append(("get_view_cone start", time.time()))
         if self.facing_direction == NORTH:
             viewcone = self._handle_octant(self.agent_pos, 5, self.view_radius, True) + self._handle_octant(self.agent_pos, 6,
-                                                                                                      self.view_radius, True)
+                                                                                                            self.view_radius, True)
         elif self.facing_direction == SOUTH:
             viewcone = self._handle_octant(self.agent_pos, 1, self.view_radius, True) + self._handle_octant(self.agent_pos, 2,
-                                                                                                      self.view_radius, True)
+                                                                                                            self.view_radius, True)
         elif self.facing_direction == EAST:
             viewcone = self._handle_octant(self.agent_pos, 0, self.view_radius, True) + self._handle_octant(self.agent_pos, 7,
-                                                                                                      self.view_radius, True)
+                                                                                                            self.view_radius, True)
         elif self.facing_direction == WEST:
             viewcone = self._handle_octant(self.agent_pos, 3, self.view_radius, True) + self._handle_octant(self.agent_pos, 4,
-                                                                                                   self.view_radius, True)
+                                                                                                            self.view_radius, True)
         else:
             raise EnvironmentError()
 
         viewcone = list(set(viewcone))
-
-        self.timestamps.append(("get_view_cone end", time.time()))
-        return viewcone
-
-    def parse_world_string(self, env_string, get_passable_states=False):
-        r"""
-            Parses an environment string, containing ``#`` for walls and ``g``
-            for ground/free space. Rows are separated by ``\n``. Although it
-            is not checked, but the provided world string should have a
-            rectangular shape.
-
-            Parameters
-            ---------
-            env_string: string
-                A string representation of the gridworld containing ``#``, ``g``
-                and ``\n``.
-            get_passable_states: boolean, optional (Default: False)
-                If given, a list of all parsed passable states is returned,
-                which can be used as state-space for an MDP.
-
-            Returns
-            -------
-                list
-                A list of passable states if get_passable_states was specified,
-                otherwise returns nothing.
-        """
-        self.env_string = env_string
-        states = []
-        for i, row in enumerate(env_string.split("\n")):  # [::-1]):
-            # print("row {}: {}".format(i, row))
-            for j, element in enumerate(row):
-                tile = Tile(element, i, j)
-                self.tiles[tile.pos] = tile
-                if tile.passable:
-                    states.append(tile.pos)
-
-        # Pretty bad hack, but should work since the string represents
-        # the world from top left to bottom right
-        maxPos = (i, j)
-        # Add all neighbours
-        for tile in self.tiles.values():
-            for i, j in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                newPos = (min(max(tile.pos[0] + i, 0), maxPos[0]),
-                          min(max(tile.pos[1] + j, 0), maxPos[1]))
-                # if tile.passable and self.tiles[newPos].passable:
-                # tile.neighbours.add(self.tiles[newPos])
-                tile.neighbours.add(newPos)
-        self.size = (maxPos[0], maxPos[1] + 1)
-        if get_passable_states:
-            return states
-
-    def get_observation(self, json=False):
-        """
-            Creates a list of dictionaries representation (suitable for json)
-            of the environment. Can "hide" parts of the environment with
-            invisible tiles outside the Area of View around a given position.
-
-            Parameters
-            ----------
-            json: bool (optional)
-                If true, the Tiles will be converted to simple dictionaries
-                before returning the result.
-
-            Returns
-            -------
-                list of lists
-                A 2 dimensional list, containing the visible tiles.
-                If json is set to true, it will return dict objects instead
-                of Tile objects for easier serialization.
-                Tiles outside of the Area of View will be replaced by generic
-                "invisible" tiles.
-        """
+        
         res = []
-        if self.view_radius is None:
-            # Shortcut when we do not need to deal with lines of sight
-            for i in range(self.size[0]):
-                tmp = []
-                for j in range(self.size[1]):
-                    if (i, j) in self.target:
-                        if self.is_visible((i, j)):
-                            self.tiles[(i, j)].target_visible = True
-                        else:
-                            self.tiles[(i, j)].target_visible = False
-
-                    tmp.append(self.tiles[(i, j)].to_dict() if json
-                               else self.tiles[(i, j)])
-                res.append(tmp)
+        for i in range(self.size[0]):
+            tmp = []
+            for j in range(self.size[1]):
+                if (i, j) in viewcone:
+                    self.tiles[(i, j)].target_visible = True
+                    tmp.append(self.tiles[(i,j)])
+                else:
+                    tmp.append(Tile.invisible())
+            res.append(tmp)
+        # self.timestamps.append(("get_view_cone end", time.time()))
+        if not playback:
+            return [self.tiles[tile] for tile in viewcone]
         else:
-            if self.agent_pos is None:
-                raise ValueError(
-                    "Requires agent_pos when view_radius is given!")
-
-            agent_pos = tuple(self.agent_pos)
-
-            # Compute Visibles
-            visibles_map = []
-            for octant in range(8):
-                tmp = self._handle_octant(agent_pos, octant,
-                                          radius=self.view_radius)
-                visibles_map += tmp
-
-            visibles_map = set(visibles_map)
-            visibles_map.add(agent_pos)
-
-            for i in range(self.size[0]):
-                tmp = []
-                for j in range(self.size[1]):
-                    # TODO Consider making this more efficient,
-                    # by not going over visibles every time!
-                    if (i, j) not in visibles_map:
-                        tmp.append(Tile.invisible().to_dict() if json
-                                   else Tile.invisible())
-                    else:
-                        tmp.append(self.tiles[(i, j)].to_dict() if json
-                                   else self.tiles[(i, j)])
-                    if self.is_visible((i, j)):
-                        self.tiles[(i, j)].target_visible = True
-                    else:
-                        self.tiles[(i, j)].target_visible = False
-                res.append(tmp)
-        return res
-
-    def is_visible(self, position, radius=None):
-        """
-            Checks if the given position is currently visible from the 
-            given current position.
-
-            Parameters
-            ----------
-            position: tuple
-                The position to check
-            radius: int (Default: None)
-                The radius in which tiles should be visible around a given
-                position. If not given, the view radius is used.
-
-            Returns
-            -------
-                bool
-                True if the given position is visible from the current position
-                given the radius, False otherwise.
-        """
-
-        if radius is None:
-            radius = self.view_radius
-        agent_pos = self.agent_pos
-        x, y = (position[0] - agent_pos[0]), (position[1] - agent_pos[1])
-
-        # Determine the octant to check for visibility so that we do not need
-        # to check the entire circle around us
-        octant = [([1, 0], [2, 3]), ([6, 7], [5, 4])
-                  ][x < 0][y < 0][abs(x) < abs(y)]
-        visibles = self._handle_octant(agent_pos, octant, radius)
-
-        return position in visibles
+            return res
 
     def _handle_octant(self, agent_pos, octant, radius, glassmaze):
         r"""
@@ -690,7 +598,6 @@ class GridEnvironment(object):
 
     def _handle_column(self, agent_pos, col, top_slope, bot_slope, tasks, octant,
                        radius, glassmaze):
-      
         """
             Computes the visible tiles within the given column of the 
             given octant. Can distinguish between two different vision
@@ -766,7 +673,7 @@ class GridEnvironment(object):
                     current_transparent = self.tiles[pos].passable
                 else:
                     current_transparent = True
-                    
+
             except KeyError:
                 # We must be outside our target area
                 break
@@ -885,7 +792,7 @@ class GridEnvironment(object):
 
             passable_neighbours = [n_pos for n_pos in tiles[current].neighbours
                                    if tiles[n_pos].passable]
-            
+
             for n_pos in passable_neighbours:
                 new_cost = cost_so_far[current] + 1
                 if n_pos not in cost_so_far or new_cost < cost_so_far[n_pos]:

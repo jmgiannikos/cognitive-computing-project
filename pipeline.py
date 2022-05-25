@@ -10,7 +10,7 @@ from cogmodel import renderer
 from cogmodel import playback
 from cogmodel.Agents.tremaux import tremaux
 
-VIEW_RADIUS = 50
+VIEW_RADIUS = 5
 
 
 class pipeline(object):
@@ -200,15 +200,15 @@ class pipeline(object):
             rend = renderer.MatplotlibRenderer()
 
         env = GridEnvironment(target=goal_position, initial_agent_pos=start_position,
-                              view_radius=VIEW_RADIUS, env_string=env_string, facing=facing)
+                              view_radius=VIEW_RADIUS, env_string=env_string, facing=ACTION_MAPPING[facing])
         playback_agent = playback.PlaybackAgent(
             agent_id=agent_type, action_rows=action_rows, start_pos=start_position, environment=env)
 
-        rend.plot(grid=env.get_observation(), agent=env.agent_pos,
+        rend.plot(grid=env.get_view_cone(playback=True), agent=env.agent_pos,
                   facing=env.facing_direction, show_trajectory=True)
 
         def my_callback(pos):
-            rend.plot(grid=env.get_observation(), agent=pos,
+            rend.plot(grid=env.get_view_cone(playback=True), agent=pos,
                       facing=env.facing_direction, show_trajectory=True)
             # To allow for event handling and matplotlib updates
             rend.pause(0.001)

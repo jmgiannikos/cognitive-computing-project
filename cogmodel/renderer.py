@@ -249,16 +249,16 @@ class PygameRenderer(object):
         pygame.draw.circle(self.screen, Color("yellow"), (x, y), size)
         if facing == NORTH:
             pygame.draw.circle(self.screen, Color("black"),
-                               (x, y - size // 6), size // 6)
+                               (x, y - size // 3), size // 6)
         elif facing == SOUTH:
             pygame.draw.circle(self.screen, Color("black"),
-                               (x, y + size // 6), size // 6)
+                               (x, y + size // 3), size // 6)
         elif facing == EAST:
             pygame.draw.circle(self.screen, Color("black"),
-                               (x + size // 6, y), size // 6)
+                               (x + size // 3, y), size // 6)
         else:
             pygame.draw.circle(self.screen, Color("black"),
-                               (x - size // 6, y), size // 6)
+                               (x - size // 3, y), size // 6)
 
         # Draw eyes
         # pygame.draw.circle(self.screen, Color("black"), (x + size//3,y - size//6), size//6)
