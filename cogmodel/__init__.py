@@ -1,8 +1,3 @@
-
-from . import playback
-from . import renderer
-from .gridEnvironment import Tile
-from .gridEnvironment import GridEnvironment
 __version__ = 1.0
 
 import os
