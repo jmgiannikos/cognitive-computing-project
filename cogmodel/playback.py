@@ -12,7 +12,7 @@ import os, threading
 from ast import literal_eval
 
 from .gridEnvironment import GridEnvironment
-from .gridEnvironment import NORTH, SOUTH, EAST, WEST, STAY
+from .gridEnvironment import NORTH, SOUTH, EAST, WEST, TURN_RIGHT, TURN_LEFT
 
 CONDITION_PATH = os.path.abspath(os.path.dirname(__file__)) + os.path.sep + "Conditions"
 
@@ -21,9 +21,11 @@ CONDITION_PATH = os.path.abspath(os.path.dirname(__file__)) + os.path.sep + "Con
 env_store = {}
 
 ACTION_MAPPING = {"Left": WEST, "Right": EAST, "Up": NORTH, 
-              "Down": SOUTH, "Interaction": STAY,
+              "Down": SOUTH, "Turn left": TURN_LEFT,
+              "Turn Right": TURN_RIGHT,
               "NORTH": NORTH, "SOUTH": SOUTH, "EAST": EAST,
-              "WEST": WEST, "STAY": STAY}
+              "TURN LEFT": TURN_LEFT, "TURN RIGHT": TURN_RIGHT,
+              "WEST": WEST}
 
 def crawl_results(path, use_caching=False):
     """
@@ -113,7 +115,7 @@ def load_experiment(path, use_caching=True):
     for i, line in enumerate(lines[:condition_end]):
         if "EnvString" in line:
             start = i+1
-        if "AlwaysVisibles" in line:
+        if "Goal" in line:
             end = i
             break
         
@@ -154,12 +156,11 @@ def load_experiment(path, use_caching=True):
                 break
             
     return environment, targets, playback_agent, goal["target"]
-        
 
 
 class PlaybackAgent(object):
     """
-        Simple playback agent which will reproduce the the recorded actions
+        Simple playback agent which will reproduce the recorded actions
         of the participants.
 
         Parameters
@@ -229,7 +230,7 @@ class PlaybackAgent(object):
 
             Parameters
             ----------
-            ignore_dus: bool (default=False)
+            ignore_duds: bool (default=False)
                 If true, actions not changing the agent's position, will be
                 skipped.
 
@@ -244,24 +245,18 @@ class PlaybackAgent(object):
         except IndexError:
             print("Agent {} finished it's episode.".format(self.id))
             return None 
-        if not "Finished" in action[1]:
+        if "Finished" not in action[1]:
             _, action_string = action[1].split("-")
 
             action = ACTION_MAPPING[action_string]
 
-            old_pos = self.environment.agent_pos
             new_pos = self.environment.perform_action(action)
 
-            if new_pos == old_pos and ignore_duds:
-                self.cur_idx += 1
-                return self.perform_action(ignore_duds)
-                
         else: #Condition was finished
             return None
         
         self.cur_idx += 1
         return new_pos
-
 
     def replay(self, callback, speedup=1):
         """
