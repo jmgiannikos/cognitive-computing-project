@@ -533,7 +533,7 @@ class GridEnvironment(object):
             res.append(tmp)
         # self.timestamps.append(("get_view_cone end", time.time()))
         if not playback:
-            return [self.tiles[tile] for tile in viewcone]
+            return {tile: self.tiles[tile] for tile in viewcone}
         else:
             return res
 
