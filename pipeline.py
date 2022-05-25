@@ -5,12 +5,12 @@ from turtle import position
 import numpy as np
 import matplotlib.pyplot as plt
 from ast import literal_eval
-from cogmodel.gridEnvironment import GridEnvironment
+from cogmodel.gridEnvironment import GridEnvironment, NORTH, SOUTH, WEST, EAST, ACTION_MAPPING
 from cogmodel import renderer
 from cogmodel import playback
 from cogmodel.Agents.tremaux import tremaux
 
-VIEW_RADIUS = 5
+VIEW_RADIUS = 50
 
 
 class pipeline(object):
@@ -46,7 +46,7 @@ class pipeline(object):
 
                     case "tremaux":
                         for env in self.envs:
-                            agent = tremaux(env)
+                            agent = tremaux(env, self.log)
                             agent.run()
                             # TODO: add graphs if wanted here
 
@@ -68,8 +68,9 @@ class pipeline(object):
             """
                 Initializes gridEnvs and adds them to envs list
             """
+
             env = GridEnvironment(target=goal_position, initial_agent_pos=start_position,
-                                  view_radius=VIEW_RADIUS, env_string=env_string, facing=facing)
+                                  view_radius=VIEW_RADIUS, env_string=env_string, facing=ACTION_MAPPING[facing])
             if self.log:
                 # ATTTENTION: If same logging path is used twice (eg by starting pipeline with same arguments twice) logging file will get corrupted! Always delete or rename folders manually!
                 log_path = "data/Agent_data/" + \
@@ -139,7 +140,7 @@ class pipeline(object):
                 "######################"
             start_position = (13, 17)
             goal_position = (5, 9)
-            facing = "NORTH"
+            facing = "EAST"
             name = "Default Labyrinth"
             _add_env(self)
 

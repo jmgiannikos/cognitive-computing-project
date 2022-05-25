@@ -24,6 +24,14 @@ TURN_LEFT = ((0, 1), (-1, 0))
 ACTION_NAMES = {NORTH: "NORTH", SOUTH: "SOUTH", WEST: "WEST", EAST: "EAST", TURN_RIGHT: "TURN RIGHT",
                 TURN_LEFT: "TURN LEFT"}
 
+
+ACTION_MAPPING = {"Left": WEST, "Right": EAST, "Up": NORTH,
+                  "Down": SOUTH, "Turn left": TURN_LEFT,
+                  "Turn Right": TURN_RIGHT,
+                  "NORTH": NORTH, "SOUTH": SOUTH, "EAST": EAST,
+                  "TURN LEFT": TURN_LEFT, "TURN RIGHT": TURN_RIGHT,
+                  "WEST": WEST}
+
 COLOR_MAP = {"#": "gray", "g": "white", "": "black"}
 
 TARGET_COLOR = "green"
