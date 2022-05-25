@@ -199,8 +199,9 @@ class pipeline(object):
         else:
             rend = renderer.MatplotlibRenderer()
 
+        # TODO check if envString still works with real log files
         env = GridEnvironment(target=goal_position, initial_agent_pos=start_position,
-                              view_radius=VIEW_RADIUS, env_string=env_string, facing=ACTION_MAPPING[facing])
+                              view_radius=VIEW_RADIUS, env_string=env_string[:-1], facing=ACTION_MAPPING[facing])
         playback_agent = playback.PlaybackAgent(
             agent_id=agent_type, action_rows=action_rows, start_pos=start_position, environment=env)
 

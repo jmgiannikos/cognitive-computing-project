@@ -348,7 +348,7 @@ class GridEnvironment(object):
                 # if tile.passable and self.tiles[newPos].passable:
                 # tile.neighbours.add(self.tiles[newPos])
                 tile.neighbours.add(newPos)
-        self.size = (maxPos[0], maxPos[1] + 1)
+        self.size = (maxPos[0] + 1, maxPos[1] + 1)
         if get_passable_states:
             return states
 
@@ -383,17 +383,6 @@ class GridEnvironment(object):
                                                                        self.target, self.initial_agent_pos,
                                                                        self.facing_direction,
                                                                        env_name, agent_type))
-
-    # def initialize_agent(self, agent):
-    #    """
-    #    hands agent object to grid environment for tracking purposes
-
-    #    Parameters
-    #    ----------
-    #    agent: the agent object that is being tracked
-    #    """
-
-    #    self.agent = agent
 
     def get_action_space(self):
         """
@@ -530,14 +519,15 @@ class GridEnvironment(object):
             raise EnvironmentError()
 
         viewcone = list(set(viewcone))
-        
+        viewcone = [key for key in viewcone if key in self.tiles.keys()]
+
         res = []
         for i in range(self.size[0]):
             tmp = []
             for j in range(self.size[1]):
                 if (i, j) in viewcone:
                     self.tiles[(i, j)].target_visible = True
-                    tmp.append(self.tiles[(i,j)])
+                    tmp.append(self.tiles[(i, j)])
                 else:
                     tmp.append(Tile.invisible())
             res.append(tmp)
@@ -615,7 +605,7 @@ class GridEnvironment(object):
                 The current slope towards the highest still valid tile within
                 the given column.
             botSlope: float
-                The current slope towards the lowest still valid tile wihin
+                The current slope towards the lowest still valid tile within
                 the given column.
             tasks: list
                 List of tasks (i.e. columns and slopes) still to process
