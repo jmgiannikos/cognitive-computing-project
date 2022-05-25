@@ -471,7 +471,7 @@ class GridEnvironment(object):
                                                                                                       self.view_radius, True)
         elif self.facing_direction == WEST:
             viewcone = self._handle_octant(self.agent_pos, 3, self.view_radius, True) + self._handle_octant(self.agent_pos, 4,
-                                                                                                      self.view_radius, True)
+                                                                                                   self.view_radius, True)
         else:
             raise EnvironmentError()
 
@@ -636,7 +636,9 @@ class GridEnvironment(object):
             Computes the visible tiles within the given octant.
 
             Visibility algorithm adapted from:
+
             "https://blogs.msdn.microsoft.com/ericlippert/2011/12/12/shadowcasting-in-c-part-one/"
+
 
             However, I set up the octants as follows:
 
@@ -680,6 +682,7 @@ class GridEnvironment(object):
 
     def _handle_column(self, agent_pos, col, top_slope, bot_slope, tasks, octant,
                        radius, glassmaze):
+      
         """
             Computes the visible tiles within the given column of the 
             given octant. Can distinguish between two different vision
@@ -755,6 +758,7 @@ class GridEnvironment(object):
                     current_transparent = self.tiles[pos].passable
                 else:
                     current_transparent = True
+                    
             except KeyError:
                 # We must be outside our target area
                 break
@@ -782,7 +786,7 @@ class GridEnvironment(object):
             last_row_transparent = current_transparent
 
         if last_row_transparent != None and last_row_transparent:
-            new_item = (col+1, top_slope, bot_slope)
+            new_item = (col + 1, top_slope, bot_slope)
             tasks.append(new_item)
 
         return visibles
@@ -811,23 +815,24 @@ class GridEnvironment(object):
         """
         ax, ay = int(agent_pos[0]), int(agent_pos[1])
 
-        #Quite costly as it takes around 0.1 second on 1 trail
+        # Quite costly as it takes around 0.1 second on 1 trail
+
         if octant == 0:
-            return (ax+row, ay+col)
+            return (ax + row, ay + col)
         elif octant == 1:
-            return (ax+col, ay+row)
+            return (ax + col, ay + row)
         elif octant == 2:
-            return (ax+col, ay-row)
+            return (ax + col, ay - row)
         elif octant == 3:
-            return (ax+row, ay-col)
+            return (ax + row, ay - col)
         elif octant == 4:
-            return (ax-row, ay-col)
+            return (ax - row, ay - col)
         elif octant == 5:
-            return (ax-col, ay-row)
+            return (ax - col, ay - row)
         elif octant == 6:
-            return (ax-col, ay+row)
+            return (ax - col, ay + row)
         else:
-            return (ax-row, ay+col)
+            return (ax - row, ay + col)
 
     def compute_distance(self, start, goal, tiles=None):
         """
@@ -871,7 +876,8 @@ class GridEnvironment(object):
                 break
 
             passable_neighbours = [n_pos for n_pos in tiles[current].neighbours
-                                                    if tiles[n_pos].passable]
+                                   if tiles[n_pos].passable]
+            
             for n_pos in passable_neighbours:
                 new_cost = cost_so_far[current] + 1
                 if n_pos not in cost_so_far or new_cost < cost_so_far[n_pos]:
@@ -882,7 +888,7 @@ class GridEnvironment(object):
                     came_from[n_pos] = current
 
         # Store the optimal path for this start, goal pair
-        self._path[(start,goal)] = dict(came_from)
+        self._path[(start, goal)] = dict(came_from)
 
         return cost_so_far.get(goal, None)
 
@@ -947,28 +953,29 @@ class GridEnvironment(object):
         (x2, y2) = b
         return abs(x1 - x2) + abs(y1 - y2)
 
+
 if __name__ == "__main__":
 
     env_str = "######################\n" + \
-                "#gggggggggggggggggggg#\n" + \
-                "#g#g###g#g#g#g###g####\n" + \
-                "#g#ggg#ggg#g#ggg#gggg#\n" + \
-                "#g###g#####g###g#g##g#\n" + \
-                "#g#ggg#ggg#g#gggggggg#\n" + \
-                "#g#g###g###g#g###g####\n" + \
-                "#ggggggg#ggg#gg##gggg#\n" + \
-                "#g#######g#g#g##gg##g#\n" + \
-                "#ggggggg###g###gg###g#\n" + \
-                "#g#####gg##g##gg##g#g#\n" + \
-                "#ggggg##gg#g#gg##gggg#\n" + \
-                "#g###g###g#g#g#####gg#\n" + \
-                "#ggggggggggggggg#gggg#\n" + \
-                "######################"
+              "#gggggggggggggggggggg#\n" + \
+              "#g#g###g#g#g#g###g####\n" + \
+              "#g#ggg#ggg#g#ggg#gggg#\n" + \
+              "#g###g#####g###g#g##g#\n" + \
+              "#g#ggg#ggg#g#gggggggg#\n" + \
+              "#g#g###g###g#g###g####\n" + \
+              "#ggggggg#ggg#gg##gggg#\n" + \
+              "#g#######g#g#g##gg##g#\n" + \
+              "#ggggggg###g###gg###g#\n" + \
+              "#g#####gg##g##gg##g#g#\n" + \
+              "#ggggg##gg#g#gg##gggg#\n" + \
+              "#g###g###g#g#g#####gg#\n" + \
+              "#ggggggggggggggg#gggg#\n" + \
+              "######################"
     env = GridEnvironment(env_str)
     import time
 
     t0 = time.time()
-    dist= env.compute_distance((1,1), (6,9))
-    print("compute_distance took: {}s with res {}".format(time.time()-t0,
-                                                                dist))
 
+    dist = env.compute_distance((1, 1), (6, 9))
+    print("compute_distance took: {}s with res {}".format(time.time() - t0,
+                                                          dist))
