@@ -12,12 +12,15 @@ Colors are defined by the tiles themselves.
 """
 
 from __future__ import print_function
+import sys
+import math
+import time
+import matplotlib.colors as colors
+import matplotlib.pyplot as plt
 
 import matplotlib
 
 matplotlib.use("TKAgg")
-import matplotlib.pyplot as plt
-import matplotlib.colors as colors
 
 try:
     import pygame
@@ -26,10 +29,6 @@ try:
     from pygame import Color, Rect
 except ImportError:
     pygame_available = False
-
-import time
-import math
-import sys
 
 
 class MatplotlibRenderer(object):
@@ -72,7 +71,7 @@ class MatplotlibRenderer(object):
         """
             Plots the grid and the agent position using matplotlibs 
             pcolormesh.
-            
+
             Parameters
             ---------
             grid: list of lists
@@ -93,7 +92,7 @@ class MatplotlibRenderer(object):
         if self.fig is None:
             self._setup_figure()
 
-        # Convert Tile objects to int array    
+        # Convert Tile objects to int array
         mesh = []
         for row in grid:
             mesh.append([colors.to_rgb(t.color) for t in row])
@@ -120,12 +119,12 @@ class MatplotlibRenderer(object):
         """
             Stops the executation for the given duration to be able to look
             at the current visualiation.
-            
+
             On some systems/backends, plt.pause might raise a DeprecatedWarning,
             the official solution is to use interaction and time.sleep directly,
             but at least for me, the figure will not be updated in this which
             is why I am using this here.
-            
+
             Parameters
             ----------
             duration: float
@@ -178,7 +177,7 @@ class PygameRenderer(object):
             Plots the grid and the agent position in the window. Will basically
             overwrite the currently shown image in the window with the new
             grid.
-            
+
             Parameters
             ---------
             grid: list of lists
@@ -207,7 +206,8 @@ class PygameRenderer(object):
         tile_width = self.size[0] // num_cols
         tile_height = self.size[1] // num_rows
 
-        self.screen = pygame.display.set_mode((tile_width * num_cols, tile_height * num_rows))
+        self.screen = pygame.display.set_mode(
+            (tile_width * num_cols, tile_height * num_rows))
 
         # Clear old image
         self.screen.fill(Color("white"))
@@ -218,7 +218,8 @@ class PygameRenderer(object):
                 y = i * tile_height
 
                 color = Color(tile.color)
-                pygame.draw.rect(self.screen, color, Rect(x, y, tile_width, tile_height))
+                pygame.draw.rect(self.screen, color, Rect(
+                    x, y, tile_width, tile_height))
 
         # Draw agent smiley
         x = int((agent[1] + 0.5) * tile_width)
@@ -237,21 +238,27 @@ class PygameRenderer(object):
 
             traj_pos = []
             for (p_y, p_x) in pos_list:
-                traj_pos.append((int((p_x + 0.5) * tile_width), int((p_y + 0.5) * tile_height)))
+                traj_pos.append((int((p_x + 0.5) * tile_width),
+                                int((p_y + 0.5) * tile_height)))
 
             # Draw red line
             if len(traj_pos) > 1:
-                pygame.draw.lines(self.screen, Color("red"), False, traj_pos, 2)
+                pygame.draw.lines(self.screen, Color(
+                    "red"), False, traj_pos, 2)
 
         pygame.draw.circle(self.screen, Color("yellow"), (x, y), size)
         if facing == NORTH:
-            pygame.draw.circle(self.screen, Color("black"), (x, y - size // 6), size // 6)
+            pygame.draw.circle(self.screen, Color("black"),
+                               (x, y - size // 6), size // 6)
         elif facing == SOUTH:
-            pygame.draw.circle(self.screen, Color("black"), (x, y + size // 6), size // 6)
+            pygame.draw.circle(self.screen, Color("black"),
+                               (x, y + size // 6), size // 6)
         elif facing == EAST:
-            pygame.draw.circle(self.screen, Color("black"), (x + size // 6, y), size // 6)
+            pygame.draw.circle(self.screen, Color("black"),
+                               (x + size // 6, y), size // 6)
         else:
-            pygame.draw.circle(self.screen, Color("black"), (x - size // 6, y), size // 6)
+            pygame.draw.circle(self.screen, Color("black"),
+                               (x - size // 6, y), size // 6)
 
         # Draw eyes
         # pygame.draw.circle(self.screen, Color("black"), (x + size//3,y - size//6), size//6)
@@ -264,7 +271,8 @@ class PygameRenderer(object):
     def pause(self, duration):
         if self.screen:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT: sys.exit()
+                if event.type == pygame.QUIT:
+                    sys.exit()
         pygame.time.wait(int(duration * 1000))
 
     def close_figure(self):

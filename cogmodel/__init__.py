@@ -1,9 +1,17 @@
 
+from . import playback
+from . import renderer
+from .gridEnvironment import Tile
+from .gridEnvironment import GridEnvironment
 __version__ = 1.0
 
-import os, time, threading, queue
+import os
+import time
+import threading
+import queue
 
 log_queue = queue.Queue()
+
 
 def _write_log():
     r"""
@@ -31,7 +39,7 @@ def _write_log():
             continue
         path, timestamp, msg = item
         dir_path = os.path.dirname(path)
-        #Check if there already is a directory for this user:
+        # Check if there already is a directory for this user:
         if dir_path and not os.path.isdir(dir_path):
             os.makedirs(dir_path)
         with open(path, "a") as f:
@@ -41,10 +49,12 @@ def _write_log():
                 f.write("{}\n".format(msg))
             else:
                 f.write("\n")
-        
+
+
 log_thread = threading.Thread(target=_write_log)
 log_thread.setDaemon(True)
 log_thread.start()
+
 
 def log(path, timestamp=None, msg=None):
     r""" 
@@ -71,10 +81,4 @@ def log(path, timestamp=None, msg=None):
     time.sleep(0.001)
 
 
-
 # Import some modules and classes for easier import on user-level code
-from .gridEnvironment import GridEnvironment
-from .gridEnvironment import Tile
-
-from . import renderer
-from . import playback

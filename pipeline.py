@@ -9,6 +9,8 @@ from cogmodel import GridEnvironment
 from cogmodel import renderer
 from cogmodel import playback
 
+VIEW_RADIUS = 5
+
 
 class pipeline(object):
 
@@ -58,23 +60,20 @@ class pipeline(object):
             """
                 Initializes gridEnvs and adds them to envs list
             """
-            env = GridEnvironment(env_string=env_string)
-            # TODO add facing_direction once possible, add view_radius once discussed
-            env.initialize_agent(initial_agent_pos=start_postion)
-            # TODO see if this changed
-            env.initialize_targets(
-                targets={goal_position: {"symbol": "T", "color": "green"}})
+            env = GridEnvironment(target=goal_position, initial_agent_pos=start_position,
+                                  view_radius=VIEW_RADIUS, env_string=env_string, facing=facing)
             if self.log:
                 # ATTTENTION: If same logging path is used twice (eg by starting pipeline with same arguments twice) logging file will get corrupted! Always delete or rename folders manually!
                 log_path = "data/Agent_data/" + \
                     str(name) + "_" + str(self.agent_type) + "/logging_" + \
                     str(name) + "_" + str(self.agent_type)
-                env.set_logging(path=log_path)
+                env.set_logging(path=log_path, env_name=name,
+                                agent_type=self.agent_type)
             self.envs.append(env)
 
         # information used to generate environment
         env_string = ""
-        start_postion = ()
+        start_position = ()
         goal_position = ()
         facing = ""
         name = ""
@@ -93,7 +92,7 @@ class pipeline(object):
                             case 1:
                                 env_string += line
                             case 2:
-                                start_postion = literal_eval(line.strip())
+                                start_position = literal_eval(line.strip())
                             case 3:
                                 goal_position = literal_eval(line.strip())
                             case 4:
@@ -103,7 +102,7 @@ class pipeline(object):
                                 _add_env(self)
                                 read_point = 0
                                 env_string = ""
-                                start_postion = ()
+                                start_position = ()
                                 goal_position = ()
                                 facing = ""
                                 name = ""
@@ -130,7 +129,7 @@ class pipeline(object):
                 "#g###g###g#g#g#####gg#\n" + \
                 "#ggggggggggggggg#gggg#\n" + \
                 "######################"
-            start_postion = (13, 17)
+            start_position = (13, 17)
             goal_position = (5, 9)
             facing = "NORTH"
             name = "Default Labyrinth"
@@ -141,12 +140,7 @@ class pipeline(object):
             Play backs logging file given by user.
         """
 
-        # The following code is taken from example.py; will need to be adjusted once Issue#2 is resolved
-        if renderer.pygame_available:
-            rend = renderer.PygameRenderer()
-        else:
-            rend = renderer.MatplotlibRenderer()
-
+        # --- SET-UP ---
         # reading in information to construct playback agent
         env_string = ""
         action_rows = []
@@ -159,7 +153,7 @@ class pipeline(object):
                 elif "Condition starting" in line:
                     action_rows.append(line)
                     read_point += 1
-                elif "Condition Finished" in line:
+                elif "Condition finished" in line:
                     action_rows.append(line)
                     break
                 else:
@@ -171,7 +165,7 @@ class pipeline(object):
                         case 2:
                             goal_position = literal_eval(line.strip())
                         case 3:
-                            start_postion = literal_eval(line.strip())
+                            start_position = literal_eval(line.strip())
                         case 4:
                             facing = line.strip()
                         case 5:
@@ -189,21 +183,24 @@ class pipeline(object):
 
          # closing file
         file.close()
-        
-        # constructing playback
-        env = GridEnvironment(env_string=env_string)
-        # TODO add facing_direction once possible, add view_radius once discussed
-        env.initialize_agent(initial_agent_pos=start_postion)
-        # TODO see if this changed
-        env.initialize_targets(
-            targets={goal_position: {"symbol": "T", "color": "green"}})
-        playback_agent = playback.PlaybackAgent(
-            agent_id=agent_type, action_rows=action_rows, start_pos=start_postion, environment=env)
 
-        rend.plot(env.get_observation(), env.agent_pos, show_trajectory=True)
+        # --- PLAYBACK ---
+        if renderer.pygame_available:
+            rend = renderer.PygameRenderer()
+        else:
+            rend = renderer.MatplotlibRenderer()
+
+        env = GridEnvironment(target=goal_position, initial_agent_pos=start_position,
+                              view_radius=VIEW_RADIUS, env_string=env_string, facing=facing)
+        playback_agent = playback.PlaybackAgent(
+            agent_id=agent_type, action_rows=action_rows, start_pos=start_position, environment=env)
+
+        rend.plot(grid=env.get_observation(), agent=env.agent_pos,
+                  facing=env.facing_direction, show_trajectory=True)
 
         def my_callback(pos):
-            rend.plot(env.get_observation(), pos, show_trajectory=True)
+            rend.plot(grid=env.get_observation(), agent=pos,
+                      facing=env.facing_direction, show_trajectory=True)
             # To allow for event handling and matplotlib updates
             rend.pause(0.001)
 

@@ -11,13 +11,15 @@ import time
 
 PASSABLES = {"a": True, "g": True, "#": False, "t": True}
 
-## Possible actions
+# Possible actions
 NORTH = (-1, 0)
 SOUTH = (1, 0)
 WEST = (0, -1)
 EAST = (0, 1)
-TURN_RIGHT = ((0, -1), (1, 0))  # expressed as rotational matrix used for rotating a vector 90 degrees counterclockwise
-TURN_LEFT = ((0, 1), (-1, 0))  # expressed as rotational matrix used for rotating a vector 270 degrees counterclockwise
+# expressed as rotational matrix used for rotating a vector 90 degrees counterclockwise
+TURN_RIGHT = ((0, -1), (1, 0))
+# expressed as rotational matrix used for rotating a vector 270 degrees counterclockwise
+TURN_LEFT = ((0, 1), (-1, 0))
 
 ACTION_NAMES = {NORTH: "NORTH", SOUTH: "SOUTH", WEST: "WEST", EAST: "EAST", TURN_RIGHT: "TURN RIGHT",
                 TURN_LEFT: "TURN LEFT"}
@@ -31,7 +33,7 @@ TARGET_CHAR = "T"
 class Tile(object):
     """
         Minimal class representing a grid/tile in the gridworld.
-        Consists of a position in the 2d grid, a flag specifying if it is 
+        Consists of a position in the 2d grid, a flag specifying if it is
         passable or not as well as a set of neighbours.
 
         Only neighbour positions are contained, no reference to the actual
@@ -46,9 +48,9 @@ class Tile(object):
             The position along the vertical-axis of this tile (counted from the
             top down).
         pos_y: int
-            The position along the horizontal-axis of this tile (counted from 
+            The position along the horizontal-axis of this tile (counted from
             left to right).
-        
+
         Attributes
         ----------
         char
@@ -58,7 +60,7 @@ class Tile(object):
         passable: bool
             A boolean specifying if this tile is passable or not.
         neighbours: set
-            A set containing the positions (and thus the keys for the tile dict 
+            A set containing the positions (and thus the keys for the tile dict
             in the GridEnvironment) of the neighbouring tuples.
         target_visible: bool
             A flag used to mark this tile as being visible as a target.
@@ -71,7 +73,7 @@ class Tile(object):
         target_color: str
             A string representation for the color this target should have in
             the renderers.
-        
+
     """
 
     def __init__(self, element, pos_x, pos_y):
@@ -97,7 +99,7 @@ class Tile(object):
     def color(self):
         """
             Color property (str) of this tile. The color of a tile is dependent
-            on whether or not this tile is a target and is actually visible as 
+            on whether or not this tile is a target and is actually visible as
             a target.
         """
         if self.target_visible and self.is_target:
@@ -107,7 +109,7 @@ class Tile(object):
     @property
     def char(self):
         """
-            The character property of this tile. In general the character of a 
+            The character property of this tile. In general the character of a
             tile corresponds to its element when it was created, however targets
             may have different target characters.
         """
@@ -158,7 +160,7 @@ class Tile(object):
         """
             Classmethod to return a generic "invisible" tile.
             The passable is None to represent "unknown", which requries special
-            care when dealing with this elsewhere. 
+            care when dealing with this elsewhere.
 
             Returns
             ----------
@@ -174,7 +176,7 @@ class Tile(object):
         """
             Gives a simplified dictionary (allows easy json conversion) of
             the tile.
-                        
+
             Returns
             ------
                 dict
@@ -189,13 +191,13 @@ class Tile(object):
 
     def clone(self, passable=None):
         """
-            Creates a complete copy of this tile. 
+            Creates a complete copy of this tile.
 
             Parameters
             ----------
             passable: bool, optional (Default: None)
                 If given, the passable attribute will be overwritten to the
-                one specified. Usually used to make "invisible" tiles 
+                one specified. Usually used to make "invisible" tiles
                 passable.
 
             Returns
@@ -223,12 +225,12 @@ class GridEnvironment(object):
     """
         Class representing 2 dimensional gridworlds while providing capabilities
         similar to OpenGym in that actions can be performed, once an agent has
-        been specified. 
+        been specified.
 
         Parameters
         ----------
         env_string: str, optional (Default: None)
-            A string representing the environment. See ``parse_world_string`` 
+            A string representing the environment. See ``parse_world_string``
             for more information.
 
         Attributes
@@ -238,7 +240,7 @@ class GridEnvironment(object):
             the position in the grid.
         size: tuple
             A tuple containing the size of the environment.
-        agent_pos: tuple   
+        agent_pos: tuple
             A tuple containing the current position of the agent or None
             if no agent has been specified.
         initial_agent_pos: tuple
@@ -265,7 +267,7 @@ class GridEnvironment(object):
             be filled by ``compute_distance``, but is not explicitly invalidated
             in case the environment changes!
         log_path: str
-            Path to the logfile. Initially None, which also means that the 
+            Path to the logfile. Initially None, which also means that the
             environment should not do logging.
     """
 
@@ -291,21 +293,22 @@ class GridEnvironment(object):
 
         self.path_length = [0]
         self.step_score = [0.0]
-        self.timestamps = []  # tuples of timestamps and the name of the event that triggered taking the timestamp. Time given as seconds since the last epoch (float)
+        # tuples of timestamps and the name of the event that triggered taking the timestamp. Time given as seconds since the last epoch (float)
+        self.timestamps = []
         self.memoryUsage = []  # used memory after perform_action was called the i-th time
 
-    def set_logging(self, path, envName, agentType):
+    def set_logging(self, path, env_name, agent_type):
         """
             Defines that this environment should log all performed actions
             and other information, that might be required to replay actions.
-            This will also trigger writing the currently stored details 
+            This will also trigger writing the currently stored details
             regarding the environment into the logfile in a format readable
             by the playback agent.
-            
+
             Parameters
             ----------
             path: str
-                The path of the log-file. Can be absolute or relative to the 
+                The path of the log-file. Can be absolute or relative to the
                 current working directory.
             envName: str
                 The name of the environment that is currently used, given
@@ -315,16 +318,16 @@ class GridEnvironment(object):
                 for logging purposes.
         """
         self.log_path = path
-        log(path, datetime.datetime.utcnow(), "\nGridEnvironment Log:\n" \
-                                              "EnvString: \n{}\n" \
-                                              "Goal: {}\n" \
-                                              "StartPosition: {}\n" \
-                                              "Facing: {}\n" \
-                                              "Name: {}\n" \
+        log(path, datetime.datetime.utcnow(), "\nGridEnvironment Log:\n"
+                                              "EnvString: \n{}\n"
+                                              "Goal: {}\n"
+                                              "StartPosition: {}\n"
+                                              "Facing: {}\n"
+                                              "Name: {}\n"
                                               "AgentType: {}\n".format(self.env_string,
                                                                        self.target, self.initial_agent_pos,
                                                                        self.facing_direction,
-                                                                       envName, agentType))
+                                                                       env_name, agent_type))
 
     # def initialize_agent(self, agent):
     #    """
@@ -342,8 +345,8 @@ class GridEnvironment(object):
             Returns
             -------
                 tuple
-                A tuple of all available actions an agent can perform within 
-                this environment. 
+                A tuple of all available actions an agent can perform within
+                this environment.
                 All these actions are accepted by perform_action.
         """
         return self.action_space
@@ -372,25 +375,27 @@ class GridEnvironment(object):
         stepscore = self.step_score[-1]
 
         if not action in self.action_space:
-            raise AttributeError("{} is not a valid action for this " \
+            raise AttributeError("{} is not a valid action for this "
                                  "environment!".format(action))
         if self.agent_pos is None:
-            raise AttributeError("No agent was initialized! Cannot perform " \
+            raise AttributeError("No agent was initialized! Cannot perform "
                                  "action {}.".format(action))
 
         if self.log_path:
-            log(self.log_path, datetime.datetime.utcnow(), "FUNCTION-{}".format(ACTION_NAMES[action]))
+            log(self.log_path, datetime.datetime.utcnow(),
+                "FUNCTION-{}".format(ACTION_NAMES[action]))
 
         if isinstance(action[0], tuple):
             if action == TURN_RIGHT:
                 self._transform_facing_right()
-                stepscore += 0.6  ## at the moment turning is valued as two thirds as costly as stepping in a direction
+                # at the moment turning is valued as two thirds as costly as stepping in a direction
+                stepscore += 0.6
             elif action == TURN_LEFT:
                 self._transform_facing_left()
                 stepscore += 0.6
             else:
                 raise AttributeError(
-                    "{} is not a correct rotational matrix")  ## should be caught ahead of this in all cases. More useful for testing code.
+                    "{} is not a correct rotational matrix")  # should be caught ahead of this in all cases. More useful for testing code.
         else:
             x, y = self.agent_pos
             i, j = action
@@ -402,7 +407,8 @@ class GridEnvironment(object):
         self.path_length.append(pathlen)
         self.step_score.append(stepscore)
 
-        self.timestamps.append(("perform_action end", time.time()))  # take timestamp on end of request processing
+        # take timestamp on end of request processing
+        self.timestamps.append(("perform_action end", time.time()))
 
         return self.agent_pos
 
@@ -478,18 +484,18 @@ class GridEnvironment(object):
         r"""
             Parses an environment string, containing ``#`` for walls and ``g``
             for ground/free space. Rows are separated by ``\n``. Although it
-            is not checked, but the provided world string should have a 
+            is not checked, but the provided world string should have a
             rectangular shape.
-            
+
             Parameters
             ---------
             env_string: string
-                A string representation of the gridworld containing ``#``, ``g`` 
+                A string representation of the gridworld containing ``#``, ``g``
                 and ``\n``.
             get_passable_states: boolean, optional (Default: False)
-                If given, a list of all parsed passable states is returned, 
+                If given, a list of all parsed passable states is returned,
                 which can be used as state-space for an MDP.
-                
+
             Returns
             -------
                 list
@@ -517,7 +523,7 @@ class GridEnvironment(object):
                 # if tile.passable and self.tiles[newPos].passable:
                 # tile.neighbours.add(self.tiles[newPos])
                 tile.neighbours.add(newPos)
-        self.size = (maxPos[0] + 1, maxPos[1] + 1)
+        self.size = (maxPos[0], maxPos[1] + 1)
         if get_passable_states:
             return states
 
@@ -526,17 +532,17 @@ class GridEnvironment(object):
             Creates a list of dictionaries representation (suitable for json)
             of the environment. Can "hide" parts of the environment with
             invisible tiles outside the Area of View around a given position.
-            
+
             Parameters
             ----------
             json: bool (optional)
                 If true, the Tiles will be converted to simple dictionaries
                 before returning the result.
-                
+
             Returns
             -------
                 list of lists
-                A 2 dimensional list, containing the visible tiles. 
+                A 2 dimensional list, containing the visible tiles.
                 If json is set to true, it will return dict objects instead
                 of Tile objects for easier serialization.
                 Tiles outside of the Area of View will be replaced by generic
@@ -554,12 +560,13 @@ class GridEnvironment(object):
                         else:
                             self.tiles[(i, j)].target_visible = False
 
-                    tmp.append(self.tiles[(i, j)].to_dict() if json \
-                                   else self.tiles[(i, j)])
+                    tmp.append(self.tiles[(i, j)].to_dict() if json
+                               else self.tiles[(i, j)])
                 res.append(tmp)
         else:
             if self.agent_pos is None:
-                raise ValueError("Requires agent_pos when view_radius is given!")
+                raise ValueError(
+                    "Requires agent_pos when view_radius is given!")
 
             agent_pos = tuple(self.agent_pos)
 
@@ -579,11 +586,11 @@ class GridEnvironment(object):
                     # TODO Consider making this more efficient,
                     # by not going over visibles every time!
                     if (i, j) not in visibles_map:
-                        tmp.append(Tile.invisible().to_dict() if json \
-                                       else Tile.invisible())
+                        tmp.append(Tile.invisible().to_dict() if json
+                                   else Tile.invisible())
                     else:
-                        tmp.append(self.tiles[(i, j)].to_dict() if json \
-                                       else self.tiles[(i, j)])
+                        tmp.append(self.tiles[(i, j)].to_dict() if json
+                                   else self.tiles[(i, j)])
                     if self.is_visible((i, j)):
                         self.tiles[(i, j)].target_visible = True
                     else:
@@ -595,7 +602,7 @@ class GridEnvironment(object):
         """
             Checks if the given position is currently visible from the 
             given current position.
-            
+
             Parameters
             ----------
             position: tuple
@@ -603,7 +610,7 @@ class GridEnvironment(object):
             radius: int (Default: None)
                 The radius in which tiles should be visible around a given
                 position. If not given, the view radius is used.
-                
+
             Returns
             -------
                 bool
@@ -618,7 +625,8 @@ class GridEnvironment(object):
 
         # Determine the octant to check for visibility so that we do not need
         # to check the entire circle around us
-        octant = [([1, 0], [2, 3]), ([6, 7], [5, 4])][x < 0][y < 0][abs(x) < abs(y)]
+        octant = [([1, 0], [2, 3]), ([6, 7], [5, 4])
+                  ][x < 0][y < 0][abs(x) < abs(y)]
         visibles = self._handle_octant(agent_pos, octant, radius)
 
         return position in visibles
@@ -626,19 +634,19 @@ class GridEnvironment(object):
     def _handle_octant(self, agent_pos, octant, radius):
         r"""
             Computes the visible tiles within the given octant.
-            
+
             Visibility algorithm adapted from:
             "https://blogs.msdn.microsoft.com/ericlippert/2011/12/12/
             shadowcasting-in-c-part-one/"
-            
+
             However, I set up the octants as follows:
-                                  
+
                                \ 5|6 / 
                               4 \ | / 7
                              ----------- 
                               3 / | \ 0
                                / 2|1 \
-                               
+
             Parameters
             ---------
             agent_pos: tuple
@@ -647,7 +655,7 @@ class GridEnvironment(object):
                 The number of the currently processed octant.
             radius: int
                 Visible radius.
-                
+
             Returns
             -------
             visibles: list
@@ -678,7 +686,7 @@ class GridEnvironment(object):
             given octant. Can distinguish between two different vision
             radii, e.g. to distinguish seeing walls and identifying more 
             details about blocks.
-            
+
             Parameters
             ----------
             agentPos: tuple
@@ -699,7 +707,7 @@ class GridEnvironment(object):
             radius: int
                 Visible radius.
 
-                
+
             Returns
             -------
             visibilities: list
@@ -781,7 +789,7 @@ class GridEnvironment(object):
         """
             Warpes the agentPosition so that it corresponds to the axis of the
             given octant.
-            
+
             Parameters
             ---------
             octant: int
@@ -793,7 +801,7 @@ class GridEnvironment(object):
                 The currently considered row in the octant
             col: int
                 The currently considered column in the octant
-                
+
             Returns
             -------
                 tuple
@@ -822,7 +830,7 @@ class GridEnvironment(object):
     def compute_distance(self, start, goal, tiles=None):
         """
             Computes the distance between start and end using the A* algorithm.
-            
+
             Parameters
             ----------
             start: tuple
@@ -832,7 +840,7 @@ class GridEnvironment(object):
             tiles: dict, optional (Default: None)
                 A dictionary containing tiles to be used. If not provided,
                 the normal tiles in the environment will be used.
-                
+
             Returns
             -------
                 int or None
@@ -883,7 +891,7 @@ class GridEnvironment(object):
 
             This will not change the environment itself, meaning that which tiles
             have been seen, needs to be taken care of elsewhere.
-            
+
             Parameters
             ----------
             start: tuple
@@ -894,7 +902,7 @@ class GridEnvironment(object):
                 An iterable (set or list) containing all the tile positions,
                 which should be considered known. All tiles, not in this
                 iterable will be considered invisible and passable.
-                
+
             Returns
             -------
                 int or None
@@ -920,14 +928,14 @@ class GridEnvironment(object):
         """
             Heuristic for the A* algorithm, estimating the distance between
             to positions as the Manhattan distance.
-            
+
             Parameters
             ----------
             start: tuple
                 Start position
             end: tuple
                 End position
-                
+
             Returns
             -------
                 float

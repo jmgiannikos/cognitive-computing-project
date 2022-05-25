@@ -7,25 +7,29 @@ Created on Tue Aug 1 15:36:04 2017
 @author: jpoeppel
 """
 
-import datetime, time
-import os, threading
+import datetime
+import time
+import os
+import threading
 from ast import literal_eval
 
 from .gridEnvironment import GridEnvironment
 from .gridEnvironment import NORTH, SOUTH, EAST, WEST, TURN_RIGHT, TURN_LEFT
 
-CONDITION_PATH = os.path.abspath(os.path.dirname(__file__)) + os.path.sep + "Conditions"
+CONDITION_PATH = os.path.abspath(
+    os.path.dirname(__file__)) + os.path.sep + "Conditions"
 
-# Global memory to speed up parsing for subsequent occurances of the same
+# Global memory to speed up parsing for subsequent occurrences of the same
 # condition.
 env_store = {}
 
-ACTION_MAPPING = {"Left": WEST, "Right": EAST, "Up": NORTH, 
-              "Down": SOUTH, "Turn left": TURN_LEFT,
-              "Turn Right": TURN_RIGHT,
-              "NORTH": NORTH, "SOUTH": SOUTH, "EAST": EAST,
-              "TURN LEFT": TURN_LEFT, "TURN RIGHT": TURN_RIGHT,
-              "WEST": WEST}
+ACTION_MAPPING = {"Left": WEST, "Right": EAST, "Up": NORTH,
+                  "Down": SOUTH, "Turn left": TURN_LEFT,
+                  "Turn Right": TURN_RIGHT,
+                  "NORTH": NORTH, "SOUTH": SOUTH, "EAST": EAST,
+                  "TURN LEFT": TURN_LEFT, "TURN RIGHT": TURN_RIGHT,
+                  "WEST": WEST}
+
 
 def crawl_results(path, use_caching=False):
     """
@@ -48,32 +52,32 @@ def crawl_results(path, use_caching=False):
             found under the given path of the condition specified by the key,
             each containing the information provided by load_experiment. 
     """
-    users = [e for e in os.listdir(path) 
-                        if os.path.isdir(path + os.path.sep +e)]
+    users = [e for e in os.listdir(path)
+             if os.path.isdir(path + os.path.sep + e)]
     conditions = {}
     skipped = []
     num_completed = 0
     for u in users:
-        files = os.listdir(path + os.path.sep +u)
+        files = os.listdir(path + os.path.sep + u)
         for f in files:
             if "condMap" in f:
                 try:
-                    exp = load_experiment(path + os.path.sep +u + os.path.sep + f, 
-                                                                    use_caching)
+                    exp = load_experiment(path + os.path.sep + u + os.path.sep + f,
+                                          use_caching)
                     if exp[0] is not None:
                         conditions[f].append(exp)
                         num_completed += 1
-                    else: 
+                    else:
                         skipped.append(u + os.path.sep + f)
                 except KeyError:
-                    conditions[f] = [load_experiment(path + os.path.sep 
-                                                        + u + os.path.sep + f,
-                                                        use_caching)]
+                    conditions[f] = [load_experiment(path + os.path.sep
+                                                     + u + os.path.sep + f,
+                                                     use_caching)]
                     num_completed += 1
                 except IndexError:
-                    #Ignore bad files
+                    # Ignore bad files
                     pass
-                
+
     print("Skipped: {} runs because they were incomplete.".format(len(skipped)))
     print("Total number of runs: {}".format(num_completed))
     return conditions
@@ -111,14 +115,14 @@ def load_experiment(path, use_caching=True):
     with open(path, "r") as condition:
         lines = condition.readlines()
         condition_end = lines.index("\n")
-        
+
     for i, line in enumerate(lines[:condition_end]):
         if "EnvString" in line:
             start = i+1
         if "Goal" in line:
             end = i
             break
-        
+
     env_string = "".join(lines[start:end]).strip()
     if not use_caching or env_string not in env_store:
         env_store[env_string] = GridEnvironment(env_string)
@@ -128,12 +132,12 @@ def load_experiment(path, use_caching=True):
     # Fix orientation, old model counted top to bottom!
     start_pos = (start_pos[0], start_pos[1])
 
-    agent_id = os.path.basename(os.path.dirname(path)) 
+    agent_id = os.path.basename(os.path.dirname(path))
     playback_agent = PlaybackAgent(agent_id,
-                                  lines[condition_end+1:], 
-                                  start_pos=start_pos,  
-                                  environment=environment)
-    
+                                   lines[condition_end+1:],
+                                   start_pos=start_pos,
+                                   environment=environment)
+
     goal = literal_eval(lines[condition_end-2].strip("Goal:").strip())
     # Determine possible goals. Required since C1 and C3 do not store all
     # targets in their files:
@@ -154,7 +158,7 @@ def load_experiment(path, use_caching=True):
             if "Targets:" in line:
                 targets = literal_eval(line[line.find("{"):])
                 break
-            
+
     return environment, targets, playback_agent, goal["target"]
 
 
@@ -188,17 +192,18 @@ class PlaybackAgent(object):
         cur_idx: int
             A counter for the next action which should be replayed.
     """
-    
+
     def __init__(self, agent_id, action_rows, start_pos, environment):
         self.id = agent_id
         try:
             self.actions = self._parse_actions(action_rows)
         except IndexError:
-            raise IndexError("Error parsing actions of user: {}".format(agent_id))
+            raise IndexError(
+                "Error parsing actions of user: {}".format(agent_id))
         self.environment = environment
         self.cur_idx = 0
-        self.environment.initialize_agent(start_pos)
-    
+        # self.environment.initialize_agent(start_pos)
+
     def _parse_actions(self, action_rows):
         """
             Private function to parse the action recordings.
@@ -219,11 +224,11 @@ class PlaybackAgent(object):
         date_split = action_rows[0].find(": ")-1
         for row in action_rows:
             if row != "":
-                res.append((datetime.datetime.strptime(row[:date_split], 
-                                                       "%Y-%m-%d %H:%M:%S.%f"), 
+                res.append((datetime.datetime.strptime(row[:date_split],
+                                                       "%Y-%m-%d %H:%M:%S.%f"),
                             row[date_split+3:].strip()))
         return res
-        
+
     def perform_action(self, ignore_duds=False):
         """
             Trigger the agent to perform the next action.
@@ -244,19 +249,20 @@ class PlaybackAgent(object):
             action = self.actions[self.cur_idx]
         except IndexError:
             print("Agent {} finished it's episode.".format(self.id))
-            return None 
-        if "Finished" not in action[1]:
-            _, action_string = action[1].split("-")
-
-            action = ACTION_MAPPING[action_string]
-
-            new_pos = self.environment.perform_action(action)
-
-        else: #Condition was finished
             return None
-        
-        self.cur_idx += 1
-        return new_pos
+
+        if "starting" in action[1]:
+            self.cur_idx += 1
+            return self.environment.agent_pos
+        elif "finished" in action[1]:
+            return None  # condition is finished
+        else:
+            action_string = action[1]
+            action = ACTION_MAPPING[action_string]
+            new_pos = self.environment.perform_action(
+                action=action, agent=self)
+            self.cur_idx += 1
+            return new_pos
 
     def replay(self, callback, speedup=1):
         """
@@ -273,12 +279,13 @@ class PlaybackAgent(object):
                 A speedup factor. The time delta between two 
                 actions will be divided by this factor.
         """
-        
+
         while True:
             if self.cur_idx == len(self.actions):
                 break
             cur_timestamp = self.actions[self.cur_idx][0]
-            last_timestamp = self.actions[self.cur_idx-1][0] if self.cur_idx > 0 else cur_timestamp
+            last_timestamp = self.actions[self.cur_idx -
+                                          1][0] if self.cur_idx > 0 else cur_timestamp
             delta = (cur_timestamp - last_timestamp)/speedup
             time.sleep(delta.total_seconds())
             new_pos = self.perform_action()
