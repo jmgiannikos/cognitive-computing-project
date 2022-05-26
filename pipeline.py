@@ -68,7 +68,6 @@ class pipeline(object):
             """
                 Initializes gridEnvs and adds them to envs list
             """
-
             env = GridEnvironment(target=goal_position, initial_agent_pos=start_position,
                                   view_radius=VIEW_RADIUS, env_string=env_string, facing=facing)
             if self.log:
@@ -150,12 +149,12 @@ class pipeline(object):
                 "#gg#gg#g##g#g#gg#ggg##ggg#g###\n" + \
                 "###g#g##ggg#g#g##g##ggg###ggg#\n" + \
                 "###gg#g###g#g#gg#g##g#g#gg##g#\n" + \
-                "##g#g#ggggg#gg#g#ggg##g##g#g##\n" + \
+                "####g#ggggg#gg#g#ggg##g##g#g##\n" + \
                 "#gggggg#g#gg#g#g#g#gg#ggggggg#\n" + \
                 "##############################"
             start_position = (28, 1)
             goal_position = (3, 28)
-            facing = "EAST"
+            facing = (0,-1)
             name = "Default_Labyrinth"
             _add_env(self)
 

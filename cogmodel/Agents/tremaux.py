@@ -15,8 +15,8 @@ class tremaux(object):
         self.env = gridEnvironment  # env on which agent runs
         self.log = logging  # sets if logging is active
         self._action_queue = []  # enqueues/dequeues action to be performed by agent
-        # neighbor-coordinates on left/front/right
-        self._neighbors = [(), (), ()]
+        # neighbor-coordinates on left/front/right and bool if wall as tuple
+        self._neighbors = [(),(),()]
         self._marked = []  # marked tiles saved as tuples
 
     def run(self):
@@ -33,7 +33,6 @@ class tremaux(object):
 
         # --- MAIN ROUTINE ---
         while(self.env.agent_pos != self.env.target):
-            print( sorted(self._marked, key=lambda tup: tup[0]))
             # check how many actions are in queue and do all but one
             while(len(self._action_queue) > 1):
                 # dequeue action to perform
@@ -41,42 +40,42 @@ class tremaux(object):
 
             if not self._action_queue[0]:
                 self._check_in_front()
-
-            # check neighbors of current position
-            self._check_neighbors()
-
-            # --- CHOOSE ACTION ---
-            # Case: not at intersection
-            left = self._neighbors[0][1]
-            front = self._neighbors[1][1]
-            right = self._neighbors[2][1]
-            if left and front and right:
-                self._turn_around()
-            elif left and right:
-                self._action_queue.append(self.env.facing_direction)
-            elif left and front:
-                self._go_right(mark=False)
-            elif right and front:
-                self._go_left(mark=False)
-            # Case: intersection
             else:
-                tiles = np.array(self._neighbors, dtype=object)[:, 0]
-                if not left and not front and not right:
-                    # self._handle_intersection_one()
-                    self._handle_intersection(
-                        tiles, [self._go_left, self._go_front, self._go_right])
-                elif not left and not front:
-                    # self._handle_intersection_two()
-                    self._handle_intersection(
-                        tiles[:-1], [self._go_left, self._go_front])
-                elif not front and not right:
-                    # self._handle_intersection_three()
-                    self._handle_intersection(
-                        tiles[1:], [self._go_front, self._go_right])
-                elif not left and not right:
-                    # self._handle_intersection_four()
-                    self._handle_intersection([tiles[0], tiles[2]], [
-                                              self._go_left, self._go_right])
+                # check neighbors of current position
+                self._check_neighbors()
+
+                # --- CHOOSE ACTION ---
+                # Case: not at intersection
+                left = self._neighbors[0][1]
+                front = self._neighbors[1][1]
+                right = self._neighbors[2][1]
+                if left and front and right:
+                    self._turn_around()
+                elif left and right:
+                    self._action_queue.append(self.env.facing_direction)
+                elif left and front:
+                    self._go_right(mark=False)
+                elif right and front:
+                    self._go_left(mark=False)
+                # Case: intersection
+                else:
+                    tiles = np.array(self._neighbors, dtype=object)[:, 0]
+                    if not left and not front and not right:
+                        # self._handle_intersection_one()
+                        self._handle_intersection(
+                            tiles, [self._go_left, self._go_front, self._go_right])
+                    elif not left and not front:
+                        # self._handle_intersection_two()
+                        self._handle_intersection(
+                            tiles[:-1], [self._go_left, self._go_front])
+                    elif not front and not right:
+                        # self._handle_intersection_three()
+                        self._handle_intersection(
+                            tiles[1:], [self._go_front, self._go_right])
+                    elif not left and not right:
+                        # self._handle_intersection_four()
+                        self._handle_intersection([tiles[0], tiles[2]], [
+                                                self._go_left, self._go_right])
 
 
             print(self._action_queue)
@@ -173,8 +172,7 @@ class tremaux(object):
                     self._check_in_front(checks=2)
                 case 2:
                     self.env.perform_action(action=TURN_RIGHT, agent=self)
-                    self._marked.append(self.env.agent_pos)
-                    self._action_queue.append(facing)
+                    self._action_queue.append(MARK)
 
     def _turn_around(self):
         """
@@ -220,7 +218,7 @@ class tremaux(object):
         """
 
         # mark current position
-        self._marked.append(self.env.agent_pos)
+        self._action_queue.append(MARK)
 
         # Intersection is unknown
         if sum(tile in self._marked for tile in free_neighbors) == 0:
@@ -232,7 +230,7 @@ class tremaux(object):
         else:
             if self._marked.count(self.env.agent_pos) == 1:  # found a loop
                 # mark current position and turn around
-                self._marked.append(self.env.agent_pos)
+                self._action_queue.append(MARK)
                 self._turn_around()
             else:  # already searched whole area
                 minimum_mark_value = np.min(
@@ -243,143 +241,3 @@ class tremaux(object):
                     0, len(minimal_neighbors))]
                 dir = list(free_neighbors).index(chosen_one)
                 action_functions[dir]()
-
-    def _handle_intersection_one(self):
-        """
-            Intersection type : +
-        """
-        # mark current position
-        self._marked.append(self.env.agent_pos)
-
-        # Intersection is unknown
-        if sum(tile in self._marked for tile in self._neighbors) == 0:
-            dir = np.random.randint(1, 4)
-            if dir == 1:  # go left
-                self._go_left()
-            elif dir == 2:  # go front
-                self._go_front()
-            else:  # go right
-                self._go_right()
-
-        # intersection is known
-        else:
-            if self._marked.count(self.env.agent_pos) == 1:  # found a loop
-                # mark current position
-                self._marked.append(self.env.agent_pos)
-                # add actions to queue
-                self._turn_around()
-            else:  # already searched whole area
-                minimum_mark_value = np.min(
-                    [self._marked.count(x) for x in self._neighbors])
-                minimal_neighbors = [
-                    x for x in self._neighbors if self._marked.count(x) == minimum_mark_value]
-                chosen_one = minimal_neighbors[np.random.randint(
-                    0, len(minimal_neighbors))]
-                if chosen_one == self._neighbors[0]:  # left is chosen
-                    self._go_left()
-                elif chosen_one == self._neighbors[1]:  # front is chosen
-                    self._go_front()
-                else:  # right is chosen
-                    self._go_right()
-
-    def _handle_intersection_two(self):
-        """
-            Intersection type : -|
-        """
-        # mark current position
-        self._marked.append(self.env.agent_pos)
-
-        # Intersection is unknown
-        if sum(tile in self._marked for tile in self._neighbors) == 0:
-            dir = np.random.randint(1, 3)
-            if dir == 1:  # go left
-                self._go_left()
-            elif dir == 2:  # go front
-                self._go_front()
-
-        # intersection is known
-        else:
-            if self._marked.count(self.env.agent_pos) == 1:  # found a loop
-                # mark current position
-                self._marked.append(self.env.agent_pos)
-                # add actions to queue
-                self._turn_around()
-            else:  # already searched whole area
-                minimum_mark_value = np.min(
-                    [self._marked.count(x) for x in self._neighbors])
-                minimal_neighbors = [
-                    x for x in self._neighbors if self._marked.count(x) == minimum_mark_value and self.env.tiles[x].passable]
-                chosen_one = minimal_neighbors[np.random.randint(
-                    0, len(minimal_neighbors))]
-                if chosen_one == self._neighbors[0]:  # left is chosen
-                    self._go_left()
-                elif chosen_one == self._neighbors[1]:  # front is chosen
-                    self._go_front()
-
-    def _handle_intersection_three(self):
-        """
-            Intersection type : |-
-        """
-        # mark current position
-        self._marked.append(self.env.agent_pos)
-
-        # Intersection is unknown
-        if sum(tile in self._marked for tile in self._neighbors) == 0:
-            dir = np.random.randint(1, 3)
-            if dir == 1:  # go front
-                self._go_front()
-            else:  # go right
-                self._go_right()
-
-        # intersection is known
-        else:
-            if self._marked.count(self.env.agent_pos) == 1:  # found a loop
-                # mark current position
-                self._marked.append(self.env.agent_pos)
-                # add actions to queue
-                self._turn_around()
-            else:  # already searched whole area
-                minimum_mark_value = np.min(
-                    [self._marked.count(x) for x in self._neighbors])
-                minimal_neighbors = [
-                    x for x in self._neighbors if self._marked.count(x) == minimum_mark_value and self.env.tiles[x].passable]
-                chosen_one = minimal_neighbors[np.random.randint(
-                    0, len(minimal_neighbors))]
-                if chosen_one == self._neighbors[2]:  # right is chosen
-                    self._go_right()
-                elif chosen_one == self._neighbors[1]:  # front is chosen
-                    self._go_front()
-
-    def _handle_intersection_four(self):
-        """
-            Intersection type : T
-        """
-        # mark current position
-        self._marked.append(self.env.agent_pos)
-
-        # Intersection is unknown
-        if sum(tile in self._marked for tile in self._neighbors) == 0:
-            dir = np.random.randint(1, 3)
-            if dir == 1:  # go left
-                self._go_left()
-            else:  # go right
-                self._go_right()
-
-        # intersection is known
-        else:
-            if self._marked.count(self.env.agent_pos) == 1:  # found a loop
-                # mark current position
-                self._marked.append(self.env.agent_pos)
-                # add actions to queue
-                self._turn_around()
-            else:  # already searched whole area
-                minimum_mark_value = np.min(
-                    [self._marked.count(x) for x in self._neighbors])
-                minimal_neighbors = [
-                    x for x in self._neighbors if self._marked.count(x) == minimum_mark_value and self.env.tiles[x].passable]
-                chosen_one = minimal_neighbors[np.random.randint(
-                    0, len(minimal_neighbors))]
-                if chosen_one == self._neighbors[0]:  # left is chosen
-                    self._go_left()
-                elif chosen_one == self._neighbors[2]:  # right is chosen
-                    self._go_right()
