@@ -374,15 +374,15 @@ class GridEnvironment(object):
         """
         self.log_path = path
         log(path, datetime.datetime.utcnow(), "\nGridEnvironment Log:\n"
-                                              "EnvString: \n{}\n"
-                                              "Goal: {}\n"
-                                              "StartPosition: {}\n"
-                                              "Facing: {}\n"
-                                              "Name: {}\n"
-                                              "AgentType: {}\n".format(self.env_string,
-                                                                       self.target, self.initial_agent_pos,
-                                                                       self.facing_direction,
-                                                                       env_name, agent_type))
+                                              "EnvString:\n{}\n"
+                                              "Goal:\n{}\n"
+                                              "StartPosition:\n{}\n"
+                                              "Facing:\n{}\n"
+                                              "Name:\n{}\n"
+                                              "AgentType:\n{}".format(self.env_string,
+                                                                      self.target, self.initial_agent_pos,
+                                                                      self.facing_direction,
+                                                                      env_name, agent_type))
 
     def get_action_space(self):
         """
@@ -427,7 +427,7 @@ class GridEnvironment(object):
 
         if self.log_path:
             log(self.log_path, datetime.datetime.utcnow(),
-                "FUNCTION-{}".format(ACTION_NAMES[action]))
+                "{}".format(ACTION_NAMES[action]))
 
         if isinstance(action[0], tuple):
             if action == TURN_RIGHT:
@@ -529,7 +529,11 @@ class GridEnvironment(object):
                     self.tiles[(i, j)].target_visible = True
                     tmp.append(self.tiles[(i, j)])
                 else:
-                    tmp.append(Tile.invisible())
+                    # see what agent sees 
+                    # tmp.append(Tile.invisible())
+                    # see everything
+                    self.tiles[(i, j)].target_visible = False
+                    tmp.append(self.tiles[(i, j)])
             res.append(tmp)
         # self.timestamps.append(("get_view_cone end", time.time()))
         if not playback:

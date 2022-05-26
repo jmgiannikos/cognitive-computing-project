@@ -5,7 +5,7 @@ from turtle import position
 import numpy as np
 import matplotlib.pyplot as plt
 from ast import literal_eval
-from cogmodel.gridEnvironment import GridEnvironment, NORTH, SOUTH, WEST, EAST, ACTION_MAPPING
+from cogmodel.gridEnvironment import GridEnvironment, NORTH, SOUTH, WEST, EAST
 from cogmodel import renderer
 from cogmodel import playback
 from cogmodel.Agents.tremaux import tremaux
@@ -70,7 +70,7 @@ class pipeline(object):
             """
 
             env = GridEnvironment(target=goal_position, initial_agent_pos=start_position,
-                                  view_radius=VIEW_RADIUS, env_string=env_string, facing=ACTION_MAPPING[facing])
+                                  view_radius=VIEW_RADIUS, env_string=env_string, facing=facing)
             if self.log:
                 # ATTTENTION: If same logging path is used twice (eg by starting pipeline with same arguments twice) logging file will get corrupted! Always delete or rename folders manually!
                 log_path = "data/Agent_data/" + \
@@ -105,7 +105,7 @@ class pipeline(object):
                             case 3:
                                 goal_position = literal_eval(line.strip())
                             case 4:
-                                facing = line.strip()
+                                facing = literal_eval(line.strip())
                             case 5:
                                 name = line.strip()
                                 _add_env(self)
@@ -123,25 +123,40 @@ class pipeline(object):
             # closing file
             file.close()
         else:  # use default labyrinth
-            env_string = "######################\n" + \
-                "#gggggggggggggggggggg#\n" + \
-                "#g#g###g#g#g#g###g####\n" + \
-                "#g#ggg#ggg#g#ggg#gggg#\n" + \
-                "#g###g#####g###g#g##g#\n" + \
-                "#g#ggg#ggg#g#gggggggg#\n" + \
-                "#g#g###g###g#g###g####\n" + \
-                "#ggggggg#ggg#gg##gggg#\n" + \
-                "#g#######g#g#g##gg##g#\n" + \
-                "#ggggggg###g###gg###g#\n" + \
-                "#g#####gg##g##gg##g#g#\n" + \
-                "#ggggg##gg#g#gg##gggg#\n" + \
-                "#g###g###g#g#g#####gg#\n" + \
-                "#ggggggggggggggg#gggg#\n" + \
-                "######################"
-            start_position = (13, 17)
-            goal_position = (5, 9)
+            env_string = "##############################\n" + \
+                "#gg###g#ggggg#ggg#gggggggggg##\n" + \
+                "##gggggg##g#g###ggg#g##g#g#gg#\n" + \
+                "#g#g#g###gg#g#ggg####gg###g#g#\n" + \
+                "#gg##ggg#g#gg#g##gg###g###gg##\n" + \
+                "##g##g#g##gg#ggg#g#g#gggg#g#g#\n" + \
+                "##ggggg#ggg##g##gggggg##ggggg#\n" + \
+                "#g##g#g#g#gg#gggg######gg##g##\n" + \
+                "#g###ggg#gg#gg########gg#gg###\n" + \
+                "#gg#gg#gg#gg#ggggggg##g#g#gg##\n" + \
+                "##gg##g#gg#ggg#g#g#ggg##gg#gg#\n" + \
+                "###ggggg#g###gg#gg#g#g###g##g#\n" + \
+                "##gg###gggggg#g##gg#gg##ggggg#\n" + \
+                "#gg#ggg#####g#g##g#g#gggg#g#g#\n" + \
+                "#g#gg#gggg#ggggg#g#g#g#g##gg##\n" + \
+                "##gg###g#ggg#g#g##ggg##gg#g#g#\n" + \
+                "#g##g#ggg#g##gg###g#g###g##gg#\n" + \
+                "#g#ggg###g#ggg#ggggg#ggg#ggg##\n" + \
+                "#ggg#ggggggg#ggg#g#ggg#g#g##g#\n" + \
+                "##g#g#g#g#g#gg##ggg#g#g#ggg#g#\n" + \
+                "#gg#ggg##gg#g##g###g##ggg#g#g#\n" + \
+                "####g#g###g#ggggggggggg##gggg#\n" + \
+                "#gggg##gggg#####g#g##g#gg###g#\n" + \
+                "#g#g#ggg##ggggg#gg#g#gg#ggg#g#\n" + \
+                "#gg#gg#g##g#g#gg#ggg##ggg#g###\n" + \
+                "###g#g##ggg#g#g##g##ggg###ggg#\n" + \
+                "###gg#g###g#g#gg#g##g#g#gg##g#\n" + \
+                "##g#g#ggggg#gg#g#ggg##g##g#g##\n" + \
+                "#gggggg#g#gg#g#g#g#gg#ggggggg#\n" + \
+                "##############################"
+            start_position = (28, 1)
+            goal_position = (3, 28)
             facing = "EAST"
-            name = "Default Labyrinth"
+            name = "Default_Labyrinth"
             _add_env(self)
 
     def _playback(self):
@@ -176,7 +191,7 @@ class pipeline(object):
                         case 3:
                             start_position = literal_eval(line.strip())
                         case 4:
-                            facing = line.strip()
+                            facing = literal_eval(line.strip())
                         case 5:
                             name = line.strip()
                         case 6:
@@ -201,7 +216,7 @@ class pipeline(object):
 
         # TODO check if envString still works with real log files
         env = GridEnvironment(target=goal_position, initial_agent_pos=start_position,
-                              view_radius=VIEW_RADIUS, env_string=env_string[:-1], facing=ACTION_MAPPING[facing])
+                              view_radius=VIEW_RADIUS, env_string=env_string[:-1], facing=facing)
         playback_agent = playback.PlaybackAgent(
             agent_id=agent_type, action_rows=action_rows, start_pos=start_position, environment=env)
 
