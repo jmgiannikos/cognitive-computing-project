@@ -152,9 +152,9 @@ class pipeline(object):
                 "####g#ggggg#gg#g#ggg##g##g#g##\n" + \
                 "#gggggg#g#gg#g#g#g#gg#ggggggg#\n" + \
                 "##############################"
-            start_position = (28, 1)
+            start_position = (6, 25)
             goal_position = (3, 28)
-            facing = (0,-1)
+            facing = (0,1)
             name = "Default_Labyrinth"
             _add_env(self)
 
