@@ -24,6 +24,14 @@ TURN_LEFT = ((0, 1), (-1, 0))
 ACTION_NAMES = {NORTH: "NORTH", SOUTH: "SOUTH", WEST: "WEST", EAST: "EAST", TURN_RIGHT: "TURN RIGHT",
                 TURN_LEFT: "TURN LEFT"}
 
+
+ACTION_MAPPING = {"Left": WEST, "Right": EAST, "Up": NORTH,
+                  "Down": SOUTH, "Turn left": TURN_LEFT,
+                  "Turn Right": TURN_RIGHT,
+                  "NORTH": NORTH, "SOUTH": SOUTH, "EAST": EAST,
+                  "TURN LEFT": TURN_LEFT, "TURN RIGHT": TURN_RIGHT,
+                  "WEST": WEST}
+
 COLOR_MAP = {"#": "gray", "g": "white", "": "black"}
 
 TARGET_COLOR = "green"
@@ -276,7 +284,7 @@ class GridEnvironment(object):
         self.size = (None, None)
         self.agent_pos = initial_agent_pos
         # self.agent = None
-        self.initial_agent_pos = None
+        self.initial_agent_pos = initial_agent_pos
         self.view_radius = view_radius
         self.target = target
         if facing is not None and isinstance(facing, tuple) and len(facing) == 2:
@@ -296,189 +304,6 @@ class GridEnvironment(object):
         # tuples of timestamps and the name of the event that triggered taking the timestamp. Time given as seconds since the last epoch (float)
         self.timestamps = []
         self.memoryUsage = []  # used memory after perform_action was called the i-th time
-
-    def set_logging(self, path, env_name, agent_type):
-        """
-            Defines that this environment should log all performed actions
-            and other information, that might be required to replay actions.
-            This will also trigger writing the currently stored details
-            regarding the environment into the logfile in a format readable
-            by the playback agent.
-
-            Parameters
-            ----------
-            path: str
-                The path of the log-file. Can be absolute or relative to the
-                current working directory.
-            envName: str
-                The name of the environment that is currently used, given
-                for logging purposes.
-            agentType: str
-                The name of the strategy of the agent that is currently used, given
-                for logging purposes.
-        """
-        self.log_path = path
-        log(path, datetime.datetime.utcnow(), "\nGridEnvironment Log:\n"
-                                              "EnvString: \n{}\n"
-                                              "Goal: {}\n"
-                                              "StartPosition: {}\n"
-                                              "Facing: {}\n"
-                                              "Name: {}\n"
-                                              "AgentType: {}\n".format(self.env_string,
-                                                                       self.target, self.initial_agent_pos,
-                                                                       self.facing_direction,
-                                                                       env_name, agent_type))
-
-    # def initialize_agent(self, agent):
-    #    """
-    #    hands agent object to grid environment for tracking purposes
-
-    #    Parameters
-    #    ----------
-    #    agent: the agent object that is being tracked
-    #    """
-
-    #    self.agent = agent
-
-    def get_action_space(self):
-        """
-            Returns
-            -------
-                tuple
-                A tuple of all available actions an agent can perform within
-                this environment.
-                All these actions are accepted by perform_action.
-        """
-        return self.action_space
-
-    def perform_action(self, action, agent):
-        """
-            Performs given action if possible.
-
-            Parameter
-            ---------
-            action: Member of self.action_space
-                The action which should be performed. If it is not a member
-                of self.action_space, an exception will be raised.
-
-            Returns
-            -------
-                tuple
-                The new state of the agent after performing the action.
-        """
-        self.timestamps.append(
-            ("perform_action start", time.time()))  # take timestamp on beginning of request processing
-
-        self.memoryUsage.append(asizeof.asizeof(agent) - asizeof.asizeof(self))
-
-        pathlen = self.path_length[-1]
-        stepscore = self.step_score[-1]
-
-        if not action in self.action_space:
-            raise AttributeError("{} is not a valid action for this "
-                                 "environment!".format(action))
-        if self.agent_pos is None:
-            raise AttributeError("No agent was initialized! Cannot perform "
-                                 "action {}.".format(action))
-
-        if self.log_path:
-            log(self.log_path, datetime.datetime.utcnow(),
-                "FUNCTION-{}".format(ACTION_NAMES[action]))
-
-        if isinstance(action[0], tuple):
-            if action == TURN_RIGHT:
-                self._transform_facing_right()
-                # at the moment turning is valued as two thirds as costly as stepping in a direction
-                stepscore += 0.6
-            elif action == TURN_LEFT:
-                self._transform_facing_left()
-                stepscore += 0.6
-            else:
-                raise AttributeError(
-                    "{} is not a correct rotational matrix")  # should be caught ahead of this in all cases. More useful for testing code.
-        else:
-            x, y = self.agent_pos
-            i, j = action
-            stepscore += 1
-            if self.tiles[x + i, y + j].passable:
-                self.agent_pos = (x + i, y + j)
-                pathlen += 1
-
-        self.path_length.append(pathlen)
-        self.step_score.append(stepscore)
-
-        # take timestamp on end of request processing
-        self.timestamps.append(("perform_action end", time.time()))
-
-        return self.agent_pos
-
-    def start_experiment(self):
-        log(self.path)
-        log(self.path, datetime.datetime.utcnow(), "Condition starting")
-
-    def finish_experiment(self):
-        log(self.path, datetime.datetime.utcnow(), "Condition finished")
-        log(self.path)
-        log(self.log_path,                                         # TODO: Add positions array
-            "Position:\n {}\n Time:\n {]\n Load:\n {}\n Length:\n {}\n Action:\n {}".format([], self.timestamps,
-                                                                                            self.memoryUsage,
-                                                                                            self.path_length,
-                                                                                            self.step_score))
-
-    def _rotate_vector_left(self, vec):
-        x1 = vec[0]
-        y1 = vec[1]
-
-        # vector transformation: turn vector 270 degrees
-        x2 = y1
-        y2 = -x1
-
-        return (x2, y2)
-
-    def _rotate_vector_right(self, vec):
-        x1 = vec[0]
-        y1 = vec[1]
-
-        # vector transformation: turn vector 270 degrees
-        x2 = -y1
-        y2 = x1
-
-        return (x2, y2)
-
-    def _transform_facing_left(self):
-        x1 = self.facing_direction[0]
-        y1 = self.facing_direction[1]
-
-        self.facing_direction = self._rotate_vector_left((x1, y1))
-
-    def _transform_facing_right(self):
-        x1 = self.facing_direction[0]
-        y1 = self.facing_direction[1]
-
-        self.facing_direction = self._rotate_vector_right((x1, y1))
-
-    def get_view_cone(self):
-        self.timestamps.append(("get_view_cone start", time.time()))
-
-        if self.facing_direction == NORTH:
-            viewcone = self._handle_octant(self.agent_pos, 5, self.view_radius, True) + self._handle_octant(self.agent_pos, 6,
-                                                                                                      self.view_radius, True)
-        elif self.facing_direction == SOUTH:
-            viewcone = self._handle_octant(self.agent_pos, 1, self.view_radius, True) + self._handle_octant(self.agent_pos, 2,
-                                                                                                      self.view_radius, True)
-        elif self.facing_direction == EAST:
-            viewcone = self._handle_octant(self.agent_pos, 0, self.view_radius, True) + self._handle_octant(self.agent_pos, 7,
-                                                                                                      self.view_radius, True)
-        elif self.facing_direction == WEST:
-            viewcone = self._handle_octant(self.agent_pos, 3, self.view_radius, True) + self._handle_octant(self.agent_pos, 4,
-                                                                                                   self.view_radius, True)
-        else:
-            raise EnvironmentError()
-
-        viewcone = list(set(viewcone))
-
-        self.timestamps.append(("get_view_cone end", time.time()))
-        return viewcone
 
     def parse_world_string(self, env_string, get_passable_states=False):
         r"""
@@ -523,113 +348,198 @@ class GridEnvironment(object):
                 # if tile.passable and self.tiles[newPos].passable:
                 # tile.neighbours.add(self.tiles[newPos])
                 tile.neighbours.add(newPos)
-        self.size = (maxPos[0], maxPos[1] + 1)
+        self.size = (maxPos[0] + 1, maxPos[1] + 1)
         if get_passable_states:
             return states
 
-    def get_observation(self, json=False):
+    def set_logging(self, path, env_name, agent_type):
         """
-            Creates a list of dictionaries representation (suitable for json)
-            of the environment. Can "hide" parts of the environment with
-            invisible tiles outside the Area of View around a given position.
+            Defines that this environment should log all performed actions
+            and other information, that might be required to replay actions.
+            This will also trigger writing the currently stored details
+            regarding the environment into the logfile in a format readable
+            by the playback agent.
 
             Parameters
             ----------
-            json: bool (optional)
-                If true, the Tiles will be converted to simple dictionaries
-                before returning the result.
+            path: str
+                The path of the log-file. Can be absolute or relative to the
+                current working directory.
+            envName: str
+                The name of the environment that is currently used, given
+                for logging purposes.
+            agentType: str
+                The name of the strategy of the agent that is currently used, given
+                for logging purposes.
+        """
+        self.log_path = path
+        log(path, datetime.datetime.utcnow(), "\nGridEnvironment Log:\n"
+                                              "EnvString:\n{}\n"
+                                              "Goal:\n{}\n"
+                                              "StartPosition:\n{}\n"
+                                              "Facing:\n{}\n"
+                                              "Name:\n{}\n"
+                                              "AgentType:\n{}".format(self.env_string,
+                                                                      self.target, self.initial_agent_pos,
+                                                                      self.facing_direction,
+                                                                      env_name, agent_type))
+
+    def get_action_space(self):
+        """
+            Returns
+            -------
+                tuple
+                A tuple of all available actions an agent can perform within
+                this environment.
+                All these actions are accepted by perform_action.
+        """
+        return self.action_space
+
+    def perform_action(self, action, agent):
+        """
+            Performs given action if possible.
+
+            Parameter
+            ---------
+            action: Member of self.action_space
+                The action which should be performed. If it is not a member
+                of self.action_space, an exception will be raised.
 
             Returns
             -------
-                list of lists
-                A 2 dimensional list, containing the visible tiles.
-                If json is set to true, it will return dict objects instead
-                of Tile objects for easier serialization.
-                Tiles outside of the Area of View will be replaced by generic
-                "invisible" tiles.
+                tuple
+                The new state of the agent after performing the action.
         """
-        res = []
-        if self.view_radius is None:
-            # Shortcut when we do not need to deal with lines of sight
-            for i in range(self.size[0]):
-                tmp = []
-                for j in range(self.size[1]):
-                    if (i, j) in self.target:
-                        if self.is_visible((i, j)):
-                            self.tiles[(i, j)].target_visible = True
-                        else:
-                            self.tiles[(i, j)].target_visible = False
+        self.timestamps.append(
+            ("perform_action start", time.time()))  # take timestamp on beginning of request processing
 
-                    tmp.append(self.tiles[(i, j)].to_dict() if json
-                               else self.tiles[(i, j)])
-                res.append(tmp)
+        self.memoryUsage.append(asizeof.asizeof(agent) - asizeof.asizeof(self))
+
+        pathlen = self.path_length[-1]
+        stepscore = self.step_score[-1]
+
+        if not action in self.action_space:
+            raise AttributeError("{} is not a valid action for this "
+                                 "environment!".format(action))
+        if self.agent_pos is None:
+            raise AttributeError("No agent was initialized! Cannot perform "
+                                 "action {}.".format(action))
+
+        if self.log_path:
+            log(self.log_path, datetime.datetime.utcnow(),
+                "{}".format(ACTION_NAMES[action]))
+
+        if isinstance(action[0], tuple):
+            if action == TURN_RIGHT:
+                self._transform_facing_right()
+                # at the moment turning is valued as two thirds as costly as stepping in a direction
+                stepscore += 0.6
+            elif action == TURN_LEFT:
+                self._transform_facing_left()
+                stepscore += 0.6
+            else:
+                raise AttributeError(
+                    "{} is not a correct rotational matrix")  # should be caught ahead of this in all cases. More useful for testing code.
         else:
-            if self.agent_pos is None:
-                raise ValueError(
-                    "Requires agent_pos when view_radius is given!")
+            x, y = self.agent_pos
+            i, j = action
+            stepscore += 1
+            if self.tiles[x + i, y + j].passable:
+                self.agent_pos = (x + i, y + j)
+                pathlen += 1
 
-            agent_pos = tuple(self.agent_pos)
+        self.path_length.append(pathlen)
+        self.step_score.append(stepscore)
 
-            # Compute Visibles
-            visibles_map = []
-            for octant in range(8):
-                tmp = self._handle_octant(agent_pos, octant,
-                                          radius=self.view_radius)
-                visibles_map += tmp
+        # take timestamp on end of request processing
+        self.timestamps.append(("perform_action end", time.time()))
 
-            visibles_map = set(visibles_map)
-            visibles_map.add(agent_pos)
+        return self.agent_pos
 
-            for i in range(self.size[0]):
-                tmp = []
-                for j in range(self.size[1]):
-                    # TODO Consider making this more efficient,
-                    # by not going over visibles every time!
-                    if (i, j) not in visibles_map:
-                        tmp.append(Tile.invisible().to_dict() if json
-                                   else Tile.invisible())
-                    else:
-                        tmp.append(self.tiles[(i, j)].to_dict() if json
-                                   else self.tiles[(i, j)])
-                    if self.is_visible((i, j)):
-                        self.tiles[(i, j)].target_visible = True
-                    else:
-                        self.tiles[(i, j)].target_visible = False
-                res.append(tmp)
-        return res
+    def start_experiment(self):
+        log(self.log_path)
+        log(self.log_path, datetime.datetime.utcnow(), "Condition starting")
 
-    def is_visible(self, position, radius=None):
-        """
-            Checks if the given position is currently visible from the 
-            given current position.
+    def finish_experiment(self):
+        log(self.log_path, datetime.datetime.utcnow(), "Condition finished")
+        log(self.log_path)
+        log(self.log_path,                                         # TODO: Add positions array
+            msg="Position:\n{}\nTime:\n{}\nLoad:\n{}\nLength:\n{}\nAction:\n{}".format([], self.timestamps,
+                                                                                                self.memoryUsage,
+                                                                                                self.path_length,
+                                                                                                self.step_score))
 
-            Parameters
-            ----------
-            position: tuple
-                The position to check
-            radius: int (Default: None)
-                The radius in which tiles should be visible around a given
-                position. If not given, the view radius is used.
+    def _rotate_vector_right(self, vec):
+        x1 = vec[0]
+        y1 = vec[1]
 
-            Returns
-            -------
-                bool
-                True if the given position is visible from the current position
-                given the radius, False otherwise.
-        """
+        # vector transformation: turn vector 270 degrees
+        x2 = y1
+        y2 = -x1
 
-        if radius is None:
-            radius = self.view_radius
-        agent_pos = self.agent_pos
-        x, y = (position[0] - agent_pos[0]), (position[1] - agent_pos[1])
+        return (x2, y2)
 
-        # Determine the octant to check for visibility so that we do not need
-        # to check the entire circle around us
-        octant = [([1, 0], [2, 3]), ([6, 7], [5, 4])
-                  ][x < 0][y < 0][abs(x) < abs(y)]
-        visibles = self._handle_octant(agent_pos, octant, radius)
+    def _rotate_vector_left(self, vec):
+        x1 = vec[0]
+        y1 = vec[1]
 
-        return position in visibles
+        # vector transformation: turn vector 270 degrees
+        x2 = -y1
+        y2 = x1
+
+        return (x2, y2)
+
+    def _transform_facing_left(self):
+        x1 = self.facing_direction[0]
+        y1 = self.facing_direction[1]
+
+        self.facing_direction = self._rotate_vector_left((x1, y1))
+
+    def _transform_facing_right(self):
+        x1 = self.facing_direction[0]
+        y1 = self.facing_direction[1]
+
+        self.facing_direction = self._rotate_vector_right((x1, y1))
+
+    def get_view_cone(self, playback=False):
+        # self.timestamps.append(("get_view_cone start", time.time()))
+        if self.facing_direction == NORTH:
+            viewcone = self._handle_octant(self.agent_pos, 5, self.view_radius, True) + self._handle_octant(self.agent_pos, 6,
+                                                                                                            self.view_radius, True)
+        elif self.facing_direction == SOUTH:
+            viewcone = self._handle_octant(self.agent_pos, 1, self.view_radius, True) + self._handle_octant(self.agent_pos, 2,
+                                                                                                            self.view_radius, True)
+        elif self.facing_direction == EAST:
+            viewcone = self._handle_octant(self.agent_pos, 0, self.view_radius, True) + self._handle_octant(self.agent_pos, 7,
+                                                                                                            self.view_radius, True)
+        elif self.facing_direction == WEST:
+            viewcone = self._handle_octant(self.agent_pos, 3, self.view_radius, True) + self._handle_octant(self.agent_pos, 4,
+                                                                                                            self.view_radius, True)
+        else:
+            raise EnvironmentError()
+
+        viewcone = list(set(viewcone))
+        viewcone = [key for key in viewcone if key in self.tiles.keys()]
+
+        res = []
+        for i in range(self.size[0]):
+            tmp = []
+            for j in range(self.size[1]):
+                if (i, j) in viewcone:
+                    self.tiles[(i, j)].target_visible = True
+                    tmp.append(self.tiles[(i, j)])
+                else:
+                    # see what agent sees 
+                    # tmp.append(Tile.invisible())
+                    # see everything
+                    self.tiles[(i, j)].target_visible = False
+                    tmp.append(self.tiles[(i, j)])
+            res.append(tmp)
+        # self.timestamps.append(("get_view_cone end", time.time()))
+        if not playback:
+            return {tile: self.tiles[tile] for tile in viewcone}
+        else:
+            return res
 
     def _handle_octant(self, agent_pos, octant, radius, glassmaze):
         r"""
@@ -682,7 +592,6 @@ class GridEnvironment(object):
 
     def _handle_column(self, agent_pos, col, top_slope, bot_slope, tasks, octant,
                        radius, glassmaze):
-      
         """
             Computes the visible tiles within the given column of the 
             given octant. Can distinguish between two different vision
@@ -700,7 +609,7 @@ class GridEnvironment(object):
                 The current slope towards the highest still valid tile within
                 the given column.
             botSlope: float
-                The current slope towards the lowest still valid tile wihin
+                The current slope towards the lowest still valid tile within
                 the given column.
             tasks: list
                 List of tasks (i.e. columns and slopes) still to process
@@ -758,7 +667,7 @@ class GridEnvironment(object):
                     current_transparent = self.tiles[pos].passable
                 else:
                     current_transparent = True
-                    
+
             except KeyError:
                 # We must be outside our target area
                 break
@@ -877,7 +786,7 @@ class GridEnvironment(object):
 
             passable_neighbours = [n_pos for n_pos in tiles[current].neighbours
                                    if tiles[n_pos].passable]
-            
+
             for n_pos in passable_neighbours:
                 new_cost = cost_so_far[current] + 1
                 if n_pos not in cost_so_far or new_cost < cost_so_far[n_pos]:

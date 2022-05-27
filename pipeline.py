@@ -5,9 +5,10 @@ from turtle import position
 import numpy as np
 import matplotlib.pyplot as plt
 from ast import literal_eval
-from cogmodel.gridEnvironment import GridEnvironment
+from cogmodel.gridEnvironment import GridEnvironment, NORTH, SOUTH, WEST, EAST
 from cogmodel import renderer
 from cogmodel import playback
+from cogmodel.Agents.tremaux import tremaux
 
 VIEW_RADIUS = 5
 
@@ -35,12 +36,19 @@ class pipeline(object):
             for agent_type in self.agent_types:
                 self.agent_type = agent_type
                 # constructing grid environment(s)
+                self.envs = []
                 self._construct_envs()
                 match agent_type:
                     case "wall_follower":
                         # TODO make agent once available
                         for env in self.envs:
                             print("Constructing agent")
+
+                    case "tremaux":
+                        for env in self.envs:
+                            agent = tremaux(env, self.log)
+                            agent.run()
+                            # TODO: add graphs if wanted here
 
         elif self.playback:
             self._playback()
@@ -96,7 +104,7 @@ class pipeline(object):
                             case 3:
                                 goal_position = literal_eval(line.strip())
                             case 4:
-                                facing = line.strip()
+                                facing = literal_eval(line.strip())
                             case 5:
                                 name = line.strip()
                                 _add_env(self)
@@ -114,25 +122,40 @@ class pipeline(object):
             # closing file
             file.close()
         else:  # use default labyrinth
-            env_string = "######################\n" + \
-                "#gggggggggggggggggggg#\n" + \
-                "#g#g###g#g#g#g###g####\n" + \
-                "#g#ggg#ggg#g#ggg#gggg#\n" + \
-                "#g###g#####g###g#g##g#\n" + \
-                "#g#ggg#ggg#g#gggggggg#\n" + \
-                "#g#g###g###g#g###g####\n" + \
-                "#ggggggg#ggg#gg##gggg#\n" + \
-                "#g#######g#g#g##gg##g#\n" + \
-                "#ggggggg###g###gg###g#\n" + \
-                "#g#####gg##g##gg##g#g#\n" + \
-                "#ggggg##gg#g#gg##gggg#\n" + \
-                "#g###g###g#g#g#####gg#\n" + \
-                "#ggggggggggggggg#gggg#\n" + \
-                "######################"
-            start_position = (13, 17)
-            goal_position = (5, 9)
-            facing = "NORTH"
-            name = "Default Labyrinth"
+            env_string = "##############################\n" + \
+                "#gg###g#ggggg#ggg#gggggggggg##\n" + \
+                "##gggggg##g#g###ggg#g##g#g#gg#\n" + \
+                "#g#g#g###gg#g#ggg####gg###g#g#\n" + \
+                "#gg##ggg#g#gg#g##gg###g###gg##\n" + \
+                "##g##g#g##gg#ggg#g#g#gggg#g#g#\n" + \
+                "##ggggg#ggg##g##gggggg##ggggg#\n" + \
+                "#g##g#g#g#gg#gggg######gg##g##\n" + \
+                "#g###ggg#gg#gg########gg#gg###\n" + \
+                "#gg#gg#gg#gg#ggggggg##g#g#gg##\n" + \
+                "##gg##g#gg#ggg#g#g#ggg##gg#gg#\n" + \
+                "###ggggg#g###gg#gg#g#g###g##g#\n" + \
+                "##gg###gggggg#g##gg#gg##ggggg#\n" + \
+                "#gg#ggg#####g#g##g#g#gggg#g#g#\n" + \
+                "#g#gg#gggg#ggggg#g#g#g#g##gg##\n" + \
+                "##gg###g#ggg#g#g##ggg##gg#g#g#\n" + \
+                "#g##g#ggg#g##gg###g#g###g##gg#\n" + \
+                "#g#ggg###g#ggg#ggggg#ggg#ggg##\n" + \
+                "#ggg#ggggggg#ggg#g#ggg#g#g##g#\n" + \
+                "##g#g#g#g#g#gg##ggg#g#g#ggg#g#\n" + \
+                "#gg#ggg##gg#g##g###g##ggg#g#g#\n" + \
+                "####g#g###g#ggggggggggg##gggg#\n" + \
+                "#gggg##gggg#####g#g##g#gg###g#\n" + \
+                "#g#g#ggg##ggggg#gg#g#gg#ggg#g#\n" + \
+                "#gg#gg#g##g#g#gg#ggg##ggg#g###\n" + \
+                "###g#g##ggg#g#g##g##ggg###ggg#\n" + \
+                "###gg#g###g#g#gg#g##g#g#gg##g#\n" + \
+                "##g#g#ggggg#gg#g#ggg##g##g#g##\n" + \
+                "#gggggg#g#gg#g#g#g#gg#ggggggg#\n" + \
+                "##############################"
+            start_position = (28, 1)
+            goal_position = (3, 28)
+            facing = (0,1)
+            name = "Default_Labyrinth"
             _add_env(self)
 
     def _playback(self):
@@ -167,7 +190,7 @@ class pipeline(object):
                         case 3:
                             start_position = literal_eval(line.strip())
                         case 4:
-                            facing = line.strip()
+                            facing = literal_eval(line.strip())
                         case 5:
                             name = line.strip()
                         case 6:
@@ -190,16 +213,17 @@ class pipeline(object):
         else:
             rend = renderer.MatplotlibRenderer()
 
+        # TODO check if envString still works with real log files
         env = GridEnvironment(target=goal_position, initial_agent_pos=start_position,
-                              view_radius=VIEW_RADIUS, env_string=env_string, facing=facing)
+                              view_radius=VIEW_RADIUS, env_string=env_string[:-1], facing=facing)
         playback_agent = playback.PlaybackAgent(
             agent_id=agent_type, action_rows=action_rows, start_pos=start_position, environment=env)
 
-        rend.plot(grid=env.get_observation(), agent=env.agent_pos,
+        rend.plot(grid=env.get_view_cone(playback=True), agent=env.agent_pos,
                   facing=env.facing_direction, show_trajectory=True)
 
         def my_callback(pos):
-            rend.plot(grid=env.get_observation(), agent=pos,
+            rend.plot(grid=env.get_view_cone(playback=True), agent=pos,
                       facing=env.facing_direction, show_trajectory=True)
             # To allow for event handling and matplotlib updates
             rend.pause(0.001)
@@ -347,46 +371,50 @@ class pipeline(object):
 
         # TODO find better way to save figures
 
-        #  load over time
-        fig1, ax1 = _create_figure_fill(self, time, load, "Cognitive load over time",
-                                        "Time in [seconds]", "Cognitive load in [number of saved numbers]")
-        if self.log:
-            plt.savefig(save_path+"/load_time")
+        # #  load over time
+        # fig1, ax1 = _create_figure_fill(self, time, load, "Cognitive load over time",
+        #                                 "Time in [seconds]", "Cognitive load in [number of saved numbers]")
+        # if self.log:
+        #     plt.savefig(save_path+"/load_time")
 
         # load over state number
-        fig2, ax2 = _create_figure_fill(self, np.arange(len(load)), load, "Cognitive load over number of visited states",
+        fig2, ax2 = _create_figure_fill(self, np.arange(len(load)), load,
+                                        "Cognitive load over number of visited states",
                                         "State in [number]", "Cognitive load in [number of saved numbers]")
         if self.log:
-            plt.savefig(save_path+"/load_state")
-        # path length over time
-        fig3, ax3 = _create_figure(
-            self, time, length, "Path length over time", "Time in [seconds]", "Path length in [unit]")
-        if self.log:
-            plt.savefig(save_path+"/length_time")
+            plt.savefig(save_path + "/load_state")
+
+        # # path length over time
+        # fig3, ax3 = _create_figure(
+        #     self, time, length, "Path length over time", "Time in [seconds]", "Path length in [unit]")
+        # if self.log:
+        #     plt.savefig(save_path+"/length_time")
 
         # path length over state number
         fig4, ax4 = _create_figure(
-            self,  np.arange(len(length)), length, "Path length over number of visited states", "State in [number]", "Path length in [unit]")
+            self, np.arange(len(length)), length, "Path length over number of visited states", "State in [number]",
+            "Path length in [unit]")
         if self.log:
-            plt.savefig(save_path+"/length_state")
+            plt.savefig(save_path + "/length_state")
 
-        # action number of time
-        fig5, ax5 = _create_figure(
-            self, time, action, "Number of actions over time", "Time in [seconds]", "Action in [number]")
-        if self.log:
-            plt.savefig(save_path+"/action_time")
+        # # action number of time
+        # fig5, ax5 = _create_figure(
+        #     self, time, action, "Number of actions over time", "Time in [seconds]", "Action in [number]")
+        # if self.log:
+        #     plt.savefig(save_path+"/action_time")
 
         # action number over state number
         fig6, ax6 = _create_figure(
-            self, np.arange(len(action)), action, "Number of actions over number of visited states", "State in [number]", "Action in [number]")
+            self, np.arange(len(action)), action, "Number of actions over number of visited states",
+            "State in [number]", "Action in [number]")
         if self.log:
-            plt.savefig(save_path+"/action_state")
+            plt.savefig(save_path + "/action_state")
 
-        # state number over time
-        fig7, ax7 = _create_figure(
-            self, time, np.arange(len(time)), "Number of visited states over time", "Time in [seconds]", "State in [number]")
-        if self.log:
-            plt.savefig(save_path+"/state_time")
+        # # state number over time
+        # fig7, ax7 = _create_figure(
+        #     self, time, np.arange(len(time)), "Number of visited states over time", "Time in [seconds]", "State in [number]")
+        # if self.log:
+        #     plt.savefig(save_path+"/state_time")
 
         # show plots
         if self.show:
@@ -407,7 +435,7 @@ if __name__ == "__main__":
     # pipeline either creates new agents or does playback, not both at once
     # TODO: add agents names once available
     group.add_argument(
-        "-a", "--agent", help="name of the agent that should be used", choices=['wall_follower'], nargs="+")
+        "-a", "--agent", help="name of the agent that should be used", choices=['wall_follower', 'tremaux'], nargs="+")
     group.add_argument(
         "-p", "--playback", help="file path to .txt file containing log-file that should be replayed")
     group.add_argument(
