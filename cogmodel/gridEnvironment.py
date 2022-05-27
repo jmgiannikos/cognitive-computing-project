@@ -464,7 +464,7 @@ class GridEnvironment(object):
         log(self.log_path, datetime.datetime.utcnow(), "Condition finished")
         log(self.log_path)
         log(self.log_path,                                         # TODO: Add positions array
-            msg="Position:\n {}\n Time:\n {}\n Load:\n {}\n Length:\n {}\n Action:\n {}".format([], self.timestamps,
+            msg="Position:\n{}\nTime:\n{}\nLoad:\n{}\nLength:\n{}\nAction:\n{}".format([], self.timestamps,
                                                                                                 self.memoryUsage,
                                                                                                 self.path_length,
                                                                                                 self.step_score))

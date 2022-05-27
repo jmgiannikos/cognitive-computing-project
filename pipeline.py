@@ -149,10 +149,10 @@ class pipeline(object):
                 "#gg#gg#g##g#g#gg#ggg##ggg#g###\n" + \
                 "###g#g##ggg#g#g##g##ggg###ggg#\n" + \
                 "###gg#g###g#g#gg#g##g#g#gg##g#\n" + \
-                "####g#ggggg#gg#g#ggg##g##g#g##\n" + \
+                "##g#g#ggggg#gg#g#ggg##g##g#g##\n" + \
                 "#gggggg#g#gg#g#g#g#gg#ggggggg#\n" + \
                 "##############################"
-            start_position = (6, 25)
+            start_position = (28, 1)
             goal_position = (3, 28)
             facing = (0,1)
             name = "Default_Labyrinth"
@@ -371,46 +371,50 @@ class pipeline(object):
 
         # TODO find better way to save figures
 
-        #  load over time
-        fig1, ax1 = _create_figure_fill(self, time, load, "Cognitive load over time",
-                                        "Time in [seconds]", "Cognitive load in [number of saved numbers]")
-        if self.log:
-            plt.savefig(save_path+"/load_time")
+        # #  load over time
+        # fig1, ax1 = _create_figure_fill(self, time, load, "Cognitive load over time",
+        #                                 "Time in [seconds]", "Cognitive load in [number of saved numbers]")
+        # if self.log:
+        #     plt.savefig(save_path+"/load_time")
 
         # load over state number
-        fig2, ax2 = _create_figure_fill(self, np.arange(len(load)), load, "Cognitive load over number of visited states",
+        fig2, ax2 = _create_figure_fill(self, np.arange(len(load)), load,
+                                        "Cognitive load over number of visited states",
                                         "State in [number]", "Cognitive load in [number of saved numbers]")
         if self.log:
-            plt.savefig(save_path+"/load_state")
-        # path length over time
-        fig3, ax3 = _create_figure(
-            self, time, length, "Path length over time", "Time in [seconds]", "Path length in [unit]")
-        if self.log:
-            plt.savefig(save_path+"/length_time")
+            plt.savefig(save_path + "/load_state")
+
+        # # path length over time
+        # fig3, ax3 = _create_figure(
+        #     self, time, length, "Path length over time", "Time in [seconds]", "Path length in [unit]")
+        # if self.log:
+        #     plt.savefig(save_path+"/length_time")
 
         # path length over state number
         fig4, ax4 = _create_figure(
-            self,  np.arange(len(length)), length, "Path length over number of visited states", "State in [number]", "Path length in [unit]")
+            self, np.arange(len(length)), length, "Path length over number of visited states", "State in [number]",
+            "Path length in [unit]")
         if self.log:
-            plt.savefig(save_path+"/length_state")
+            plt.savefig(save_path + "/length_state")
 
-        # action number of time
-        fig5, ax5 = _create_figure(
-            self, time, action, "Number of actions over time", "Time in [seconds]", "Action in [number]")
-        if self.log:
-            plt.savefig(save_path+"/action_time")
+        # # action number of time
+        # fig5, ax5 = _create_figure(
+        #     self, time, action, "Number of actions over time", "Time in [seconds]", "Action in [number]")
+        # if self.log:
+        #     plt.savefig(save_path+"/action_time")
 
         # action number over state number
         fig6, ax6 = _create_figure(
-            self, np.arange(len(action)), action, "Number of actions over number of visited states", "State in [number]", "Action in [number]")
+            self, np.arange(len(action)), action, "Number of actions over number of visited states",
+            "State in [number]", "Action in [number]")
         if self.log:
-            plt.savefig(save_path+"/action_state")
+            plt.savefig(save_path + "/action_state")
 
-        # state number over time
-        fig7, ax7 = _create_figure(
-            self, time, np.arange(len(time)), "Number of visited states over time", "Time in [seconds]", "State in [number]")
-        if self.log:
-            plt.savefig(save_path+"/state_time")
+        # # state number over time
+        # fig7, ax7 = _create_figure(
+        #     self, time, np.arange(len(time)), "Number of visited states over time", "Time in [seconds]", "State in [number]")
+        # if self.log:
+        #     plt.savefig(save_path+"/state_time")
 
         # show plots
         if self.show:
