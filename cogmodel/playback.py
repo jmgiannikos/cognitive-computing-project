@@ -15,6 +15,7 @@ from ast import literal_eval
 
 from .gridEnvironment import GridEnvironment
 from .gridEnvironment import NORTH, SOUTH, EAST, WEST, TURN_RIGHT, TURN_LEFT
+from .gridEnvironment import ACTION_MAPPING
 
 CONDITION_PATH = os.path.abspath(
     os.path.dirname(__file__)) + os.path.sep + "Conditions"
@@ -22,14 +23,6 @@ CONDITION_PATH = os.path.abspath(
 # Global memory to speed up parsing for subsequent occurrences of the same
 # condition.
 env_store = {}
-
-ACTION_MAPPING = {"Left": WEST, "Right": EAST, "Up": NORTH,
-                  "Down": SOUTH, "Turn left": TURN_LEFT,
-                  "Turn Right": TURN_RIGHT,
-                  "NORTH": NORTH, "SOUTH": SOUTH, "EAST": EAST,
-                  "TURN LEFT": TURN_LEFT, "TURN RIGHT": TURN_RIGHT,
-                  "WEST": WEST}
-
 
 def crawl_results(path, use_caching=False):
     """
