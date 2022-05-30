@@ -3,6 +3,8 @@ from json import load
 from operator import length_hint
 from turtle import position
 import numpy as np
+import pandas as pd
+import dataframe_image as dfi
 import matplotlib.pyplot as plt
 from ast import literal_eval
 from cogmodel.gridEnvironment import GridEnvironment, NORTH, SOUTH, WEST, EAST
@@ -154,7 +156,7 @@ class pipeline(object):
                 "##############################"
             start_position = (28, 1)
             goal_position = (3, 28)
-            facing = (0,1)
+            facing = (0, 1)
             name = "Default_Labyrinth"
             _add_env(self)
 
@@ -252,26 +254,34 @@ class pipeline(object):
                 while(line := file.readline()):
                     if line in ["Position:\n", "Time:\n", "Load:\n", "Length:\n", "Action:\n"]:
                         read_point += 1
+                    elif "Condition starting" in line:
+                        read_point += 1
+                    elif "Condition finished" in line:
+                        file.readline()
                     else:
                         match read_point:
                             case 0:
                                 continue
                             case 1:
-                                position = np.array(literal_eval(line.strip()))
+                                date_split = line.find(": ")+2
+                                action_types.append(line[date_split:].strip())
                             case 2:
-                                time = np.array(literal_eval(line.strip()))
+                                position = np.array(literal_eval(line.strip()))
                             case 3:
-                                load = np.array(literal_eval(line.strip()))
+                                time = np.array(literal_eval(line.strip()))
                             case 4:
-                                length = np.array(literal_eval(line.strip()))
+                                load = np.array(literal_eval(line.strip()))
                             case 5:
-                                action = np.array(literal_eval(line.strip()))
+                                length = np.array(literal_eval(line.strip()))
+                            case 6:
+                                action_values = np.array(
+                                    literal_eval(line.strip()))
                             case _:
                                 print(
                                     "Something went wrong while trying to read the log file.")
                                 return -1
 
-            return position, time, load, length, action
+            return action_types, position, time, load, length, action_values
 
         def _create_figure_fill(self, x, y, title, x_axis, y_axis):
             """
@@ -356,65 +366,78 @@ class pipeline(object):
 
             return fig, ax
 
-        position = np.array([])
-        time = np.array([])
-        load = np.array([])
-        length = np.array([])
-        action = np.array([])
+        action_types = []
+        position = []
+        time = []
+        load = []
+        length = []
+        action_values = []
 
         if self.graph:
-            position, time, load, length, action = _read_file(self)
+            action_types, position, time, load, length, action_values = _read_file(
+                self)
             save_path = self.graph.strip().rsplit('/', 1)[0]
-            print(save_path)
+
+        # --- PREPARING DATA FOR PLOTS ---
+        # getting information about action types
+        overall_actions = len(action_types)
+        unique, counts = np.unique(action_types, return_counts=True)
+        action_dict = dict(zip(unique, counts))
+        move_number = action_dict.get(
+            'NORTH') + action_dict.get('EAST') + action_dict.get('SOUTH') + action_dict.get('WEST')
+        turn_number = action_dict.get(
+            'TURN LEFT') + action_dict.get('TURN RIGHT')
+
+        #
 
         # --- PLOTS ---
-
-        # TODO find better way to save figures
-
-        # #  load over time
-        # fig1, ax1 = _create_figure_fill(self, time, load, "Cognitive load over time",
-        #                                 "Time in [seconds]", "Cognitive load in [number of saved numbers]")
-        # if self.log:
-        #     plt.savefig(save_path+"/load_time")
-
-        # load over state number
-        fig2, ax2 = _create_figure_fill(self, np.arange(len(load)), load,
-                                        "Cognitive load over number of visited states",
-                                        "State in [number]", "Cognitive load in [number of saved numbers]")
+        # Action types table
+        df = pd.DataFrame([['TOTAL', overall_actions],
+                           ["Total moves", move_number],
+                           ["Total turns", turn_number],
+                           ['North', action_dict.get('NORTH')],
+                           ['East', action_dict.get('EAST')],
+                           ['South', action_dict.get('SOUTH')],
+                           ['West', action_dict.get('WEST')],
+                           ["Turn left", action_dict.get('TURN LEFT')],
+                           ["Turn right", action_dict.get('TURN RIGHT')]],
+                          columns=['Action type', 'Amount'])
+        if self.show:
+            print(df)
         if self.log:
-            plt.savefig(save_path + "/load_state")
+            df = df.style.set_table_styles([
+                {
+                    "selector": "thead",
+                    "props": "background-color:whitesmoke; border-top: 2 px solid black;"
+                },
+                {
+                    "selector": ".row0, .row2, .row6",
+                    "props": "border-bottom: 2px solid black"
+                }
+            ]).background_gradient().hide_index()
+            dfi.export(df, save_path + '/action_types.png')
 
-        # # path length over time
-        # fig3, ax3 = _create_figure(
-        #     self, time, length, "Path length over time", "Time in [seconds]", "Path length in [unit]")
-        # if self.log:
-        #     plt.savefig(save_path+"/length_time")
-
-        # path length over state number
-        fig4, ax4 = _create_figure(
-            self, np.arange(len(length)), length, "Path length over number of visited states", "State in [number]",
-            "Path length in [unit]")
+        # Cognitive load table
+        df = pd.DataFrame.from_dict({'Minimal cognitive load': load.min(),
+                                     "Maximal cognitive load": load.max(),
+                                     "Average cognitive load": np.mean(load),
+                                     'Cognitive load start': load[0],
+                                     'Cognitive load end': load[-1]}, orient="index")
+        if self.show:
+            print(df)
         if self.log:
-            plt.savefig(save_path + "/length_state")
-
-        # # action number of time
-        # fig5, ax5 = _create_figure(
-        #     self, time, action, "Number of actions over time", "Time in [seconds]", "Action in [number]")
-        # if self.log:
-        #     plt.savefig(save_path+"/action_time")
-
-        # action number over state number
-        fig6, ax6 = _create_figure(
-            self, np.arange(len(action)), action, "Number of actions over number of visited states",
-            "State in [number]", "Action in [number]")
-        if self.log:
-            plt.savefig(save_path + "/action_state")
-
-        # # state number over time
-        # fig7, ax7 = _create_figure(
-        #     self, time, np.arange(len(time)), "Number of visited states over time", "Time in [seconds]", "State in [number]")
-        # if self.log:
-        #     plt.savefig(save_path+"/state_time")
+            df = df.style.set_table_styles([
+                {
+                    "selector": "thead",
+                    "props": "display:none"
+                },
+                {
+                    "selector": ".row2",
+                    "props": "border-bottom: 2px solid black"
+                },
+                {"selector": "tbody td", "props": "border-left: 1px solid black"},
+            ]).highlight_max(color='#63a2cb')
+            dfi.export(df, save_path + '/cognitive_load.png')
 
         # show plots
         if self.show:
@@ -426,7 +449,7 @@ if __name__ == "__main__":
         Main method of the pipeline
         ---------------------------
         Parses command line arguments and starts pipeline
-        Use "pipeline.py -h" or "pipeline.py -help" or read the documentation to see what command line arguments are available. 
+        Use "pipeline.py -h" or "pipeline.py -help" or read the documentation to see what command line arguments are available.
     """
 
     # --- ARGUMENT PARSER ---
