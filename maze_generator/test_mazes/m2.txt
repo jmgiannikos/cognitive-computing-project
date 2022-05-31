@@ -1,0 +1,22 @@
+####################
+#gg###gg#ggg##gg####
+##gg#gg#gg##ggg#g###
+#g#ggg#g#gggg###gg##
+#gg##ggg#g###g#gg#g#
+##gggg#gggg#gg#g#gg#
+#####gg#g#g##ggggg##
+######g#g#gg#g####g#
+####ggg#g#g#ggggg#g#
+####g#g#g#ggg#g#ggg#
+#gggg#g#g#g###gg#g##
+#g#g#gg#gg##g##g#gg#
+##gg##gg#ggggg#g#g##
+#gg#ggg##g#g#g#g#gg#
+##g#g#gg#gg#gg#gg#g#
+##gg#gg#gg#g#gg#g#g#
+##g#gg#gg#gg#g##g#g#
+#gg##g#g##g#gg##g#g#
+#g#ggg#ggggg##ggg#g#
+####################
+Starting Point: (7, 6)
+Goal: (17, 7)

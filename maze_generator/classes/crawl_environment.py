@@ -68,12 +68,13 @@ class crawl_environment(object):
 
     
     def get_random_starting_point(self):
-        self.starting_point = (1,1)
         path_fields = self.get_paths()
-        return path_fields[np.random.randint(len(path_fields))]
+        self.starting_point = path_fields[np.random.randint(len(path_fields))]
+        return self.starting_point
 
     def get_random_goal(self):
         path_fields = self.get_paths()
-        elligible_fields = list(filter( lambda pos: (pos[0]-self.starting_point[0])**2+(pos[1]-self.starting_point[1])**2 >= (min(self.dimension[0],self.dimension[1])**2 /2 -1), path_fields ))
+        print(self.starting_point)
+        elligible_fields = list(filter( lambda pos: (pos[0]-self.starting_point[0])**2+(pos[1]-self.starting_point[1])**2 >= (self.dimension[0]/3)**2+(self.dimension[1]/3)**2 , path_fields ))
         return elligible_fields[np.random.randint(len(elligible_fields))]
 

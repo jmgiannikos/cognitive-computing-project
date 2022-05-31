@@ -78,8 +78,7 @@ while(steps<5000 and len(crawlers)>0):
 #Get a random starting point
 starting_point = environment.get_random_starting_point()
 goal = environment.get_random_goal()
-print(starting_point)
-print(goal)
+
 
 #write to file
 if(not (save_txt_path is None)):
