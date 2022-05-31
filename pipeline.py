@@ -399,14 +399,18 @@ class pipeline(object):
         # preparing labyrinth into dict with time and into dict with visited value
         lab_time = dict()
         lab_value = dict()
+        number_walls = 0
+        number_non_walls = 0
         for i in range(0, len(lab)):
             for j in range(0, len(lab[i])):
                 if lab[i][j] == '#':
                     lab_time[(i, j)] = -1
                     lab_value[(i, j)] = -1
+                    number_walls += 1
                 else:
                     lab_time[(i, j)] = 0
                     lab_value[(i, j)] = 0
+                    number_non_walls += 1
         for i in range(0, len(position)):
             lab_value[tuple(position[i])] += 1
             lab_time[tuple(position[i])] += time[i]*1000  # milliseconds
@@ -493,7 +497,7 @@ class pipeline(object):
                                     "Time per action": '{:,.3} ms'.format(time_per_action),
                                      'Path length': path_length,
                                      'Visited ground tiles in total': visited_total,
-                                     'Percentage of visited ground tiles': '{:,.2%}'.format(0.25)}, orient="index")
+                                     'Percentage of visited ground tiles': '{:,.2%}'.format(visited_total/number_non_walls)}, orient="index")
         if self.show:
             print(df)
         if self.log:
