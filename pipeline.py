@@ -9,6 +9,8 @@ from cogmodel.gridEnvironment import GridEnvironment, NORTH, SOUTH, WEST, EAST
 from cogmodel import renderer
 from cogmodel import playback
 from cogmodel.Agents.tremaux import tremaux
+from cogmodel.Agents.wallFollower import wallFollower
+from cogmodel.Agents.greedy_simple import greedy
 
 VIEW_RADIUS = 5
 
@@ -40,15 +42,20 @@ class pipeline(object):
                 self._construct_envs()
                 match agent_type:
                     case "wall_follower":
-                        # TODO make agent once available
                         for env in self.envs:
-                            print("Constructing agent")
+                            agent = wallFollower(env, self.log)
+                            agent.run()
 
                     case "tremaux":
                         for env in self.envs:
                             agent = tremaux(env, self.log)
                             agent.run()
                             # TODO: add graphs if wanted here
+
+                    case "greedy":
+                        for env in self.envs:
+                            agent = greedy(env, self.log)
+                            agent.run()
 
         elif self.playback:
             self._playback()
@@ -435,7 +442,7 @@ if __name__ == "__main__":
     # pipeline either creates new agents or does playback, not both at once
     # TODO: add agents names once available
     group.add_argument(
-        "-a", "--agent", help="name of the agent that should be used", choices=['wall_follower', 'tremaux'], nargs="+")
+        "-a", "--agent", help="name of the agent that should be used", choices=['wall_follower', 'tremaux', 'greedy'], nargs="+")
     group.add_argument(
         "-p", "--playback", help="file path to .txt file containing log-file that should be replayed")
     group.add_argument(
