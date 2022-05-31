@@ -69,6 +69,8 @@ class crawler(object):
         if(self.get_neighboring_paths()>=2):
             self.environment.set_movement_cost(self.position,1)
             self.position= tuple(self.old_position)
+
+            self.refractory +=1
         elif(self.life>0):
             
         
@@ -82,6 +84,9 @@ class crawler(object):
             self.environment.set_movement_cost(self.old_position,1)
         else:
             self.position= tuple(self.old_position)
+            self.refractory +=1
+
+            
             #print("Not Moved")
             #print(self.position)
 
