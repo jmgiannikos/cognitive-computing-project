@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import dataframe_image as dfi
 import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
+import seaborn as sns
 from ast import literal_eval
 from cogmodel.gridEnvironment import GridEnvironment, NORTH, SOUTH, WEST, EAST
 from cogmodel import renderer
@@ -241,48 +243,6 @@ class pipeline(object):
         """
         # TODO: Implement graph function for non log file graphs by using metrics saved in env/agent
 
-        def _read_file(self):
-            """
-                Processes metric information in file from path given by user
-                ------------------------------------------------------------
-                Returns:
-                    position, time, load, length, action: np.array that contain corresponding information
-            """
-            # opening and reading file
-            with open(args.graph) as file:
-                read_point = 0
-                while(line := file.readline()):
-                    if line in ["Position:\n", "Time:\n", "Load:\n", "Length:\n", "Action:\n"]:
-                        read_point += 1
-                    elif "Condition starting" in line:
-                        read_point += 1
-                    elif "Condition finished" in line:
-                        file.readline()
-                    else:
-                        match read_point:
-                            case 0:
-                                continue
-                            case 1:
-                                date_split = line.find(": ")+2
-                                action_types.append(line[date_split:].strip())
-                            case 2:
-                                position = np.array(literal_eval(line.strip()))
-                            case 3:
-                                time = np.array(literal_eval(line.strip()))
-                            case 4:
-                                load = np.array(literal_eval(line.strip()))
-                            case 5:
-                                length = np.array(literal_eval(line.strip()))
-                            case 6:
-                                action_values = np.array(
-                                    literal_eval(line.strip()))
-                            case _:
-                                print(
-                                    "Something went wrong while trying to read the log file.")
-                                return -1
-
-            return action_types, position, time, load, length, action_values
-
         def _create_figure_fill(self, x, y, title, x_axis, y_axis):
             """
                 Creates figure using fill_between
@@ -372,10 +332,47 @@ class pipeline(object):
         load = []
         length = []
         action_values = []
+        lab = []
 
+        # --- READING DATA ---
         if self.graph:
-            action_types, position, time, load, length, action_values = _read_file(
-                self)
+            # opening and reading file
+            with open(args.graph) as file:
+                read_point = 0
+                while(line := file.readline()):
+                    if line in ["EnvString:\n", "Goal:\n", "Position:\n", "Time:\n", "Load:\n", "Length:\n", "Action:\n"]:
+                        read_point += 1
+                    elif "Condition starting" in line:
+                        read_point += 1
+                    elif "Condition finished" in line:
+                        file.readline()
+                    else:
+                        match read_point:
+                            case 0:
+                                continue
+                            case 1:
+                                lab.append(line.strip())
+                            case 2:
+                                continue
+                            case 3:
+                                date_split = line.find(": ")+2
+                                action_types.append(line[date_split:].strip())
+                            case 4:
+                                position = np.array(literal_eval(line.strip()))
+                            case 5:
+                                time = np.array(literal_eval(line.strip()))
+                            case 6:
+                                load = np.array(literal_eval(line.strip()))
+                            case 7:
+                                length = np.array(literal_eval(line.strip()))
+                            case 8:
+                                action_values = np.array(
+                                    literal_eval(line.strip()))
+                            case _:
+                                print(
+                                    "Something went wrong while trying to read the log file.")
+                                return -1
+             # path where graphs will be saved
             save_path = self.graph.strip().rsplit('/', 1)[0]
 
         # --- PREPARING DATA FOR PLOTS ---
@@ -388,9 +385,60 @@ class pipeline(object):
         turn_number = action_dict.get(
             'TURN LEFT') + action_dict.get('TURN RIGHT')
 
-        #
+        # getting time information
+        acc_time = np.cumsum(time)
+        time_total = acc_time[-1]*1000  # milliseconds
+        action_total = len(action_values)
+        time_per_action = time_total/action_total  # milliseconds
+
+        # getting action information
+        unique_data = [list(x) for x in set(tuple(x) for x in position)]
+        visited_total = len(unique_data)
+        path_length = length[-1]
+
+        # preparing labyrinth into dict with time and into dict with visited value
+        lab_time = dict()
+        lab_value = dict()
+        for i in range(0, len(lab)):
+            for j in range(0, len(lab[i])):
+                if lab[i][j] == '#':
+                    lab_time[(i, j)] = -1
+                    lab_value[(i, j)] = -1
+                else:
+                    lab_time[(i, j)] = 0
+                    lab_value[(i, j)] = 0
+        for i in range(0, len(position)):
+            lab_value[tuple(position[i])] += 1
+            lab_time[tuple(position[i])] += time[i]*1000  # milliseconds
 
         # --- PLOTS ---
+        # Heatmap action-amount per ground tile and time per ground tile
+        ser = pd.Series(list(lab_value.values()),
+                        index=pd.MultiIndex.from_tuples(lab_value.keys()))
+        df = ser.unstack().fillna(0)
+        ser = pd.Series(list(lab_time.values()),
+                        index=pd.MultiIndex.from_tuples(lab_time.keys()))
+        df2 = ser.unstack().fillna(0)
+        fig, ax = plt.subplots(1, 2, figsize=(25, 10))
+        plt1 = sns.heatmap(df, vmin=-1, vmax=max(lab_value.values()),
+                           cmap="Blues", ax=ax[0], cbar_kws={'label': 'Number of visits'})
+        plt1.collections[0].colorbar.set_label("Visit amount on tile")
+        plt1.collections[0].colorbar.ax.tick_params(labelsize=15)
+        plt1.figure.axes[-1].yaxis.label.set_size(20)
+        plt1.xaxis.tick_top()
+        plt2 = sns.heatmap(df2, vmin=-1, vmax=max(lab_time.values()),
+                           cmap="Blues", norm=LogNorm(), ax=ax[1])
+        plt2.collections[0].colorbar.set_label("Time on tile in ms")
+        plt2.xaxis.tick_top()
+        plt2.collections[0].colorbar.ax.tick_params(labelsize=15)
+        plt2.figure.axes[-1].yaxis.label.set_size(20)
+        ax[0].set_title('Number of actions on tile',
+                        fontsize=25, fontweight="bold", y=1.08)
+        ax[1].set_title('Time on tile', fontsize=25, fontweight="bold", y=1.08)
+
+        if self.log:
+            fig.figure.savefig(save_path + '/heatmaps.png')
+
         # Action types table
         df = pd.DataFrame([['TOTAL', overall_actions],
                            ["Total moves", move_number],
@@ -420,7 +468,7 @@ class pipeline(object):
         # Cognitive load table
         df = pd.DataFrame.from_dict({'Minimal cognitive load': load.min(),
                                      "Maximal cognitive load": load.max(),
-                                     "Average cognitive load": np.mean(load),
+                                    "Average cognitive load": np.mean(load),
                                      'Cognitive load start': load[0],
                                      'Cognitive load end': load[-1]}, orient="index")
         if self.show:
@@ -438,6 +486,29 @@ class pipeline(object):
                 {"selector": "tbody td", "props": "border-left: 1px solid black"},
             ]).highlight_max(color='#63a2cb')
             dfi.export(df, save_path + '/cognitive_load.png')
+
+        # General information table
+        df = pd.DataFrame.from_dict({'Time in total': '{:,.5} ms'.format(time_total),
+                                     "Actions in total": action_total,
+                                    "Time per action": '{:,.3} ms'.format(time_per_action),
+                                     'Path length': path_length,
+                                     'Visited ground tiles in total': visited_total,
+                                     'Percentage of visited ground tiles': '{:,.2%}'.format(0.25)}, orient="index")
+        if self.show:
+            print(df)
+        if self.log:
+            df = df.style.set_table_styles([
+                {
+                    "selector": "thead",
+                    "props": "display:none"
+                },
+                {
+                    "selector": ".row2",
+                    "props": "border-bottom: 2px solid black"
+                },
+                {"selector": "tbody td", "props": "border-left: 1px solid black"},
+            ])
+            dfi.export(df, save_path + '/general_information.png')
 
         # show plots
         if self.show:

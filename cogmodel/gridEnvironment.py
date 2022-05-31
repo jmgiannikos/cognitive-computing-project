@@ -386,9 +386,6 @@ class GridEnvironment(object):
                                                                       self.facing_direction,
                                                                       env_name, agent_type))
 
-        # set first log time
-        self.last_time_stamp = datetime.datetime.utcnow()
-
     def get_action_space(self):
         """
             Returns
@@ -461,7 +458,7 @@ class GridEnvironment(object):
             tmp_time = datetime.datetime.utcnow()
             self.env_time += (tmp_time - time_start).total_seconds()
             self.timestamps.append(
-                (tmp_time - self.last_time_stamp).total_seconds() - self.env_time + self.timestamps[-1])
+                (tmp_time - self.last_time_stamp).total_seconds() - self.env_time)
             self.last_time_stamp = tmp_time
             self.env_time = 0
 
@@ -470,6 +467,8 @@ class GridEnvironment(object):
     def start_experiment(self):
         log(self.log_path)
         log(self.log_path, datetime.datetime.utcnow(), "Condition starting")
+        # set first log time
+        self.last_time_stamp = datetime.datetime.utcnow()
 
     def finish_experiment(self):
         log(self.log_path, datetime.datetime.utcnow(), "Condition finished")
@@ -549,7 +548,8 @@ class GridEnvironment(object):
                     tmp.append(self.tiles[(i, j)])
             res.append(tmp)
 
-        self.env_time += (datetime.datetime.utcnow() - time_start).total_seconds()
+        self.env_time += (datetime.datetime.utcnow() -
+                          time_start).total_seconds()
 
         if not playback:
             return {tile: self.tiles[tile] for tile in viewcone}
