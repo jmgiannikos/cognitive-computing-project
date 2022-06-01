@@ -173,10 +173,10 @@ class directedTremaux(object):
             match checks:
                 case 0:
                     self.env.perform_action(action=TURN_LEFT, agent=self)
-                    self._check_in_front(checks=1)
+                    self._first_action(checks=1)
                 case 1:
                     self.env.perform_action(action=TURN_LEFT, agent=self)
-                    self._check_in_front(checks=2)
+                    self._first_action(checks=2)
                 case 2:
                     self.env.perform_action(action=TURN_LEFT, agent=self)
                     self._first_action(checks=3)

@@ -115,6 +115,7 @@ class pipeline(object):
                             case 4:
                                 facing = literal_eval(line.strip())
                             case 5:
+                                env_string = env_string.strip()
                                 name = line.strip()
                                 _add_env(self)
                                 read_point = 0
