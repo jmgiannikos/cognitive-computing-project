@@ -13,6 +13,7 @@ from cogmodel.gridEnvironment import GridEnvironment, NORTH, SOUTH, WEST, EAST
 from cogmodel import renderer
 from cogmodel import playback
 from cogmodel.Agents.tremaux import tremaux
+from cogmodel.Agents.directedTremaux import directedTremaux
 
 VIEW_RADIUS = 5
 
@@ -53,6 +54,10 @@ class pipeline(object):
                             agent = tremaux(env, self.log)
                             agent.run()
                             # TODO: add graphs if wanted here
+                    case "directedTremaux":
+                        for env in self.envs:
+                            agent = directedTremaux(env, self.log)
+                            agent.run()
 
         elif self.playback:
             self._playback()
@@ -232,7 +237,7 @@ class pipeline(object):
             # To allow for event handling and matplotlib updates
             rend.pause(0.001)
 
-        playback_agent.replay(my_callback, speedup=1)
+        playback_agent.replay(my_callback, speedup=0.05)
 
         renderer.show()
 
@@ -533,7 +538,7 @@ if __name__ == "__main__":
     # pipeline either creates new agents or does playback, not both at once
     # TODO: add agents names once available
     group.add_argument(
-        "-a", "--agent", help="name of the agent that should be used", choices=['wall_follower', 'tremaux'], nargs="+")
+        "-a", "--agent", help="name of the agent that should be used", choices=['wall_follower', 'tremaux', 'directedTremaux'], nargs="+")
     group.add_argument(
         "-p", "--playback", help="file path to .txt file containing log-file that should be replayed")
     group.add_argument(
