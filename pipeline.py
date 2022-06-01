@@ -238,7 +238,7 @@ class pipeline(object):
             # To allow for event handling and matplotlib updates
             rend.pause(0.001)
 
-        playback_agent.replay(my_callback, speedup=0.05)
+        playback_agent.replay(my_callback, speedup=1)
 
         renderer.show()
 
