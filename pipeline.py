@@ -14,6 +14,7 @@ from cogmodel import renderer
 from cogmodel import playback
 from cogmodel.Agents.tremaux import tremaux
 from cogmodel.Agents.directedTremaux import directedTremaux
+from cogmodel import log
 
 VIEW_RADIUS = 5
 
@@ -22,13 +23,9 @@ class pipeline(object):
 
     def __init__(self, args):
         self.agent_types = args.agent  # list of names of to be used agents
-        self.agent_type = ""  # current agent_type
         self.playback = args.playback  # file path to .txt file containing playback
-        # file path to .txt file containing log information for which graphs should be generated
-        self.graph = args.graph
         self.labyrinth = args.labyrinth  # file path to .txt file containing labyrinths
-        self.log = args.logging  # bool, toggles logging of results
-        self.show = args.show  # bool, toggles showing of results
+        self.times = max(el for el in [args.times, 1] if el is not None)
         self.envs = []  # list of all grid environments
 
     def run(self):
@@ -37,35 +34,55 @@ class pipeline(object):
         """
 
         if self.agent_types:
-            # TODO add other available agents
-            for agent_type in self.agent_types:
-                self.agent_type = agent_type
-                # constructing grid environment(s)
-                self.envs = []
-                self._construct_envs()
-                match agent_type:
-                    case "wall_follower":
-                        # TODO make agent once available
-                        for env in self.envs:
-                            print("Constructing agent")
-
-                    case "tremaux":
-                        for env in self.envs:
-                            agent = tremaux(env, self.log)
-                            agent.run()
-                            # TODO: add graphs if wanted here
-                    case "directedTremaux":
-                        for env in self.envs:
-                            agent = directedTremaux(env, self.log)
-                            agent.run()
-
+            # setting up logging for "master file"
+            master_path = "data/Agent_data/overall_averages.csv"
+            header_string = "labID,agentID,totalActions,totalActionValue,totalMoves,totalTurns,totalNorth,totalEast,totalSouth," + \
+                            "totalWest,totalLeft,totalRight,totalTime,timePerAction,pathlength,totalVisitedGround,percVisitedGround," + \
+                            "minCogLoad,maxCogLoad,avCogLoad,startCogLoad,endCogLoad"  # ,labTime,labValue"
+            log(master_path, header_string)
+            # constricting environments, can be used for all runs if reset properly
+            self._construct_envs()
+            for env in self.envs:
+                # going over all agents that should be run
+                for agent_type in self.agent_types:
+                    match agent_type:
+                        case "tremaux":
+                            # running agent on env self.times times
+                            for i in range(0, self.times):
+                                # setting log path of env
+                                log_path = "data/Agent_data/" + \
+                                    env.name + "_" + str(agent_type) + \
+                                    "/" + str(i) + "/logging.txt"
+                                env.set_logging(
+                                    path=log_path, agent_type=agent_type)
+                                # constructing agent and running it on env
+                                agent = tremaux(env)
+                                agent.run()
+                                # resetting env
+                                env.reset()
+                            self._save_logging_info(env.name, str(agent_type))
+                        case "directedTremaux":
+                            # running agent on env self.times times
+                            for i in range(0, self.times):
+                                # setting log path of env
+                                log_path = "data/Agent_data/" + \
+                                    env.name + "_" + str(agent_type) + \
+                                    "/" + str(i) + "/logging.txt"
+                                env.set_logging(
+                                    path=log_path, agent_type=agent_type)
+                                # constructing agent and running it on env
+                                agent = directedTremaux(env)
+                                agent.run()
+                                # resetting env
+                                env.reset()
+                            self._save_logging_info(env.name, str(agent_type))
         elif self.playback:
             self._playback()
         elif self.graph:
             self._draw_graphs()
         else:
             print(
-                "You either have to use an agent via '-a', a playback file via '-p' or a log file via '-g'!")
+                "You either have to use an agent via '-a' or a playback file via '-p'!")
             return -1
 
     def _construct_envs(self):
@@ -78,14 +95,7 @@ class pipeline(object):
                 Initializes gridEnvs and adds them to envs list
             """
             env = GridEnvironment(target=goal_position, initial_agent_pos=start_position,
-                                  view_radius=VIEW_RADIUS, env_string=env_string, facing=facing)
-            if self.log:
-                # ATTTENTION: If same logging path is used twice (eg by starting pipeline with same arguments twice) logging file will get corrupted! Always delete or rename folders manually!
-                log_path = "data/Agent_data/" + \
-                    str(name) + "_" + str(self.agent_type) + "/logging_" + \
-                    str(name) + "_" + str(self.agent_type)
-                env.set_logging(path=log_path, env_name=name,
-                                agent_type=self.agent_type)
+                                  view_radius=VIEW_RADIUS, name=name, env_string=env_string, facing=facing)
             self.envs.append(env)
 
         # information used to generate environment
@@ -168,6 +178,359 @@ class pipeline(object):
             name = "Default_Labyrinth"
             _add_env(self)
 
+    def _save_logging_info(self, labID, agentID):
+        """
+            Goes over logging files and add save information as graphs and in .csv file.
+            Also saves average in same .csv file and in "Master" .csv file
+
+            Parameters
+            ----------
+            labID: str
+                The name of the labyrinth for which information will get saved. Need to determine path names.
+            agentID: str
+                The name of the strategy for which information will get saved. Need to determine path names.
+        """
+
+        # save header for .csv file
+        csv_path = "data/Agent_data/" + \
+            labID + "_" + agentID + \
+            "/evaluation.csv"
+        master_path = "data/Agent_data/overall_averages.csv"
+        header_string = "ID,labID,agentID,totalActions,totalActionValue,totalMoves,totalTurns,totalNorth,totalEast,totalSouth," + \
+            "totalWest,totalLeft,totalRight,totalTime,timePerAction,pathlength,totalVisitedGround,percVisitedGround," + \
+            "minCogLoad,maxCogLoad,avCogLoad,startCogLoad,endCogLoad"  # ,labTime,labValue"
+        log(csv_path, msg=header_string)
+
+        # used to save values for all i iterations so averages can be calculated
+        totalActions = []
+        totalActionValue = []
+        totalMoves = []
+        totalTurns = []
+        totalNorth = []
+        totalEast = []
+        totalSouth = []
+        totalWest = []
+        totalLeft = []
+        totalRight = []
+        totalTime = []
+        totalTimePerAction = []
+        pathlength = []
+        totalVisitedGround = []
+        percVisitedGround = []
+        minCogLoad = []
+        maxCogLoad = []
+        avCogLoad = []
+        startCogLoad = []
+        endCogLoad = []
+
+        # going over all log files that belong to labID + agentID combination
+        for number in range(0, self.times):
+            # path where file can be found
+            log_path = "data/Agent_data/" + \
+                labID + "_" + agentID + \
+                "/" + str(number) + "/logging.txt"
+            # path where graphs should be saved
+            save_path = "data/Agent_data/" + \
+                labID + "_" + agentID + \
+                "/" + str(number)
+            # reading log file and saving important metrics
+            action_types = []
+            positions = []
+            time = []
+            load = []
+            length = []
+            action_values = []
+            lab = []
+
+            action_types, positions, time, load, length, action_values, lab = self._read_logging(
+                path=log_path)
+
+            # --- PREPARING DATA FOR PLOTS ---
+            # getting information about action types
+            overall_actions = len(action_types)
+            totalActions.append(overall_actions)
+            unique, counts = np.unique(action_types, return_counts=True)
+            action_dict = dict(zip(unique, counts))
+            move_number = action_dict.get(
+                'NORTH') + action_dict.get('EAST') + action_dict.get('SOUTH') + action_dict.get('WEST')
+            totalMoves.append(move_number)
+            turn_number = action_dict.get(
+                'TURN LEFT') + action_dict.get('TURN RIGHT')
+            totalTurns.append(turn_number)
+            north_number = action_dict.get('NORTH')
+            totalNorth.append(north_number)
+            east_number = action_dict.get('EAST')
+            totalEast.append(east_number)
+            south_number = action_dict.get('SOUTH')
+            totalSouth.append(south_number)
+            west_number = action_dict.get('WEST')
+            totalWest.append(west_number)
+            left_number = action_dict.get('TURN LEFT')
+            totalLeft.append(left_number)
+            right_number = action_dict.get('TURN RIGHT')
+            totalRight.append(right_number)
+
+            # getting time information
+            acc_time = np.cumsum(time)
+            time_total = acc_time[-1]/1000000  # milliseconds
+            totalTime.append(time_total)
+            time_per_action = time_total/overall_actions  # milliseconds
+            totalTimePerAction.append(time_per_action)
+
+            # getting action information
+            unique_data = [list(x) for x in set(tuple(x) for x in positions)]
+            visited_total = len(unique_data)
+            totalVisitedGround.append(visited_total)
+            path_length = length[-1]
+            pathlength.append(path_length)
+
+            # getting total action value
+            total_action_value = np.cumsum(action_values)[-1]
+            totalActionValue.append(total_action_value)
+
+            # getting load information
+            min_load = load.min()
+            minCogLoad.append(min_load)
+            max_load = load.max()
+            maxCogLoad.append(max_load)
+            av_load = np.mean(load)
+            avCogLoad.append(av_load)
+            start_load = load[0]
+            startCogLoad.append(start_load)
+            end_load = load[-1]
+            endCogLoad.append(end_load)
+
+            # preparing labyrinth into dict with time and into dict with visited value
+            lab_time = dict()
+            lab_value = dict()
+            number_walls = 0
+            number_non_walls = 0
+            for i in range(0, len(lab)):
+                for j in range(0, len(lab[i])):
+                    if lab[i][j] == '#':
+                        lab_time[(i, j)] = -1
+                        lab_value[(i, j)] = -1
+                        number_walls += 1
+                    else:
+                        lab_time[(i, j)] = 0
+                        lab_value[(i, j)] = 0
+                        number_non_walls += 1
+            for i in range(0, len(positions)):
+                lab_value[tuple(positions[i])] += 1
+                lab_time[tuple(positions[i])] += time[i] / \
+                    1000000  # milliseconds
+
+            visited_perc = visited_total/number_non_walls
+            percVisitedGround.append(visited_perc)
+
+            # --- PLOTS ---
+            # Heatmap action-amount per ground tile and time per ground tile
+            ser = pd.Series(list(lab_value.values()),
+                            index=pd.MultiIndex.from_tuples(lab_value.keys()))
+            df = ser.unstack().fillna(0)
+            ser = pd.Series(list(lab_time.values()),
+                            index=pd.MultiIndex.from_tuples(lab_time.keys()))
+            df2 = ser.unstack().fillna(0)
+            fig, ax = plt.subplots(1, 2, figsize=(25, 10))
+            plt1 = sns.heatmap(df, vmin=-1, vmax=max(lab_value.values()),
+                               cmap="Blues", ax=ax[0], cbar_kws={'label': 'Number of visits'})
+            plt1.collections[0].colorbar.set_label("Visit amount on tile")
+            plt1.collections[0].colorbar.ax.tick_params(labelsize=15)
+            plt1.figure.axes[-1].yaxis.label.set_size(20)
+            plt1.xaxis.tick_top()
+            plt2 = sns.heatmap(df2, vmin=-1, vmax=max(lab_time.values()),
+                               cmap="Blues", norm=LogNorm(), ax=ax[1])
+            plt2.collections[0].colorbar.set_label("Time on tile in ms")
+            plt2.xaxis.tick_top()
+            plt2.collections[0].colorbar.ax.tick_params(labelsize=15)
+            plt2.figure.axes[-1].yaxis.label.set_size(20)
+            ax[0].set_title('Number of actions on tile',
+                            fontsize=25, fontweight="bold", y=1.08)
+            ax[1].set_title('Time on tile', fontsize=25,
+                            fontweight="bold", y=1.08)
+
+            fig.figure.savefig(save_path + '/heatmaps.png')
+
+            # Action types table
+            df = pd.DataFrame([['TOTAL', overall_actions],
+                               ["Total moves", move_number],
+                               ["Total turns", turn_number],
+                               ['North', north_number],
+                               ['East', east_number],
+                               ['South', south_number],
+                               ['West', west_number],
+                               ["Turn left", left_number],
+                               ["Turn right", right_number]],
+                              columns=['Action type', 'Amount'])
+
+            df = df.style.set_table_styles([
+                {
+                    "selector": "thead",
+                    "props": "background-color:whitesmoke; border-top: 2 px solid black;"
+                },
+                {
+                    "selector": ".row0, .row2, .row6",
+                    "props": "border-bottom: 2px solid black"
+                }
+            ]).background_gradient().hide_index()
+            dfi.export(df, save_path + '/action_types.png')
+
+            # Cognitive load table
+            df = pd.DataFrame.from_dict({'Minimal cognitive load': min_load,
+                                        "Maximal cognitive load": max_load,
+                                         "Average cognitive load": av_load,
+                                         'Cognitive load start': start_load,
+                                         'Cognitive load end': end_load}, orient="index")
+
+            df = df.style.set_table_styles([
+                {
+                    "selector": "thead",
+                    "props": "display:none"
+                },
+                {
+                    "selector": ".row2",
+                    "props": "border-bottom: 2px solid black"
+                },
+                {"selector": "tbody td", "props": "border-left: 1px solid black"},
+            ]).highlight_max(color='#63a2cb')
+            dfi.export(df, save_path + '/cognitive_load.png')
+
+            # General information table
+            df = pd.DataFrame.from_dict({'Time in total': '{:,.5} ms'.format(time_total),
+                                        "Actions in total": overall_actions,
+                                         "Action value in total": total_action_value,
+                                         "Time per action": '{:,.3} ms'.format(time_per_action),
+                                         'Path length': path_length,
+                                         'Visited ground tiles in total': visited_total,
+                                         'Percentage of visited ground tiles': '{:,.2%}'.format(visited_perc)}, orient="index")
+
+            df = df.style.set_table_styles([
+                {
+                    "selector": "thead",
+                    "props": "display:none"
+                },
+                {
+                    "selector": ".row3",
+                    "props": "border-bottom: 2px solid black"
+                },
+                {"selector": "tbody td", "props": "border-left: 1px solid black"},
+            ])
+            dfi.export(df, save_path + '/general_information.png')
+
+            # --- SAVING INFORMATION IN .CSV FILE ---
+            information_string = str(number) + ',' + labID + ',' + agentID + ',' + str(overall_actions) + ',' + str(total_action_value) + ',' + str(move_number) + ',' + str(turn_number) + ',' + str(north_number) + ',' + \
+                str(east_number) + ',' + str(south_number) + ',' + str(west_number) + ',' + str(left_number) + ',' + str(right_number) + ',' + str(time_total) + ',' + \
+                str(time_per_action) + ',' + str(path_length) + ',' + str(visited_total) + ',' + str(visited_perc) + ',' + str(min_load) + ',' + str(max_load) + ',' + \
+                str(av_load) + ',' + str(start_load) + ',' + \
+                str(end_load)  # + ',' + str(lab_time) + ',' + str(lab_value)
+            log(csv_path, msg=information_string)
+
+        # --- CALCULATING AVERAGE AND SAVING IT ---
+        # used to save values for all i iterations so averages can be calculated
+        totalActions = np.mean(totalActions)
+        totalActionValue = np.mean(totalActionValue)
+        totalMoves = np.mean(totalMoves)
+        totalTurns = np.mean(totalTurns)
+        totalNorth = np.mean(totalNorth)
+        totalEast = np.mean(totalEast)
+        totalSouth = np.mean(totalSouth)
+        totalWest = np.mean(totalWest)
+        totalLeft = np.mean(totalLeft)
+        totalRight = np.mean(totalRight)
+        totalTime = np.mean(totalTime)
+        totalTimePerAction = np.mean(totalTimePerAction)
+        pathlength = np.mean(pathlength)
+        totalVisitedGround = np.mean(totalVisitedGround)
+        percVisitedGround = np.mean(percVisitedGround)
+        minCogLoad = np.mean(minCogLoad)
+        maxCogLoad = np.mean(maxCogLoad)
+        avCogLoad = np.mean(avCogLoad)
+        startCogLoad = np.mean(startCogLoad)
+        endCogLoad = np.mean(endCogLoad)
+
+        information_string = str(self.times) + ',' + labID + ',' + 'AVERAGE' + ',' + str(totalActions) + ',' + str(totalActionValue) + ',' + str(totalMoves) + ',' + str(totalTurns) + ',' + str(totalNorth) + ',' + str(totalEast) + ',' + str(totalSouth) + ',' + str(totalWest) + ',' + str(totalLeft) + ',' + str(
+            totalRight) + ',' + str(totalTime) + ',' + str(totalTimePerAction) + ',' + str(pathlength) + ',' + str(totalVisitedGround) + ',' + str(percVisitedGround) + ',' + str(minCogLoad) + ',' + str(maxCogLoad) + ',' + str(avCogLoad) + ',' + str(startCogLoad) + ',' + str(endCogLoad)  # + ',' + str(lab_time) + ',' + str(lab_value)
+        log(csv_path, msg=information_string)
+
+        information_string = labID + ',' + agentID + ',' + str(totalActions) + ',' + str(totalActionValue) + ',' + str(totalMoves) + ',' + str(totalTurns) + ',' + str(totalNorth) + ',' + str(totalEast) + ',' + str(totalSouth) + ',' + str(totalWest) + ',' + str(totalLeft) + ',' + str(
+            totalRight) + ',' + str(totalTime) + ',' + str(totalTimePerAction) + ',' + str(pathlength) + ',' + str(totalVisitedGround) + ',' + str(percVisitedGround) + ',' + str(minCogLoad) + ',' + str(maxCogLoad) + ',' + str(avCogLoad) + ',' + str(startCogLoad) + ',' + str(endCogLoad)  # + ',' + str(lab_time) + ',' + str(lab_value)
+        log(master_path, msg=information_string)
+
+    def _read_logging(self, path):
+        """
+            Reads logging information from logfile given by path.
+
+        Parameters
+        ---------------------------------------------------------------------------------
+        path: str
+           Place where log file is saved.
+
+        Returns
+        ---------------------------------------------------------------------------------
+        action_types: list(String)
+            List containing all actions taken after each other. Eg ['NORTH', 'EAST']
+        positions: list((int,int))
+            List of positions agent visited after each other
+        time: list(int)
+            List of times agent took in step i. (in nano seconds)
+        load: list(int)
+            List of cognitive loads agent had at step i.
+        length: list(int)
+            List of pathlengths at time i.            
+        action_values: list(float)
+            List of action values at step i.
+        lab: list(String)
+            List containing strings of labyrinth rows. String at i is labyrinth row i.s    
+        """
+        action_types = []
+        positions = []
+        time = []
+        load = []
+        length = []
+        action_values = []
+        lab = []
+        # opening and reading file
+        with open(path) as file:
+            read_point = 0
+            while(line := file.readline()):
+                if line in ["EnvString:\n", "Goal:\n", "Position:\n", "Time:\n", "Load:\n", "Length:\n", "Action:\n"]:
+                    read_point += 1
+                elif "Condition starting" in line:
+                    read_point += 1
+                elif "Condition finished" in line:
+                    file.readline()
+                else:
+                    match read_point:
+                        case 0:
+                            continue
+                        case 1:
+                            lab.append(line.strip())
+                        case 2:
+                            continue
+                        case 3:
+                            date_split = line.find(": ")+2
+                            action_types.append(line[date_split:].strip())
+                        case 4:
+                            positions = np.array(literal_eval(line.strip()))
+                        case 5:
+                            time = np.array(literal_eval(line.strip()))
+                        case 6:
+                            load = np.array(literal_eval(line.strip()))
+                        case 7:
+                            length = np.array(literal_eval(line.strip()))
+                        case 8:
+                            action_values = np.array(
+                                literal_eval(line.strip()))
+                        case _:
+                            print(
+                                "Something went wrong while trying to read the log file.")
+                            return -1
+
+        # closing file
+        file.close()
+        # returning info
+        return action_types, positions, time, load, length, action_values, lab
+
     def _playback(self):
         """
             Play backs logging file given by user.
@@ -214,7 +577,7 @@ class pipeline(object):
                                 "Something went wrong while trying to read the labyrinth file.")
                             return -1
 
-         # closing file
+        # closing file
         file.close()
 
         # --- PLAYBACK ---
@@ -242,288 +605,6 @@ class pipeline(object):
 
         renderer.show()
 
-    def _draw_graphs(self):
-        """
-            Reads log file and creates corresponding graphs.
-            Saves graphs if '-log' is active. Shows graphs if '-s' is active.
-        """
-        # TODO: Implement graph function for non log file graphs by using metrics saved in env/agent
-
-        def _create_figure_fill(self, x, y, title, x_axis, y_axis):
-            """
-                Creates figure using fill_between
-                --------------------------------------------
-                Args:
-                    x (np.array): x data
-                    y (np.array): y data
-                    title (String): window title, title of graph
-                    x_axis(String): title of x axis
-                    y_axis (String): title of y axis
-                --------------------------------------------
-                Returns:
-                    fig, ax: figure and axis
-            """
-            fig = plt.figure(figsize=[7, 5], num=title)
-            ax = plt.subplot(111)
-            l = ax.fill_between(x, y)
-            # axis
-            ax.set_xlabel(x_axis)
-            ax.set_ylabel(y_axis)
-            xlab = ax.xaxis.get_label()
-            ylab = ax.yaxis.get_label()
-            xlab.set_style('italic')
-            xlab.set_size(10)
-            ylab.set_style('italic')
-            ylab.set_size(10)
-            ax.set_xlim(min(x), max(x))
-            ax.set_ylim(min(y), max(y))
-            ax.xaxis.set_tick_params(size=0)
-            ax.yaxis.set_tick_params(size=0)
-            ax.grid('on')
-            # title
-            ax.set_title(title)
-            ax.title.set_weight('bold')
-            # style
-            l.set_facecolors([[.0, .0, .8, .3]])
-            l.set_edgecolors([[.0, .0, .8, .8]])
-            l.set_linewidths([2])
-            ax.spines['right'].set_color((.8, .8, .8))
-            ax.spines['top'].set_color((.8, .8, .8))
-
-            return fig, ax
-
-        def _create_figure(self, x, y, title, x_axis, y_axis):
-            """
-                Creates figure with simple line as graph
-                --------------------------------------------
-                Args:
-                    x (np.array): x data
-                    y (np.array): y data
-                    title (String): window title, title of graph
-                    x_axis(String): title of x axis
-                    y_axis (String): title of y axis
-                --------------------------------------------
-                Returns:
-                    fig, ax: figure and axis
-            """
-            fig = plt.figure(figsize=[7, 5], num=title)
-            ax = plt.subplot(111)
-            l = ax.plot(x, y, color=[.0, .0, .8, .8])
-            # axis
-            ax.set_xlabel(x_axis)
-            ax.set_ylabel(y_axis)
-            xlab = ax.xaxis.get_label()
-            ylab = ax.yaxis.get_label()
-            xlab.set_style('italic')
-            xlab.set_size(10)
-            ylab.set_style('italic')
-            ylab.set_size(10)
-            ax.set_xlim(min(x), max(x))
-            ax.set_ylim(min(y), max(y))
-            ax.xaxis.set_tick_params(size=0)
-            ax.yaxis.set_tick_params(size=0)
-            ax.grid('on')
-            # title
-            ax.set_title(title)
-            ax.title.set_weight('bold')
-            # style
-            ax.spines['right'].set_color((.8, .8, .8))
-            ax.spines['top'].set_color((.8, .8, .8))
-
-            return fig, ax
-
-        action_types = []
-        position = []
-        time = []
-        load = []
-        length = []
-        action_values = []
-        lab = []
-
-        # --- READING DATA ---
-        if self.graph:
-            # opening and reading file
-            with open(args.graph) as file:
-                read_point = 0
-                while(line := file.readline()):
-                    if line in ["EnvString:\n", "Goal:\n", "Position:\n", "Time:\n", "Load:\n", "Length:\n", "Action:\n"]:
-                        read_point += 1
-                    elif "Condition starting" in line:
-                        read_point += 1
-                    elif "Condition finished" in line:
-                        file.readline()
-                    else:
-                        match read_point:
-                            case 0:
-                                continue
-                            case 1:
-                                lab.append(line.strip())
-                            case 2:
-                                continue
-                            case 3:
-                                date_split = line.find(": ")+2
-                                action_types.append(line[date_split:].strip())
-                            case 4:
-                                position = np.array(literal_eval(line.strip()))
-                            case 5:
-                                time = np.array(literal_eval(line.strip()))
-                            case 6:
-                                load = np.array(literal_eval(line.strip()))
-                            case 7:
-                                length = np.array(literal_eval(line.strip()))
-                            case 8:
-                                action_values = np.array(
-                                    literal_eval(line.strip()))
-                            case _:
-                                print(
-                                    "Something went wrong while trying to read the log file.")
-                                return -1
-             # path where graphs will be saved
-            save_path = self.graph.strip().rsplit('/', 1)[0]
-
-        # --- PREPARING DATA FOR PLOTS ---
-        # getting information about action types
-        overall_actions = len(action_types)
-        unique, counts = np.unique(action_types, return_counts=True)
-        action_dict = dict(zip(unique, counts))
-        move_number = action_dict.get(
-            'NORTH') + action_dict.get('EAST') + action_dict.get('SOUTH') + action_dict.get('WEST')
-        turn_number = action_dict.get(
-            'TURN LEFT') + action_dict.get('TURN RIGHT')
-
-        # getting time information
-        acc_time = np.cumsum(time)
-        time_total = acc_time[-1]/1000000  # milliseconds
-        action_total = len(action_values)
-        time_per_action = time_total/action_total  # milliseconds
-
-        # getting action information
-        unique_data = [list(x) for x in set(tuple(x) for x in position)]
-        visited_total = len(unique_data)
-        path_length = length[-1]
-
-        # preparing labyrinth into dict with time and into dict with visited value
-        lab_time = dict()
-        lab_value = dict()
-        number_walls = 0
-        number_non_walls = 0
-        for i in range(0, len(lab)):
-            for j in range(0, len(lab[i])):
-                if lab[i][j] == '#':
-                    lab_time[(i, j)] = -1
-                    lab_value[(i, j)] = -1
-                    number_walls += 1
-                else:
-                    lab_time[(i, j)] = 0
-                    lab_value[(i, j)] = 0
-                    number_non_walls += 1
-        for i in range(0, len(position)):
-            lab_value[tuple(position[i])] += 1
-            lab_time[tuple(position[i])] += time[i]/1000000  # milliseconds
-
-        # --- PLOTS ---
-        # Heatmap action-amount per ground tile and time per ground tile
-        ser = pd.Series(list(lab_value.values()),
-                        index=pd.MultiIndex.from_tuples(lab_value.keys()))
-        df = ser.unstack().fillna(0)
-        ser = pd.Series(list(lab_time.values()),
-                        index=pd.MultiIndex.from_tuples(lab_time.keys()))
-        df2 = ser.unstack().fillna(0)
-        fig, ax = plt.subplots(1, 2, figsize=(25, 10))
-        plt1 = sns.heatmap(df, vmin=-1, vmax=max(lab_value.values()),
-                           cmap="Blues", ax=ax[0], cbar_kws={'label': 'Number of visits'})
-        plt1.collections[0].colorbar.set_label("Visit amount on tile")
-        plt1.collections[0].colorbar.ax.tick_params(labelsize=15)
-        plt1.figure.axes[-1].yaxis.label.set_size(20)
-        plt1.xaxis.tick_top()
-        plt2 = sns.heatmap(df2, vmin=-1, vmax=max(lab_time.values()),
-                           cmap="Blues", norm=LogNorm(), ax=ax[1])
-        plt2.collections[0].colorbar.set_label("Time on tile in ms")
-        plt2.xaxis.tick_top()
-        plt2.collections[0].colorbar.ax.tick_params(labelsize=15)
-        plt2.figure.axes[-1].yaxis.label.set_size(20)
-        ax[0].set_title('Number of actions on tile',
-                        fontsize=25, fontweight="bold", y=1.08)
-        ax[1].set_title('Time on tile', fontsize=25, fontweight="bold", y=1.08)
-
-        if self.log:
-            fig.figure.savefig(save_path + '/heatmaps.png')
-
-        # Action types table
-        df = pd.DataFrame([['TOTAL', overall_actions],
-                           ["Total moves", move_number],
-                           ["Total turns", turn_number],
-                           ['North', action_dict.get('NORTH')],
-                           ['East', action_dict.get('EAST')],
-                           ['South', action_dict.get('SOUTH')],
-                           ['West', action_dict.get('WEST')],
-                           ["Turn left", action_dict.get('TURN LEFT')],
-                           ["Turn right", action_dict.get('TURN RIGHT')]],
-                          columns=['Action type', 'Amount'])
-        if self.show:
-            print(df)
-        if self.log:
-            df = df.style.set_table_styles([
-                {
-                    "selector": "thead",
-                    "props": "background-color:whitesmoke; border-top: 2 px solid black;"
-                },
-                {
-                    "selector": ".row0, .row2, .row6",
-                    "props": "border-bottom: 2px solid black"
-                }
-            ]).background_gradient().hide_index()
-            dfi.export(df, save_path + '/action_types.png')
-
-        # Cognitive load table
-        df = pd.DataFrame.from_dict({'Minimal cognitive load': load.min(),
-                                     "Maximal cognitive load": load.max(),
-                                    "Average cognitive load": np.mean(load),
-                                     'Cognitive load start': load[0],
-                                     'Cognitive load end': load[-1]}, orient="index")
-        if self.show:
-            print(df)
-        if self.log:
-            df = df.style.set_table_styles([
-                {
-                    "selector": "thead",
-                    "props": "display:none"
-                },
-                {
-                    "selector": ".row2",
-                    "props": "border-bottom: 2px solid black"
-                },
-                {"selector": "tbody td", "props": "border-left: 1px solid black"},
-            ]).highlight_max(color='#63a2cb')
-            dfi.export(df, save_path + '/cognitive_load.png')
-
-        # General information table
-        df = pd.DataFrame.from_dict({'Time in total': '{:,.5} ms'.format(time_total),
-                                     "Actions in total": action_total,
-                                    "Time per action": '{:,.3} ms'.format(time_per_action),
-                                     'Path length': path_length,
-                                     'Visited ground tiles in total': visited_total,
-                                     'Percentage of visited ground tiles': '{:,.2%}'.format(visited_total/number_non_walls)}, orient="index")
-        if self.show:
-            print(df)
-        if self.log:
-            df = df.style.set_table_styles([
-                {
-                    "selector": "thead",
-                    "props": "display:none"
-                },
-                {
-                    "selector": ".row2",
-                    "props": "border-bottom: 2px solid black"
-                },
-                {"selector": "tbody td", "props": "border-left: 1px solid black"},
-            ])
-            dfi.export(df, save_path + '/general_information.png')
-
-        # show plots
-        if self.show:
-            plt.show()
-
 
 if __name__ == "__main__":
     """
@@ -542,15 +623,11 @@ if __name__ == "__main__":
         "-a", "--agent", help="name of the agent that should be used", choices=['wall_follower', 'tremaux', 'directedTremaux'], nargs="+")
     group.add_argument(
         "-p", "--playback", help="file path to .txt file containing log-file that should be replayed")
-    group.add_argument(
-        "-g", "--graph", help="file path to .txt file containing log-file for which graphs should be generated (no replay)")
+    parser.add_argument(
+        "-t", "--times", help="determines how often agent shall run on labyrinth. Graph data will be generated over average values.", type=int)
     # if -l is used for playback or graph generation only graphs are saved!
     parser.add_argument(
         "-l", "--labyrinth", help=" file path to .txt file containing to be used labyrinth(s)")
-    parser.add_argument(
-        "-log", "--logging", help="if active pipeline saves experiment in log-file", action="store_true")
-    parser.add_argument(
-        "-s", "--show", help="if active pipeline shows results after running the experiment", action="store_true")
     # parsing arguments
     args = parser.parse_args()
 
