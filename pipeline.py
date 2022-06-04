@@ -393,7 +393,7 @@ class pipeline(object):
 
         # getting time information
         acc_time = np.cumsum(time)
-        time_total = acc_time[-1]*1000  # milliseconds
+        time_total = acc_time[-1]/1000000  # milliseconds
         action_total = len(action_values)
         time_per_action = time_total/action_total  # milliseconds
 
@@ -419,7 +419,7 @@ class pipeline(object):
                     number_non_walls += 1
         for i in range(0, len(position)):
             lab_value[tuple(position[i])] += 1
-            lab_time[tuple(position[i])] += time[i]*1000  # milliseconds
+            lab_time[tuple(position[i])] += time[i]/1000000  # milliseconds
 
         # --- PLOTS ---
         # Heatmap action-amount per ground tile and time per ground tile

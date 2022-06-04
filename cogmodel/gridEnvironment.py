@@ -1,5 +1,4 @@
-# import numpy as np
-
+import numpy as np
 from operator import attrgetter
 import datetime
 from heapq import heappush, heappop
@@ -413,7 +412,7 @@ class GridEnvironment(object):
                 The new state of the agent after performing the action.
         """
 
-        time_start = datetime.datetime.utcnow()
+        time_start = time.time_ns()
         self.memoryUsage.append(asizeof.asizeof(agent) - asizeof.asizeof(self))
 
         pathlen = self.path_length[-1]
@@ -455,10 +454,10 @@ class GridEnvironment(object):
         # add time and position information to metrics
         self.positions.append(self.agent_pos)
         if self.last_time_stamp:
-            tmp_time = datetime.datetime.utcnow()
-            self.env_time += (tmp_time - time_start).total_seconds()
+            tmp_time = time.time_ns()
+            self.env_time += (tmp_time - time_start)
             self.timestamps.append(
-                (tmp_time - self.last_time_stamp).total_seconds() - self.env_time)
+                (tmp_time - self.last_time_stamp) - self.env_time)
             self.last_time_stamp = tmp_time
             self.env_time = 0
 
@@ -468,7 +467,7 @@ class GridEnvironment(object):
         log(self.log_path)
         log(self.log_path, datetime.datetime.utcnow(), "Condition starting")
         # set first log time
-        self.last_time_stamp = datetime.datetime.utcnow()
+        self.last_time_stamp = time.time_ns()
 
     def finish_experiment(self):
         log(self.log_path, datetime.datetime.utcnow(), "Condition finished")
@@ -513,7 +512,7 @@ class GridEnvironment(object):
 
     def get_view_cone(self, playback=False):
 
-        time_start = datetime.datetime.utcnow()
+        time_start = time.time_ns()
 
         if self.facing_direction == NORTH:
             viewcone = self._handle_octant(self.agent_pos, 5, self.view_radius, True) + self._handle_octant(self.agent_pos, 6,
@@ -548,8 +547,8 @@ class GridEnvironment(object):
                     tmp.append(self.tiles[(i, j)])
             res.append(tmp)
 
-        self.env_time += (datetime.datetime.utcnow() -
-                          time_start).total_seconds()
+        self.env_time += (time.time_ns() -
+                          time_start)
 
         if not playback:
             return {tile: self.tiles[tile] for tile in viewcone}
