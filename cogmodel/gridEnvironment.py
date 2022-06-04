@@ -1,5 +1,4 @@
-# import numpy as np
-
+import numpy as np
 from operator import attrgetter
 import datetime
 from heapq import heappush, heappop
@@ -279,19 +278,19 @@ class GridEnvironment(object):
             environment should not do logging.
     """
 
-    def __init__(self, target, initial_agent_pos, view_radius, env_string=None, facing=None):
+    def __init__(self, target, initial_agent_pos, view_radius, name, env_string=None, facing=None):
         self.tiles = {}
         self.size = (None, None)
         self.agent_pos = initial_agent_pos
-        # self.agent = None
         self.initial_agent_pos = initial_agent_pos
         self.view_radius = view_radius
         self.target = target
+        self.name = name
+        self.initial_facing = facing
         if facing is not None and isinstance(facing, tuple) and len(facing) == 2:
             self.facing_direction = facing
         else:
             self.facing_direction = NORTH  # agent always starts facing north by default
-        self.agent = None
         if env_string is not None:
             self.parse_world_string(env_string)
         self.action_space = (NORTH, SOUTH, WEST, EAST, TURN_LEFT, TURN_RIGHT)
@@ -354,7 +353,7 @@ class GridEnvironment(object):
         if get_passable_states:
             return states
 
-    def set_logging(self, path, env_name, agent_type):
+    def set_logging(self, path, agent_type):
         """
             Defines that this environment should log all performed actions
             and other information, that might be required to replay actions.
@@ -367,9 +366,6 @@ class GridEnvironment(object):
             path: str
                 The path of the log-file. Can be absolute or relative to the
                 current working directory.
-            envName: str
-                The name of the environment that is currently used, given
-                for logging purposes.
             agentType: str
                 The name of the strategy of the agent that is currently used, given
                 for logging purposes.
@@ -384,7 +380,7 @@ class GridEnvironment(object):
                                               "AgentType:\n{}".format(self.env_string,
                                                                       self.target, self.initial_agent_pos,
                                                                       self.facing_direction,
-                                                                      env_name, agent_type))
+                                                                      self.name, agent_type))
 
     def get_action_space(self):
         """
@@ -413,7 +409,7 @@ class GridEnvironment(object):
                 The new state of the agent after performing the action.
         """
 
-        time_start = datetime.datetime.utcnow()
+        time_start = time.time_ns()
         self.memoryUsage.append(asizeof.asizeof(agent) - asizeof.asizeof(self))
 
         pathlen = self.path_length[-1]
@@ -455,10 +451,10 @@ class GridEnvironment(object):
         # add time and position information to metrics
         self.positions.append(self.agent_pos)
         if self.last_time_stamp:
-            tmp_time = datetime.datetime.utcnow()
-            self.env_time += (tmp_time - time_start).total_seconds()
+            tmp_time = time.time_ns()
+            self.env_time += (tmp_time - time_start)
             self.timestamps.append(
-                (tmp_time - self.last_time_stamp).total_seconds() - self.env_time)
+                (tmp_time - self.last_time_stamp) - self.env_time)
             self.last_time_stamp = tmp_time
             self.env_time = 0
 
@@ -468,7 +464,7 @@ class GridEnvironment(object):
         log(self.log_path)
         log(self.log_path, datetime.datetime.utcnow(), "Condition starting")
         # set first log time
-        self.last_time_stamp = datetime.datetime.utcnow()
+        self.last_time_stamp = time.time_ns()
 
     def finish_experiment(self):
         log(self.log_path, datetime.datetime.utcnow(), "Condition finished")
@@ -513,7 +509,7 @@ class GridEnvironment(object):
 
     def get_view_cone(self, playback=False):
 
-        time_start = datetime.datetime.utcnow()
+        time_start = time.time_ns()
 
         if self.facing_direction == NORTH:
             viewcone = self._handle_octant(self.agent_pos, 5, self.view_radius, True) + self._handle_octant(self.agent_pos, 6,
@@ -548,8 +544,8 @@ class GridEnvironment(object):
                     tmp.append(self.tiles[(i, j)])
             res.append(tmp)
 
-        self.env_time += (datetime.datetime.utcnow() -
-                          time_start).total_seconds()
+        self.env_time += (time.time_ns() -
+                          time_start)
 
         if not playback:
             return {tile: self.tiles[tile] for tile in viewcone}
@@ -876,6 +872,26 @@ class GridEnvironment(object):
         (x1, y1) = a
         (x2, y2) = b
         return abs(x1 - x2) + abs(y1 - y2)
+
+    def reset(self):
+        """
+            Resets all metrics, log_path and initial stuff so env can be used again.
+        """
+
+        self.agent_pos = self.initial_agent_pos
+        if self.initial_facing is not None and isinstance(self.initial_facing, tuple) and len(self.initial_facing) == 2:
+            self.facing_direction = self.initial_facing
+        else:
+            self.facing_direction = NORTH
+        self._path = {}
+        self.log_path = None
+        self.path_length = [0]
+        self.step_score = [0.0]
+        self.timestamps = [0]
+        self.memoryUsage = []
+        self.positions = [self.initial_agent_pos]
+        self.last_time_stamp = None
+        self.env_time = 0
 
 
 if __name__ == "__main__":

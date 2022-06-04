@@ -12,9 +12,8 @@ class tremaux(object):
         Uses the trémaux method to solve labyrinths.
     """
 
-    def __init__(self, gridEnvironment, logging):
+    def __init__(self, gridEnvironment):
         self.env = gridEnvironment  # env on which agent runs
-        self.log = logging  # sets if logging is active
         self._action_queue = []  # enqueues/dequeues action to be performed by agent
         # neighbor-coordinates on left/front/right and bool if wall as tuple
         self._neighbors = [(), (), ()]
@@ -26,8 +25,7 @@ class tremaux(object):
         """
 
         # log header of logging file
-        if self.log:
-            self.env.start_experiment()
+        self.env.start_experiment()
 
         # set up action queue with first step; assumption: face in direction we can walk in
         self._first_action()
@@ -63,7 +61,8 @@ class tremaux(object):
                 tiles = np.array(self._neighbors, dtype=object)[:, 0]
                 if not left and not front and not right:
                     # self._handle_intersection_one()
-                    self._handle_intersection(tiles, [self._go_left, self._go_front, self._go_right])
+                    self._handle_intersection(
+                        tiles, [self._go_left, self._go_front, self._go_right])
                 elif not left and not front:
                     # self._handle_intersection_two()
                     self._handle_intersection(
@@ -81,8 +80,7 @@ class tremaux(object):
             self._do_action()
 
         # log footer of logging file
-        if self.log:
-            self.env.finish_experiment()
+        self.env.finish_experiment()
 
     def _check_neighbors(self):
         """

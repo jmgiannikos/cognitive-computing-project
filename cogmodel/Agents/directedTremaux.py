@@ -12,9 +12,8 @@ class directedTremaux(object):
         Uses the trémaux method to solve labyrinths.
     """
 
-    def __init__(self, gridEnvironment, logging):
+    def __init__(self, gridEnvironment):
         self.env = gridEnvironment  # env on which agent runs
-        self.log = logging  # sets if logging is active
         self._action_queue = []  # enqueues/dequeues action to be performed by agent
         # neighbor-coordinates on left/front/right and bool if wall as tuple
         self._neighbors = [(), (), ()]
@@ -27,8 +26,7 @@ class directedTremaux(object):
         """
 
         # log header of logging file
-        if self.log:
-            self.env.start_experiment()
+        self.env.start_experiment()
 
         # set up action queue with first step; assumption: face in direction we can walk in
         self._first_action()
@@ -64,7 +62,8 @@ class directedTremaux(object):
                 tiles = np.array(self._neighbors, dtype=object)[:, 0]
                 if not left and not front and not right:
                     # self._handle_intersection_one()
-                    self._handle_intersection(tiles, [self._go_left, self._go_front, self._go_right])
+                    self._handle_intersection(
+                        tiles, [self._go_left, self._go_front, self._go_right])
                 elif not left and not front:
                     # self._handle_intersection_two()
                     self._handle_intersection(
@@ -82,8 +81,7 @@ class directedTremaux(object):
             self._do_action()
 
         # log footer of logging file
-        if self.log:
-            self.env.finish_experiment()
+        self.env.finish_experiment()
 
     def _check_neighbors(self):
         """
@@ -238,8 +236,6 @@ class directedTremaux(object):
             return safe_actions
         return action_functions
 
-
-
     def _handle_intersection(self, free_neighbors, action_functions):
         """
         Handles intersections via tremaux algorithm rules.
@@ -281,7 +277,8 @@ class directedTremaux(object):
                     [self._marked.count(x) for x in free_neighbors])
                 minimal_neighbors = [
                     x for x in free_neighbors if self._marked.count(x) == minimum_mark_value]
-                minimal_actions = [x for x in action_functions if free_neighbors[action_functions.index(x)] in minimal_neighbors]
+                minimal_actions = [x for x in action_functions if free_neighbors[action_functions.index(
+                    x)] in minimal_neighbors]
                 action_functions = self._get_targetdir(minimal_actions)
                 action_functions[np.random.randint(
                     0, high=len(action_functions))]()
@@ -358,4 +355,3 @@ class directedTremaux(object):
                         if(own_i - target_i > 0):
                             return False
         return True
-
