@@ -14,6 +14,7 @@ from cogmodel import renderer
 from cogmodel import playback
 from cogmodel.Agents.tremaux import tremaux
 from cogmodel.Agents.directedTremaux import directedTremaux
+from cogmodel.Agents.simple import simple
 from cogmodel import log
 
 VIEW_RADIUS = 5
@@ -76,6 +77,22 @@ class pipeline(object):
                                 # resetting env
                                 env.reset()
                             self._save_logging_info(env.name, str(agent_type))
+                        case "simple":
+                            print("Ahh")
+                            # running agent on env self.times times
+                            for i in range(0, self.times):
+                                # setting log path of env
+                                log_path = "data/Agent_data/" + \
+                                    env.name + "_" + str(agent_type) + \
+                                    "/" + str(i) + "/logging.txt"
+                                env.set_logging(
+                                    path=log_path, agent_type=agent_type)
+                                # constructing agent and running it on env
+                                agent = simple(env)
+                                agent.run()
+                                # resetting env
+                                env.reset()
+                            self._save_logging_info(env.name, str(agent_type))
         elif self.playback:
             self._playback()
         elif self.graph:
@@ -119,9 +136,9 @@ class pipeline(object):
                             case 1:
                                 env_string += line
                             case 2:
-                                start_position = literal_eval(line.strip())
-                            case 3:
                                 goal_position = literal_eval(line.strip())
+                            case 3:
+                                start_position = literal_eval(line.strip())
                             case 4:
                                 facing = literal_eval(line.strip())
                             case 5:
@@ -620,7 +637,7 @@ if __name__ == "__main__":
     # pipeline either creates new agents or does playback, not both at once
     # TODO: add agents names once available
     group.add_argument(
-        "-a", "--agent", help="name of the agent that should be used", choices=['wall_follower', 'tremaux', 'directedTremaux'], nargs="+")
+        "-a", "--agent", help="name of the agent that should be used", choices=['wall_follower', 'tremaux', 'directedTremaux','simple'], nargs="+")
     group.add_argument(
         "-p", "--playback", help="file path to .txt file containing log-file that should be replayed")
     parser.add_argument(

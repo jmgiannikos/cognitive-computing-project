@@ -7,6 +7,7 @@ from collections import deque
 from . import log
 from pympler import asizeof
 import time
+import numpy as np
 
 PASSABLES = {"a": True, "g": True, "#": False, "t": True}
 
@@ -507,9 +508,13 @@ class GridEnvironment(object):
 
         self.facing_direction = self._rotate_vector_right((x1, y1))
 
-    def get_view_cone(self, playback=False):
+    def get_view_cone(self, playback=False,relative=False):
 
         time_start = time.time_ns()
+
+        #TODO Delete this:
+        self.view_radius = 2
+        #-----------------
 
         if self.facing_direction == NORTH:
             viewcone = self._handle_octant(self.agent_pos, 5, self.view_radius, True) + self._handle_octant(self.agent_pos, 6,
@@ -546,6 +551,31 @@ class GridEnvironment(object):
 
         self.env_time += (time.time_ns() -
                           time_start)
+
+        if relative:
+
+            agent_position = np.array(self.agent_pos)
+            ## Setup Matrix to rotate given tiles depending on facing
+            rot_mat = np.array([[1,0],[0,1]])
+
+            if self.facing_direction == EAST:
+                #If facing east, we need to rotate the vectors by 90 degrees counterclockwise to make the tiles face "North" in the projection
+                rot_mat = np.array([[0,-1],[1,0]])
+            
+            if self.facing_direction == SOUTH:
+                #If facing east, we need to rotate the vectors by 180 degrees counterclockwise to make the tiles face "North" in the projection (or 
+                # mirror the vector)
+                rot_mat = np.array([[-1,0],[0,-1]])
+            
+            if self.facing_direction == WEST:
+                #If facing West, we need to rotate the vectors by 270 degrees counterclockwise to make the tiles face "North" in the projection
+                rot_mat = np.array([[0,1],[-1,0]])
+            
+            #function to rotate the vector correctly
+            align_vector = lambda v: tuple(np.matmul(rot_mat,(np.array(v)-agent_position)))
+            return {align_vector(tile): self.tiles[tile] for tile in viewcone}
+
+            
 
         if not playback:
             return {tile: self.tiles[tile] for tile in viewcone}
