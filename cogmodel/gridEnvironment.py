@@ -452,11 +452,9 @@ class GridEnvironment(object):
         # add time and position information to metrics
         self.positions.append(self.agent_pos)
         if self.last_time_stamp:
-            tmp_time = time.time_ns()
-            self.env_time += (tmp_time - time_start)
             self.timestamps.append(
-                (tmp_time - self.last_time_stamp) - self.env_time)
-            self.last_time_stamp = tmp_time
+                (time_start - self.last_time_stamp) - self.env_time)
+            self.last_time_stamp = time.time_ns()
             self.env_time = 0
 
         return self.agent_pos
@@ -512,9 +510,6 @@ class GridEnvironment(object):
 
         time_start = time.time_ns()
 
-        #TODO Delete this:
-        self.view_radius = 2
-        #-----------------
 
         if self.facing_direction == NORTH:
             viewcone = self._handle_octant(self.agent_pos, 5, self.view_radius, True) + self._handle_octant(self.agent_pos, 6,
@@ -549,8 +544,8 @@ class GridEnvironment(object):
                     tmp.append(self.tiles[(i, j)])
             res.append(tmp)
 
-        self.env_time += (time.time_ns() -
-                          time_start)
+
+
 
         if relative:
 
@@ -573,12 +568,25 @@ class GridEnvironment(object):
             
             #function to rotate the vector correctly
             align_vector = lambda v: tuple(np.matmul(rot_mat,(np.array(v)-agent_position)))
-            return {align_vector(tile): self.tiles[tile] for tile in viewcone}
+            
+            ret_dict= {align_vector(tile): self.tiles[tile] for tile in viewcone}
+
+
 
             
+            self.env_time += (time.time_ns() -
+                          time_start)
 
+            return ret_dict
+
+        
         if not playback:
-            return {tile: self.tiles[tile] for tile in viewcone}
+            ret_dict={tile: self.tiles[tile] for tile in viewcone}
+
+            self.env_time += (time.time_ns() -
+                          time_start) 
+
+            return ret_dict
         else:
             return res
 

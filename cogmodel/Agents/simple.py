@@ -45,8 +45,8 @@ class simple(object):
         #print("Facing After 1st")
         #print(self.env.facing_direction)
         while(self.env.agent_pos != self.env.target):
-            dist = sqrt((self.env.agent_pos[0]-self.env.target[0])**2+(self.env.agent_pos[1]-self.env.target[1])**2)
-            print(dist)
+            #dist = sqrt((self.env.agent_pos[0]-self.env.target[0])**2+(self.env.agent_pos[1]-self.env.target[1])**2)
+            #print(dist)
             self.perform_action()
         
         # self.predict_next_actions()
