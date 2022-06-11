@@ -12,7 +12,7 @@ class crawler(object):
 
     """
     
-    def __init__(self,environment,position=None,life=1, population_chance=(0.5,0.8)):
+    def __init__(self,environment,position=None,life=1, population_chance=(0.5,0.8),uniform=True):
         self.environment = environment
         if(position is None):
             self.position= tuple((round(environment.dimension[0]/2),round(environment.dimension[1]/2)))
@@ -28,6 +28,7 @@ class crawler(object):
         self.environment.set_maze_tile(self.position,0)
         self.environment.set_movement_cost(self.position,1)
         self.refractory=2
+        self.uniform = uniform
 
         
     
@@ -42,8 +43,23 @@ class crawler(object):
             else:
                 self.direction_probabilities[i] = 2
 
+
+    def update_possible_directions_uniform(self):
+        neighbors = 4-self.get_neighboring_paths()
+        j = 0
+
+        for i in range(4):
+            if ((self.environment.get_movement_cost((self.position+self.all_directions[i])))<self.life):
+                self.direction_probabilities[i] = (1/neighbors)*j+0.125
+            else:
+                self.direction_probabilities[i] = 2
+
+
     def choose_direction(self):
-        self.update_possible_directions()
+        if (self.uniform):
+            self.update_possible_directions_uniform()
+        else:
+            self.update_possible_directions()
         direction_sample = self.environment.get_direction_sample(self.position)
 
         choosing_direction = [abs(dir_prob-direction_sample) for dir_prob in self.direction_probabilities]
