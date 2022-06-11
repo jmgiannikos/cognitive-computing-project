@@ -45,12 +45,13 @@ class crawler(object):
 
 
     def update_possible_directions_uniform(self):
-        neighbors = 4-self.get_neighboring_paths()
+        neighbors = 4.0-self.get_neighboring_paths()
         j = 0
 
         for i in range(4):
             if ((self.environment.get_movement_cost((self.position+self.all_directions[i])))<self.life):
-                self.direction_probabilities[i] = (1/neighbors)*j+0.125
+                self.direction_probabilities[i] = (1.0/neighbors)*j+(0.5/neighbors)
+                j+=1
             else:
                 self.direction_probabilities[i] = 2
 
