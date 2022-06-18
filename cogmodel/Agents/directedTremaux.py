@@ -7,7 +7,7 @@ FACING = (2, 2)
 CHECK_FUTURE = (3, 3)
 
 
-class tremaux(object):
+class directedTremaux(object):
     """
         Uses the trémaux method to solve labyrinths.
     """
@@ -18,6 +18,7 @@ class tremaux(object):
         # neighbor-coordinates on left/front/right and bool if wall as tuple
         self._neighbors = [(), (), ()]
         self._marked = []  # marked tiles saved as triples
+        self.target_i, self.target_j = self.env.target
 
     def run(self):
         """
@@ -219,6 +220,22 @@ class tremaux(object):
         if mark:
             self._action_queue.append(MARK)
 
+    def _get_targetdir(self, action_functions):
+        own_i, own_j = self.env.agent_pos
+        safe_actions = action_functions.copy()
+        if self._go_left in action_functions:
+            if self._unnecessary_explore(self._go_left, own_j, self.target_j, own_i, self.target_i):
+                action_functions.remove(self._go_left)
+        if self._go_front in action_functions:
+            if self._unnecessary_explore(self._go_front, own_j, self.target_j, own_i, self.target_i):
+                action_functions.remove(self._go_front)
+        if self._go_right in action_functions:
+            if self._unnecessary_explore(self._go_right, own_j, self.target_j, own_i, self.target_i):
+                action_functions.remove(self._go_right)
+        if not action_functions:
+            return safe_actions
+        return action_functions
+
     def _handle_intersection(self, free_neighbors, action_functions):
         """
         Handles intersections via tremaux algorithm rules.
@@ -234,8 +251,8 @@ class tremaux(object):
         # Intersection is unknown
         if sum(tile in self._marked for tile in free_neighbors) == 0:
             # selecting random direction
-
-            dir = np.random.randint(0, len(free_neighbors))
+            action_functions = self._get_targetdir(action_functions)
+            dir = np.random.randint(0, high=len(action_functions))
             action_functions[dir]()
 
         # intersection is known
@@ -260,10 +277,11 @@ class tremaux(object):
                     [self._marked.count(x) for x in free_neighbors])
                 minimal_neighbors = [
                     x for x in free_neighbors if self._marked.count(x) == minimum_mark_value]
-                chosen_one = minimal_neighbors[np.random.randint(
-                    0, len(minimal_neighbors))]
-                dir = list(free_neighbors).index(chosen_one)
-                action_functions[dir]()
+                minimal_actions = [x for x in action_functions if free_neighbors[action_functions.index(
+                    x)] in minimal_neighbors]
+                action_functions = self._get_targetdir(minimal_actions)
+                action_functions[np.random.randint(
+                    0, high=len(action_functions))]()
 
     def mark_tile(self, goin_in=False):
         x, y = self.env.agent_pos
@@ -289,3 +307,51 @@ class tremaux(object):
                 else:
                     tmp = (x, y, 1)
         self._marked.append(tmp)
+
+    def _unnecessary_explore(self, action, own_j, target_j, own_i, target_i):
+        match self.env.facing_direction:
+            case (-1, 0):
+                match action:
+                    case self._go_left:
+                        if (own_j - target_j > 0):
+                            return False
+                    case self._go_front:
+                        if(own_i - target_i > 0):
+                            return False
+                    case self._go_right:
+                        if(own_j - target_j < 0):
+                            return False
+            case (0, 1):
+                match action:
+                    case self._go_left:
+                        if(own_i - target_i > 0):
+                            return False
+                    case self._go_front:
+                        if(own_j - target_j < 0):
+                            return False
+                    case self._go_right:
+                        if(own_i - target_i < 0):
+                            return False
+            case (1, 0):
+                match action:
+                    case self._go_left:
+                        if (own_j - target_j < 0):
+                            return False
+                    case self._go_front:
+                        if(own_i - target_i < 0):
+                            return False
+                    case self._go_right:
+                        if(own_j - target_j > 0):
+                            return False
+            case (0, -1):
+                match action:
+                    case self._go_left:
+                        if(own_i - target_i < 0):
+                            return False
+                    case self._go_front:
+                        if(own_j - target_j > 0):
+                            return False
+                    case self._go_right:
+                        if(own_i - target_i > 0):
+                            return False
+        return True

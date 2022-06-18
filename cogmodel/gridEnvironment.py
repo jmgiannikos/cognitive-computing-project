@@ -1,5 +1,4 @@
-# import numpy as np
-
+import numpy as np
 from operator import attrgetter
 import datetime
 from heapq import heappush, heappop
@@ -8,6 +7,7 @@ from collections import deque
 from . import log
 from pympler import asizeof
 import time
+import numpy as np
 
 PASSABLES = {"a": True, "g": True, "#": False, "t": True}
 
@@ -279,19 +279,19 @@ class GridEnvironment(object):
             environment should not do logging.
     """
 
-    def __init__(self, target, initial_agent_pos, view_radius, env_string=None, facing=None):
+    def __init__(self, target, initial_agent_pos, view_radius, name, env_string=None, facing=None):
         self.tiles = {}
         self.size = (None, None)
         self.agent_pos = initial_agent_pos
-        # self.agent = None
         self.initial_agent_pos = initial_agent_pos
         self.view_radius = view_radius
         self.target = target
+        self.name = name
+        self.initial_facing = facing
         if facing is not None and isinstance(facing, tuple) and len(facing) == 2:
             self.facing_direction = facing
         else:
             self.facing_direction = NORTH  # agent always starts facing north by default
-        self.agent = None
         if env_string is not None:
             self.parse_world_string(env_string)
         self.action_space = (NORTH, SOUTH, WEST, EAST, TURN_LEFT, TURN_RIGHT)
@@ -301,9 +301,11 @@ class GridEnvironment(object):
 
         self.path_length = [0]
         self.step_score = [0.0]
-        # tuples of timestamps and the name of the event that triggered taking the timestamp. Time given as seconds since the last epoch (float)
-        self.timestamps = []
+        self.timestamps = [0]   # time relative to beginning after action i
         self.memoryUsage = []  # used memory after perform_action was called the i-th time
+        self.positions = [initial_agent_pos]  # position after action i
+        self.last_time_stamp = None  # last time stamp before calling action method
+        self.env_time = 0  # time environment took to process for action and viewcone methods
 
     def parse_world_string(self, env_string, get_passable_states=False):
         r"""
@@ -352,7 +354,7 @@ class GridEnvironment(object):
         if get_passable_states:
             return states
 
-    def set_logging(self, path, env_name, agent_type):
+    def set_logging(self, path, agent_type):
         """
             Defines that this environment should log all performed actions
             and other information, that might be required to replay actions.
@@ -365,9 +367,6 @@ class GridEnvironment(object):
             path: str
                 The path of the log-file. Can be absolute or relative to the
                 current working directory.
-            envName: str
-                The name of the environment that is currently used, given
-                for logging purposes.
             agentType: str
                 The name of the strategy of the agent that is currently used, given
                 for logging purposes.
@@ -382,7 +381,7 @@ class GridEnvironment(object):
                                               "AgentType:\n{}".format(self.env_string,
                                                                       self.target, self.initial_agent_pos,
                                                                       self.facing_direction,
-                                                                      env_name, agent_type))
+                                                                      self.name, agent_type))
 
     def get_action_space(self):
         """
@@ -410,9 +409,8 @@ class GridEnvironment(object):
                 tuple
                 The new state of the agent after performing the action.
         """
-        self.timestamps.append(
-            ("perform_action start", time.time()))  # take timestamp on beginning of request processing
 
+        time_start = time.time_ns()
         self.memoryUsage.append(asizeof.asizeof(agent) - asizeof.asizeof(self))
 
         pathlen = self.path_length[-1]
@@ -451,23 +449,30 @@ class GridEnvironment(object):
         self.path_length.append(pathlen)
         self.step_score.append(stepscore)
 
-        # take timestamp on end of request processing
-        self.timestamps.append(("perform_action end", time.time()))
+        # add time and position information to metrics
+        self.positions.append(self.agent_pos)
+        if self.last_time_stamp:
+            self.timestamps.append(
+                (time_start - self.last_time_stamp) - self.env_time)
+            self.last_time_stamp = time.time_ns()
+            self.env_time = 0
 
         return self.agent_pos
 
     def start_experiment(self):
         log(self.log_path)
         log(self.log_path, datetime.datetime.utcnow(), "Condition starting")
+        # set first log time
+        self.last_time_stamp = time.time_ns()
 
     def finish_experiment(self):
         log(self.log_path, datetime.datetime.utcnow(), "Condition finished")
         log(self.log_path)
         log(self.log_path,                                         # TODO: Add positions array
-            msg="Position:\n{}\nTime:\n{}\nLoad:\n{}\nLength:\n{}\nAction:\n{}".format([], self.timestamps,
-                                                                                                self.memoryUsage,
-                                                                                                self.path_length,
-                                                                                                self.step_score))
+            msg="Position:\n{}\nTime:\n{}\nLoad:\n{}\nLength:\n{}\nAction:\n{}".format(self.positions, self.timestamps,
+                                                                                       self.memoryUsage,
+                                                                                       self.path_length,
+                                                                                       self.step_score))
 
     def _rotate_vector_right(self, vec):
         x1 = vec[0]
@@ -501,8 +506,11 @@ class GridEnvironment(object):
 
         self.facing_direction = self._rotate_vector_right((x1, y1))
 
-    def get_view_cone(self, playback=False):
-        # self.timestamps.append(("get_view_cone start", time.time()))
+    def get_view_cone(self, playback=False,relative=False):
+
+        time_start = time.time_ns()
+
+
         if self.facing_direction == NORTH:
             viewcone = self._handle_octant(self.agent_pos, 5, self.view_radius, True) + self._handle_octant(self.agent_pos, 6,
                                                                                                             self.view_radius, True)
@@ -529,15 +537,56 @@ class GridEnvironment(object):
                     self.tiles[(i, j)].target_visible = True
                     tmp.append(self.tiles[(i, j)])
                 else:
-                    # see what agent sees 
+                    # see what agent sees
                     # tmp.append(Tile.invisible())
                     # see everything
                     self.tiles[(i, j)].target_visible = False
                     tmp.append(self.tiles[(i, j)])
             res.append(tmp)
-        # self.timestamps.append(("get_view_cone end", time.time()))
+
+
+
+
+        if relative:
+
+            agent_position = np.array(self.agent_pos)
+            ## Setup Matrix to rotate given tiles depending on facing
+            rot_mat = np.array([[1,0],[0,1]])
+
+            if self.facing_direction == EAST:
+                #If facing east, we need to rotate the vectors by 90 degrees counterclockwise to make the tiles face "North" in the projection
+                rot_mat = np.array([[0,-1],[1,0]])
+            
+            if self.facing_direction == SOUTH:
+                #If facing east, we need to rotate the vectors by 180 degrees counterclockwise to make the tiles face "North" in the projection (or 
+                # mirror the vector)
+                rot_mat = np.array([[-1,0],[0,-1]])
+            
+            if self.facing_direction == WEST:
+                #If facing West, we need to rotate the vectors by 270 degrees counterclockwise to make the tiles face "North" in the projection
+                rot_mat = np.array([[0,1],[-1,0]])
+            
+            #function to rotate the vector correctly
+            align_vector = lambda v: tuple(np.matmul(rot_mat,(np.array(v)-agent_position)))
+            
+            ret_dict= {align_vector(tile): self.tiles[tile] for tile in viewcone}
+
+
+
+            
+            self.env_time += (time.time_ns() -
+                          time_start)
+
+            return ret_dict
+
+        
         if not playback:
-            return {tile: self.tiles[tile] for tile in viewcone}
+            ret_dict={tile: self.tiles[tile] for tile in viewcone}
+
+            self.env_time += (time.time_ns() -
+                          time_start) 
+
+            return ret_dict
         else:
             return res
 
@@ -861,6 +910,26 @@ class GridEnvironment(object):
         (x1, y1) = a
         (x2, y2) = b
         return abs(x1 - x2) + abs(y1 - y2)
+
+    def reset(self):
+        """
+            Resets all metrics, log_path and initial stuff so env can be used again.
+        """
+
+        self.agent_pos = self.initial_agent_pos
+        if self.initial_facing is not None and isinstance(self.initial_facing, tuple) and len(self.initial_facing) == 2:
+            self.facing_direction = self.initial_facing
+        else:
+            self.facing_direction = NORTH
+        self._path = {}
+        self.log_path = None
+        self.path_length = [0]
+        self.step_score = [0.0]
+        self.timestamps = [0]
+        self.memoryUsage = []
+        self.positions = [self.initial_agent_pos]
+        self.last_time_stamp = None
+        self.env_time = 0
 
 
 if __name__ == "__main__":
