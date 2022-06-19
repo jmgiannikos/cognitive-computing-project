@@ -63,7 +63,7 @@ class pipeline(object):
                                 # resetting env
                                 env.reset()
                             self._save_logging_info(env.name, str(agent_type))
-                        case "greedy:
+                        case "greedy":
                             for i in range(0, self.times):
                                 # setting log path of env
                                 log_path = "data/Agent_data/" + \
@@ -298,23 +298,24 @@ class pipeline(object):
             totalActions.append(overall_actions)
             unique, counts = np.unique(action_types, return_counts=True)
             action_dict = dict(zip(unique, counts))
-            move_number = action_dict.get(
-                'NORTH') + action_dict.get('EAST') + action_dict.get('SOUTH') + action_dict.get('WEST')
+            move_number = int(action_dict.get(
+                'NORTH') or 0) + int(action_dict.get('EAST') or 0) + int(action_dict.get('SOUTH') or 0) + int(action_dict.get('WEST') or 0)
             totalMoves.append(move_number)
-            turn_number = action_dict.get(
-                'TURN LEFT') + action_dict.get('TURN RIGHT')
+            turn_number = int(action_dict.get(
+                'TURN LEFT') or 0) + int(action_dict.get('TURN RIGHT') or 0)
             totalTurns.append(turn_number)
-            north_number = action_dict.get('NORTH')
+            north_number = int(action_dict.get(
+                'NORTH') or 0)
             totalNorth.append(north_number)
-            east_number = action_dict.get('EAST')
+            east_number = int(action_dict.get('EAST') or 0)
             totalEast.append(east_number)
-            south_number = action_dict.get('SOUTH')
+            south_number = int(action_dict.get('SOUTH') or 0)
             totalSouth.append(south_number)
-            west_number = action_dict.get('WEST')
+            west_number = int(action_dict.get('WEST') or 0)
             totalWest.append(west_number)
-            left_number = action_dict.get('TURN LEFT')
+            left_number = int(action_dict.get('TURN LEFT') or 0)
             totalLeft.append(left_number)
-            right_number = action_dict.get('TURN RIGHT')
+            right_number = int(action_dict.get('TURN RIGHT') or 0)
             totalRight.append(right_number)
 
             # getting time information
@@ -635,7 +636,7 @@ class pipeline(object):
 
         # TODO check if envString still works with real log files
         env = GridEnvironment(target=goal_position, initial_agent_pos=start_position,
-                              view_radius=VIEW_RADIUS, env_string=env_string[:-1], facing=facing)
+                              view_radius=VIEW_RADIUS, name="playback_lab", env_string=env_string[:-1], facing=facing)
         playback_agent = playback.PlaybackAgent(
             agent_id=agent_type, action_rows=action_rows, start_pos=start_position, environment=env)
 
@@ -667,7 +668,7 @@ if __name__ == "__main__":
     # pipeline either creates new agents or does playback, not both at once
     # TODO: add agents names once available
     group.add_argument(
-        "-a", "--agent", help="name of the agent that should be used", choices=['wall_follower', 'tremaux', 'directedTremaux','simple', 'greedy'], nargs="+")
+        "-a", "--agent", help="name of the agent that should be used", choices=['wall_follower', 'tremaux', 'directedTremaux', 'simple', 'greedy'], nargs="+")
     group.add_argument(
         "-p", "--playback", help="file path to .txt file containing log-file that should be replayed")
     parser.add_argument(

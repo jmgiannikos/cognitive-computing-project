@@ -4,14 +4,14 @@ import numpy as np
 
 MAX_STEPS = 1000
 
+
 class wallFollower(object):
     """
         Uses the left hand rule method to solve labyrinths.
     """
 
-    def __init__(self, gridEnvironment, logging):
+    def __init__(self, gridEnvironment):
         self.env = gridEnvironment  # env on which agent runs
-        self.log = logging  # sets if logging is active
 
     def run(self):
         """
@@ -19,11 +19,10 @@ class wallFollower(object):
         """
 
         # log header of logging file
-        if self.log:
-            self.env.start_experiment()
+        self.env.start_experiment()
 
         i = 0
-        while(self.env.agent_pos != self.env.target and i<MAX_STEPS):
+        while(self.env.agent_pos != self.env.target and i < MAX_STEPS):
             self._choose_action()
             i += 1
 
@@ -32,8 +31,7 @@ class wallFollower(object):
         else:
             print("goal found")
         # log footer of logging file
-        if self.log:
-            self.env.finish_experiment()
+        self.env.finish_experiment()
 
     def _choose_action(self):
         acted = False
@@ -48,5 +46,3 @@ class wallFollower(object):
             if not acted:
                 self.env.perform_action(TURN_RIGHT, self)
                 i += 1
-
-
