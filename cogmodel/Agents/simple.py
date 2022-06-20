@@ -94,30 +94,31 @@ class simple(object):
                     print("Impossible Action: " + action)
         #print("Position after:")
         #print(self.env.agent_pos)
-        if(self.env.agent_pos == position_before_action):
-            print("Not Moved")
+        # if(self.env.agent_pos == position_before_action):
+        #     print("Not Moved")
 
 
     #Get passable tiles from the current tile by turning arround and looking at the tile in front.
     def get_surroundings(self):
+        #Since I want the movement to be relative to the facing direction
+        # I need to save use the Rotation matrix weirdly 
+        save_rot = self.rotation_matrix.copy()
+        self.rotation_matrix = np.array([[1,0],[0,1]])
         for i in range(4):
             cone = self.env.get_view_cone(relative=True)
             #print(cone.keys())
 
-            #Since I want the movement to be relative to the facing direction
-            # I need to save use the Rotation matrix weirdly 
-            save_rot = self.rotation_matrix
-            self.rotation_matrix = np.array([[1,0],[0,1]])
+
             if(cone[(-1,0)].passable):
                 self._possible_actions.append(tuple(np.matmul(self.rotation_matrix,NORTH)))
             self.turn_right()
                         
 
-            self.rotation_matrix =save_rot
-            save_rot = None
-            #print("Directions:")
-            #print(np.matmul(self.rotation_matrix,[-1,0]))
-            #print(self.env.facing_direction)
+        self.rotation_matrix =save_rot.copy()
+        save_rot = None
+        #print("Directions:")
+        #print(np.matmul(self.rotation_matrix,[-1,0]))
+        #print(self.env.facing_direction)
             
 
     #Gets the actions that are possible from the Tile right in front of the one of the agent 

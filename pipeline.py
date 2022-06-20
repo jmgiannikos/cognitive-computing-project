@@ -108,7 +108,6 @@ class pipeline(object):
                                 env.reset()
                             self._save_logging_info(env.name, str(agent_type))
                         case "simple":
-                            print("Ahh")
                             # running agent on env self.times times
                             for i in range(0, self.times):
                                 # setting log path of env
