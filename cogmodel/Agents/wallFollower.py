@@ -26,10 +26,6 @@ class wallFollower(object):
             self._choose_action()
             i += 1
 
-        if i == MAX_STEPS:
-            print("agent death termination")
-        else:
-            print("goal found")
         # log footer of logging file
         self.env.finish_experiment()
 
