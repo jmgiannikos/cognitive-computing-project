@@ -166,9 +166,9 @@ As you can see there will be one folder per agent and labyrinth combination. Thi
 ### Example usage
 The following command produced the outcome in the ```data/Experiment_Data``` folder:
 ```
-python pipeline -a wall_follower tremaux directedTremaux simple greedy -l cogmodel/Labyrinths/testLabs -t 10
+python pipeline.py -a wall_follower tremaux directedTremaux simple greedy -l cogmodel/Labyrinths/testLabs -t 10
 ```
 The following command shows the playback of the third run of the tremaux agent on labyrinth testlab2:
 ```
-python pipeline -p data/Experiment_data/testlab2_tremaux/2/logging.txt
+python pipeline.py -p data/Experiment_data/testlab2_tremaux/2/logging.txt
 ```
