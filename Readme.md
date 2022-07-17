@@ -83,7 +83,7 @@ You have to use at least python v3.10!
   python pipeline.py -p path/to/logFile
   ```
   ```
-  python pipeline.py -playback path/to/logFile
+  python pipeline.py --playback path/to/logFile
   ```
   * Shows how the agent used to produce the given log-file solves the maze. 
   * **WARNING**: ```pygame``` *has to* be used!
